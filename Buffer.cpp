@@ -23,7 +23,12 @@ Buffer::Buffer(vk::Device device, VmaAllocator allocator, VkDeviceSize size, Buf
 
 	VmaAllocationCreateInfo allocInfo;
 
-	allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT;
+	allocInfo.flags = 0;//VMA_ALLOCATION_CREATE_MAPPED_BIT;
+	allocInfo.preferredFlags = 0;
+	allocInfo.requiredFlags = 0;
+	allocInfo.memoryTypeBits = UINT32_MAX;
+	allocInfo.pool = nullptr;
+	allocInfo.pUserData = nullptr;
 	allocInfo.usage = VmaMemoryUsage(options.storage);
 
 
