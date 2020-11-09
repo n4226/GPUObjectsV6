@@ -13,6 +13,16 @@ Renderer::~Renderer()
 
 void Renderer::createRenderResources()
 {
+	// allocator
+
+	VmaAllocatorCreateInfo allocatorInfo = {};
+	allocatorInfo.vulkanApiVersion = VK_API_VERSION_1_2;
+	allocatorInfo.physicalDevice = physicalDevice;
+	allocatorInfo.device = device;
+	allocatorInfo.instance = window.instance;
+
+	vmaCreateAllocator(&allocatorInfo, &allocator);
+
 	// command pool
 
 	vk::CommandPoolCreateInfo poolInfo{};
@@ -48,9 +58,30 @@ void Renderer::createRenderResources()
 
 void Renderer::createStaticRenderCommands()
 {
-	for (size_t i = 0; i < commandBuffers.size(); i++) {
 
-		auto commandBuffer = commandBuffers[i];
+	const std::vector<TriangleVert> vertices = {
+		{{0.0f, -0.5f, 0.f}, {1.0f, 0.0f, 0.0f}},
+		{{0.5f, 0.5f, 0.f}, {0.0f, 1.0f, 0.0f}},
+		{{-0.5f, 0.5f, 0.f}, {0.0f, 0.0f, 1.0f}}
+	};
+	VkDeviceSize size = sizeof(TriangleVert) * vertices.size();
+
+	BufferCreationOptions options = { BufferCreationOptions::cpuToGpu,{vk::BufferUsageFlagBits::eVertexBuffer}, vk::SharingMode::eExclusive };
+
+	Buffer stageVertBuffer = 
+		Buffer(device,allocator, size, options);
+
+	stageVertBuffer.mapMemory();
+
+	memcpy(stageVertBuffer.mappedData, vertices.data(),(size_t)stageVertBuffer.size);
+
+	// not necicary on windows with big 3 drivers see vma docs on cash flushing for info
+	//vmaFlushAllocation(allocator,stageVertBuffer.allocation,);
+
+	stageVertBuffer.unmapMemory();
+
+
+	for (size_t i = 0; i < commandBuffers.size(); i++) {
 
 		VkCommandBufferBeginInfo beginInfo{};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -79,11 +110,13 @@ void Renderer::createStaticRenderCommands()
 
 		// encode commands 
 
-		commandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, window.pipelineCreator->graphicsPipeline);
+		commandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, window.pipelineCreator->trianglePipeline);
 
 		//vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, window.pipelineCreator->graphicsPipeline);
 
-		commandBuffers[i].draw(3, 1, 0, 0);
+		commandBuffers[i].bindVertexBuffers(0, { stageVertBuffer.vkItem }, { 0 });
+
+		commandBuffers[i].draw(vertices.size(), 1, 0, 0);
 
 		commandBuffers[i].endRenderPass();
 

@@ -9,12 +9,19 @@ PipelineCreator::PipelineCreator(vk::Device device, vk::Extent2D swapChainExtent
 PipelineCreator::~PipelineCreator()
 {
     device.destroyPipelineLayout(pipelineLayout);
-    device.destroyPipeline(graphicsPipeline);
+    device.destroyPipeline(trianglePipeline);
 }
 
 void PipelineCreator::createGraphicsPipelines()
 {
 
+    createTrianglePipeline();
+
+
+}
+
+void PipelineCreator::createTrianglePipeline()
+{
     // programmable stages 
 
     auto vertShaderCode = readFile("shaders/triangle.vert.spv");
@@ -26,15 +33,19 @@ void PipelineCreator::createGraphicsPipelines()
         PipelineCreator::createShaderStageInfo(device,fragShaderCode,vk::ShaderStageFlagBits::eFragment),
     };
 
+    // vertex input 
 
-    // fixed function stages 
+    VkVertexInputBindingDescription bindingDescription[] = { TriangleVert::getBindingDescription() };
+    auto attributeDescriptions = TriangleVert::getAttributeDescriptions();
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount = 0;
-    vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
-    vertexInputInfo.vertexAttributeDescriptionCount = 0;
-    vertexInputInfo.pVertexAttributeDescriptions = nullptr; // Optional
+    vertexInputInfo.vertexBindingDescriptionCount = 1;
+    vertexInputInfo.pVertexBindingDescriptions = bindingDescription; // Optional
+    vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+    vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data(); // Optional
+
+    // fixed function stages 
 
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
@@ -64,6 +75,7 @@ void PipelineCreator::createGraphicsPipelines()
 
     VkPipelineRasterizationStateCreateInfo rasterizer{};
     rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    // suful for shadow maps look at tutorial
     rasterizer.depthClampEnable = VK_FALSE;
 
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
@@ -99,7 +111,7 @@ void PipelineCreator::createGraphicsPipelines()
     colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
     colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
     colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD; // Optional
-    // below is for alpha blending
+    // below is for alpha blending above is no blending
     /*colorBlendAttachment.blendEnable = VK_TRUE;
     colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
     colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
@@ -163,9 +175,9 @@ void PipelineCreator::createGraphicsPipelines()
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
     pipelineInfo.basePipelineIndex = -1; // Optional
 
-    auto result = device.createGraphicsPipeline(vk::PipelineCache(nullptr),pipelineInfo,nullptr);
+    auto result = device.createGraphicsPipeline(vk::PipelineCache(nullptr), pipelineInfo, nullptr);
 
-    graphicsPipeline = result.value;
+    trianglePipeline = result.value;
 
     assert(result.result == vk::Result::eSuccess);
 
@@ -175,7 +187,6 @@ void PipelineCreator::createGraphicsPipelines()
     {
         device.destroyShaderModule(shaderStages[i].module);
     }
-
 
 }
 

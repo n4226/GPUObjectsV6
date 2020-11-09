@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 #include <optional>
 #include <fstream>
+#include "Mesh.h"
 
 class PipelineCreator
 {
@@ -17,6 +18,8 @@ public:
 
 	void createGraphicsPipelines();
 
+	void createTrianglePipeline();
+
 	static vk::PipelineShaderStageCreateInfo createShaderStageInfo(vk::Device device, const std::vector<char>& code,vk::ShaderStageFlagBits stage);
 
 	static vk::ShaderModule createShaderModule(vk::Device device, const std::vector<char>& code);
@@ -26,7 +29,9 @@ public:
 
 	VkPipelineLayout pipelineLayout;
 
-	vk::Pipeline graphicsPipeline;
+	vk::Pipeline trianglePipeline;
+	vk::Pipeline pbrPipeline;
+	vk::Pipeline terrianPipeline;
 
 	RenderPassManager& renderPassManager;
 
@@ -37,4 +42,3 @@ private:
 	vk::Extent2D swapChainExtent;
 
 };
-

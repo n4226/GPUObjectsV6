@@ -3,6 +3,9 @@
 #include <vulkan/vulkan.hpp>
 #include "GPUSelector.h"
 #include "ApplicationWindow.h"
+#include "Buffer.h"
+#include "Mesh.h"
+//#include "vk_mem_alloc.h"
 
 class Renderer
 {
@@ -28,5 +31,6 @@ private:
 	VkCommandPool commandPool;
 	std::vector<vk::CommandBuffer> commandBuffers;
 
+	VmaAllocator allocator;
 };
 

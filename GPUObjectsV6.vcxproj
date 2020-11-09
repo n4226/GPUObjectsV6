@@ -164,20 +164,29 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ApplicationWindow.cpp" />
+    <ClCompile Include="AttributeHelpers.cpp" />
+    <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="GPUSelector.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PipelineCreator.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RenderPassManager.cpp" />
+    <ClCompile Include="ResourceHeap.cpp" />
+    <ClCompile Include="vmaSettings.cpp" />
     <ClCompile Include="WorldScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApplicationWindow.h" />
+    <ClInclude Include="AttributeHelpers.h" />
+    <ClInclude Include="Buffer.h" />
     <ClInclude Include="GPUSelector.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="PipelineCreator.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RenderPassManager.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ResourceHeap.h" />
+    <ClInclude Include="vk_mem_alloc.h" />
     <ClInclude Include="WorldScene.h" />
   </ItemGroup>
   <ItemGroup>

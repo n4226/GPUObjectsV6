@@ -26,6 +26,8 @@ WindowManager::WindowManager()
     createFramebuffers();
 
     createSemaphores();
+
+    //TODO: Add swap chain recreation for window resizing suport
 }
 
 void WindowManager::createDevice()

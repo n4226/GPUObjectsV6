@@ -25,6 +25,12 @@
     <Filter Include="Source Files\shaders">
       <UniqueIdentifier>{da84b4da-eb96-447b-ab39-9f859b54cf24}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\helping objects">
+      <UniqueIdentifier>{f6fb40e4-b085-418b-bd61-2c015c52a81d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\helping objects\high level">
+      <UniqueIdentifier>{d3b00c57-d931-4c9b-8d9e-3326b95aabf6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -48,6 +54,18 @@
     <ClCompile Include="WorldScene.cpp">
       <Filter>Source Files\application</Filter>
     </ClCompile>
+    <ClCompile Include="Buffer.cpp">
+      <Filter>Source Files\helping objects</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceHeap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AttributeHelpers.cpp">
+      <Filter>Source Files\helping objects</Filter>
+    </ClCompile>
+    <ClCompile Include="vmaSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApplicationWindow.h">
@@ -69,6 +87,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceHeap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vk_mem_alloc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Source Files\helping objects\high level</Filter>
+    </ClInclude>
+    <ClInclude Include="AttributeHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
