@@ -68,27 +68,22 @@ void Renderer::createStaticRenderCommands()
 		{{-0.5f, 0.5f, 0.f}, {1.0f, 1.0f, 1.0f}}
 	};
 
-	const std::vector<uint16_t> indices = {
+	const std::vector<uint32_t> indices = {
 		0, 1, 2, 2, 3, 0
 	};
 
-	VkDeviceSize size = sizeof(TriangleVert) * vertices.size();
+	VkDeviceSize vertBuffSize = sizeof(TriangleVert) * vertices.size();
+	VkDeviceSize indiciesBuffSize = sizeof(uint32_t) * indices.size();
 
-	BufferCreationOptions options = { BufferCreationOptions::cpu,{vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferSrc}, vk::SharingMode::eExclusive };
-
-	//Buffer stageVertBuffer =
-		//Buffer(device, allocator, size, options);
-
-	//stageVertBuffer.tempMapAndWrite(vertices.data());
-
-	options.storage = BufferCreationOptions::gpu;
-	options.usage = vk::BufferUsageFlags(vk::BufferUsageFlagBits::eVertexBuffer);// | vk::BufferUsageFlagBits::eTransferDst );
+	BufferCreationOptions options = { BufferCreationOptions::cpu,{vk::BufferUsageFlagBits::eVertexBuffer}, vk::SharingMode::eExclusive };
 
 	vertBuffer =
-		Buffer::StageAndCreatePrivate(device,window.deviceQueues.graphics, commandPool, allocator, size, vertices.data(), options);
-		//new Buffer(device, allocator, size, options);
+		Buffer::StageAndCreatePrivate(device,window.deviceQueues.graphics, commandPool, allocator, vertBuffSize, vertices.data(), options);
 
-	//stageVertBuffer.gpuCopyToOther(*vertBuffer,window.deviceQueues.graphics,commandPool);
+	options.usage = { vk::BufferUsageFlagBits::eIndexBuffer };
+	
+	indexBuffer =
+		Buffer::StageAndCreatePrivate(device, window.deviceQueues.graphics, commandPool, allocator, indiciesBuffSize, indices.data(), options);
 
 
 	for (size_t i = 0; i < commandBuffers.size(); i++) {
@@ -125,8 +120,10 @@ void Renderer::createStaticRenderCommands()
 		//vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, window.pipelineCreator->graphicsPipeline);
 
 		commandBuffers[i].bindVertexBuffers(0, { vertBuffer->vkItem }, { 0 });
+		commandBuffers[i].bindIndexBuffer({ indexBuffer->vkItem }, 0, vk::IndexType::eUint32);
 
-		commandBuffers[i].draw(vertices.size(), 1, 0, 0);
+		//commandBuffers[i].draw(vertices.size(), 1, 0, 0);
+		commandBuffers[i].drawIndexed(static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
 		commandBuffers[i].endRenderPass();
 
