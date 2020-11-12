@@ -38,9 +38,11 @@ void Renderer::createRenderResources()
 
 	vk::CommandBufferAllocateInfo allocInfo{};
 	allocInfo.commandPool = commandPool;
+	// MARK: becuase of the constant errors i'm adding this
+	
+
 	allocInfo.level = vk::CommandBufferLevel::ePrimary;
 	allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
-	
 	
 	commandBuffers = device.allocateCommandBuffers(allocInfo);
 	/*VkCommandBufferAllocateInfo newAllocInfo = allocInfo;
@@ -60,32 +62,40 @@ void Renderer::createStaticRenderCommands()
 {
 
 	const std::vector<TriangleVert> vertices = {
-		{{0.0f, -0.5f, 0.f}, {1.0f, 0.0f, 0.0f}},
-		{{0.5f, 0.5f, 0.f}, {0.0f, 1.0f, 0.0f}},
-		{{-0.5f, 0.5f, 0.f}, {0.0f, 0.0f, 1.0f}}
+		{{-0.5f, -0.5f, 0.f}, {1.0f, 0.0f, 0.0f}},
+		{{0.5f, -0.5f, 0.f}, {0.0f, 1.0f, 0.0f}},
+		{{0.5f, 0.5f, 0.f}, {0.0f, 0.0f, 1.0f}},
+		{{-0.5f, 0.5f, 0.f}, {1.0f, 1.0f, 1.0f}}
 	};
+
+	const std::vector<uint16_t> indices = {
+		0, 1, 2, 2, 3, 0
+	};
+
 	VkDeviceSize size = sizeof(TriangleVert) * vertices.size();
 
-	BufferCreationOptions options = { BufferCreationOptions::cpuToGpu,{vk::BufferUsageFlagBits::eVertexBuffer}, vk::SharingMode::eExclusive };
+	BufferCreationOptions options = { BufferCreationOptions::cpu,{vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferSrc}, vk::SharingMode::eExclusive };
 
-	Buffer stageVertBuffer = 
-		Buffer(device,allocator, size, options);
+	//Buffer stageVertBuffer =
+		//Buffer(device, allocator, size, options);
 
-	stageVertBuffer.mapMemory();
+	//stageVertBuffer.tempMapAndWrite(vertices.data());
 
-	memcpy(stageVertBuffer.mappedData, vertices.data(),(size_t)stageVertBuffer.size);
+	options.storage = BufferCreationOptions::gpu;
+	options.usage = vk::BufferUsageFlags(vk::BufferUsageFlagBits::eVertexBuffer);// | vk::BufferUsageFlagBits::eTransferDst );
 
-	// not necicary on windows with big 3 drivers see vma docs on cash flushing for info
-	//vmaFlushAllocation(allocator,stageVertBuffer.allocation,);
+	vertBuffer =
+		Buffer::StageAndCreatePrivate(device,window.deviceQueues.graphics, commandPool, allocator, size, vertices.data(), options);
+		//new Buffer(device, allocator, size, options);
 
-	stageVertBuffer.unmapMemory();
+	//stageVertBuffer.gpuCopyToOther(*vertBuffer,window.deviceQueues.graphics,commandPool);
 
 
 	for (size_t i = 0; i < commandBuffers.size(); i++) {
 
 		VkCommandBufferBeginInfo beginInfo{};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = 0; // Optional
+		beginInfo.flags = VkCommandBufferUsageFlagBits::VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT; // Optional
 		beginInfo.pInheritanceInfo = nullptr; // Optional
 
 		commandBuffers[i].begin(beginInfo);
@@ -114,7 +124,7 @@ void Renderer::createStaticRenderCommands()
 
 		//vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, window.pipelineCreator->graphicsPipeline);
 
-		commandBuffers[i].bindVertexBuffers(0, { stageVertBuffer.vkItem }, { 0 });
+		commandBuffers[i].bindVertexBuffers(0, { vertBuffer->vkItem }, { 0 });
 
 		commandBuffers[i].draw(vertices.size(), 1, 0, 0);
 

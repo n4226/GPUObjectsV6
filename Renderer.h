@@ -28,9 +28,14 @@ private:
 
 	// render resources
 
-	VkCommandPool commandPool;
+	vk::CommandPool commandPool;
 	std::vector<vk::CommandBuffer> commandBuffers;
 
 	VmaAllocator allocator;
+
+	// temp vars
+
+	Buffer* vertBuffer;
+	Buffer* indexBuffer;
 };
 

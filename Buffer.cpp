@@ -52,6 +52,17 @@ void Buffer::unmapMemory()
 	}
 }
 
+void Buffer::tempMapAndWrite(const void* data, size_t size)
+{
+	if (size == 0)
+		size = this->size;
+	mapMemory();
+	memcpy(mappedData, data, (size_t)size);
+	// not necicary on windows with big 3 drivers see vma docs on cash flushing for info
+	//vmaFlushAllocation(allocator,stageVertBuffer.allocation,);
+	unmapMemory();
+}
+
 bool Buffer::getMemoryMapped()
 {
 	return memoryMapped;
@@ -63,7 +74,7 @@ bool Buffer::canMapMemory()
 	return false;
 }
 
-void Buffer::gpuCopyToOther(Buffer destination,vk::Queue queue, vk::CommandPool commandPool)
+void Buffer::gpuCopyToOther(Buffer& destination,vk::Queue& queue, vk::CommandPool commandPool)
 {
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -98,7 +109,7 @@ void Buffer::gpuCopyToOther(Buffer destination,vk::Queue queue, vk::CommandPool 
 
 }
 
-void Buffer::gpuCopyToOther(Buffer destination, vk::CommandBuffer buffer)
+void Buffer::gpuCopyToOther(Buffer& destination, vk::CommandBuffer& buffer)
 {
 	auto size = this->size;
 
@@ -111,9 +122,32 @@ void Buffer::gpuCopyToOther(Buffer destination, vk::CommandBuffer buffer)
 
 }
 
+
 Buffer::~Buffer()
 {
 	//evice.destroyBuffer(vkItem);
 	vmaDestroyBuffer(allocator, vkItem, allocation);
 }
 
+
+Buffer* Buffer::StageAndCreatePrivate(vk::Device device, vk::Queue& queue, vk::CommandPool commandPool, VmaAllocator allocator, VkDeviceSize size, const void* data, BufferCreationOptions options)
+{
+
+	auto orignalUsage = options.usage;
+
+	options.usage |= vk::BufferUsageFlagBits::eTransferSrc;
+	options.storage = BufferCreationOptions::cpu;
+
+	Buffer staging = Buffer(device,allocator,size,options);
+
+	staging.tempMapAndWrite(data,size);
+
+	options.usage = orignalUsage | vk::BufferUsageFlagBits::eTransferDst;
+	options.storage = BufferCreationOptions::gpu;
+
+	Buffer* buffer = new Buffer(device, allocator, size, options);
+
+	staging.gpuCopyToOther(*buffer, queue, commandPool);
+
+	return buffer;
+}

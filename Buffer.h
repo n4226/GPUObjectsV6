@@ -31,6 +31,17 @@ public:
 
 	Buffer(vk::Device device, VmaAllocator allocator,VkDeviceSize size, BufferCreationOptions options);
 
+	/// <summary>
+	/// a staging buffer is created, the thread is blocked while the data is sent to the actual gpu private buffer, than the new [gpu private buffer is returned.
+	/// </summary>
+	/// <param name="device"></param>
+	/// <param name="allocator"></param>
+	/// <param name="size"></param>
+	/// <param name="data"></param>
+	/// <param name="options"></param>
+	/// <returns></returns>
+	static Buffer* StageAndCreatePrivate(vk::Device device, vk::Queue& queue, vk::CommandPool commandPool, VmaAllocator allocator, VkDeviceSize size,const void* data, BufferCreationOptions options);
+
 	~Buffer();
 
 	void mapMemory();
@@ -38,15 +49,23 @@ public:
 
 	void* mappedData = nullptr;
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="data"></param>
+	/// <param name="size">if left 0 the buffer size will be used</param>
+	void tempMapAndWrite(const void* data,  size_t size = 0);
+
 	bool getMemoryMapped();
 	bool canMapMemory();
+
 	VkBuffer vkItem = nullptr;
 	VmaAllocation allocation = nullptr;
 	const VkDeviceSize size;
 
-	void gpuCopyToOther(Buffer destination, vk::Queue queue, vk::CommandPool commandPool);
+	void gpuCopyToOther(Buffer& destination, vk::Queue& queue, vk::CommandPool commandPool);
 
-	void gpuCopyToOther(Buffer destination, vk::CommandBuffer buffer);
+	void gpuCopyToOther(Buffer& destination, vk::CommandBuffer& buffer);
 	
 private:
 	bool memoryMapped = false;
