@@ -65,7 +65,7 @@ void Renderer::createStaticRenderCommands()
 		{{-0.5f, -0.5f, 0.f}, {1.0f, 0.0f, 0.0f}},
 		{{0.5f, -0.5f, 0.f}, {0.0f, 1.0f, 0.0f}},
 		{{0.5f, 0.5f, 0.f}, {0.0f, 0.0f, 1.0f}},
-		{{-0.5f, 0.5f, 0.f}, {1.0f, 1.0f, 1.0f}}
+		{{-0.5f, 0.5f, 0.f}, {.5f, .5f, 0.0f}}
 	};
 
 	const std::vector<uint32_t> indices = {

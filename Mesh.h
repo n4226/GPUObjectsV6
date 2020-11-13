@@ -22,20 +22,7 @@ struct TriangleVert {
 	glm::vec3 color;
 
 
-	static VkVertexInputBindingDescription getBindingDescription() {
-		auto bindingDescription = makeVertBinding(0,sizeof(TriangleVert));
-		
+	static VkVertexInputBindingDescription getBindingDescription();
 
-
-		return bindingDescription;
-	}
-
-	static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() {
-		std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = {
-			makeVertAttribute(0,0,VertexAttributeFormat::vec3,offsetof(TriangleVert,position)),
-			makeVertAttribute(0,1,VertexAttributeFormat::vec3,offsetof(TriangleVert,color)),
-		};
-
-		return attributeDescriptions;
-	}
+	static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions();
 };
