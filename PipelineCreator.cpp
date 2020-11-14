@@ -245,13 +245,13 @@ void PipelineCreator::createTerrainPipeline()
 
     // vertex input 
 
-    VkVertexInputBindingDescription bindingDescription[] = { TriangleVert::getBindingDescription() };
-    auto attributeDescriptions = TriangleVert::getAttributeDescriptions();
+    auto bindingDescription = Mesh::getBindingDescription();
+    auto attributeDescriptions = Mesh::getAttributeDescriptions();
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount = 1;
-    vertexInputInfo.pVertexBindingDescriptions = bindingDescription; // Optional
+    vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+    vertexInputInfo.pVertexBindingDescriptions = bindingDescription.data(); // Optional
     vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
     vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data(); // Optional
 
