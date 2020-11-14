@@ -169,7 +169,7 @@ void PipelineCreator::createTrianglePipeline()
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
     //pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1; // Optional
-    pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout; // Optional
+    pipelineLayoutInfo.pSetLayouts = &triangleDescriptorSetLayout; // Optional
     pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
     pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
@@ -190,7 +190,7 @@ void PipelineCreator::createTrianglePipeline()
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDynamicState = nullptr; // Optional
 
-    pipelineInfo.layout = pipelineLayout;
+    pipelineInfo.layout = trianglePipelineLayout;
 
     pipelineInfo.renderPass = renderPassManager.renderPass;
     pipelineInfo.subpass = 0;
@@ -230,7 +230,7 @@ void PipelineCreator::createTerrainPipeline()
     layoutInfo.pBindings = &uboLayoutBinding;
 
 
-    triangleDescriptorSetLayout = device.createDescriptorSetLayout({ layoutInfo });
+    terrianDescriptorSetLayout = device.createDescriptorSetLayout({ layoutInfo });
 
     // programmable stages 
 
@@ -356,11 +356,11 @@ void PipelineCreator::createTerrainPipeline()
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
     //pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1; // Optional
-    pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout; // Optional
+    pipelineLayoutInfo.pSetLayouts = &terrianDescriptorSetLayout; // Optional
     pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
     pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
-    trianglePipelineLayout = device.createPipelineLayout(pipelineLayoutInfo);
+    terrianPipelineLayout = device.createPipelineLayout(pipelineLayoutInfo);
 
     // create pipeline
 
@@ -377,7 +377,7 @@ void PipelineCreator::createTerrainPipeline()
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDynamicState = nullptr; // Optional
 
-    pipelineInfo.layout = pipelineLayout;
+    pipelineInfo.layout = terrianPipelineLayout;
 
     pipelineInfo.renderPass = renderPassManager.renderPass;
     pipelineInfo.subpass = 0;
@@ -387,7 +387,7 @@ void PipelineCreator::createTerrainPipeline()
 
     auto result = device.createGraphicsPipeline(vk::PipelineCache(nullptr), pipelineInfo, nullptr);
 
-    trianglePipeline = result.value;
+    terrianPipeline = result.value;
 
     assert(result.result == vk::Result::eSuccess);
 

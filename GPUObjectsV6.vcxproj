@@ -197,6 +197,8 @@
     <ClInclude Include="WorldScene.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\terrain.frag" />
+    <None Include="shaders\terrain.vert" />
     <None Include="shaders\triangle.vert" />
     <None Include="shaders\triangle.frag" />
   </ItemGroup>

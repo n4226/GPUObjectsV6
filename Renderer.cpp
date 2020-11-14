@@ -91,7 +91,7 @@ void Renderer::createDescriptorPoolAndSets()
 	descriptorPool = device.createDescriptorPool({ poolInfo });
 
 
-	std::vector<vk::DescriptorSetLayout> layouts(window.swapChainImages.size(), window.pipelineCreator->descriptorSetLayout);
+	std::vector<vk::DescriptorSetLayout> layouts(window.swapChainImages.size(), window.pipelineCreator->terrianDescriptorSetLayout);
 	vk::DescriptorSetAllocateInfo allocInfo{};
 	allocInfo.descriptorPool = descriptorPool;
 	allocInfo.descriptorSetCount = static_cast<uint32_t>(window.swapChainImages.size());
@@ -198,7 +198,7 @@ void Renderer::createStaticRenderCommands()
 		//vkCmdBeginRenderPass(commandBuffers[i], &info, VK_SUBPASS_CONTENTS_INLINE);
 		commandBuffers[i].beginRenderPass(&renderPassInfo,vk::SubpassContents::eInline);
 
-		commandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, window.pipelineCreator->pipelineLayout, 0, { descriptorSets[i] }, {});
+		commandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, window.pipelineCreator->terrianPipelineLayout, 0, { descriptorSets[i] }, {});
 
 		// encode commands 
 

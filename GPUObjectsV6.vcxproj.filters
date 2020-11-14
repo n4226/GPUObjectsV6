@@ -136,6 +136,12 @@
     <None Include="shaders\triangle.vert">
       <Filter>Source Files\shaders</Filter>
     </None>
+    <None Include="shaders\terrain.frag">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="shaders\terrain.vert">
+      <Filter>Source Files\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="GPUObjectsV6.rc">
