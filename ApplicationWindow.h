@@ -7,6 +7,7 @@
 #include "GPUSelector.h"
 #include "PipelineCreator.h"
 #include <assert.h>
+#include "Camera.h"
 
 class WorldScene;
 
@@ -20,6 +21,8 @@ public:
 	void getDrawable();
 	void presentDrawable();
 
+
+	Camera camera;
 
 	// manager objects
 
@@ -50,6 +53,7 @@ public:
 	vk::SurfaceKHR surface;
 
 	uint32_t currentSurfaceIndex;
+
 
 
 	// Synchronization objects

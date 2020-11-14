@@ -5,7 +5,15 @@
 #include "ApplicationWindow.h"
 #include "Buffer.h"
 #include "Mesh.h"
-//#include "vk_mem_alloc.h"
+#include "uniforms.h"
+#include "Transform.h"
+#include "glm/glm.hpp"
+#include "glm/ext.hpp"
+#include "glm/vec3.hpp"
+#include "glm/gtc/quaternion.hpp"
+#include "Camera.h"
+#include "PipelineCreator.h"
+#include <chrono>
 
 class Renderer
 {
@@ -20,6 +28,8 @@ private:
 
 	void createRenderResources();
 
+	void createDescriptorPoolAndSets();
+
 	void createStaticRenderCommands();
 
 	vk::Device& device;
@@ -33,9 +43,15 @@ private:
 
 	VmaAllocator allocator;
 
+	vk::DescriptorPool descriptorPool;
+	std::vector<VkDescriptorSet> descriptorSets;
+
 	// temp vars
 
 	Buffer* vertBuffer;
 	Buffer* indexBuffer;
+
+
+	std::vector<Buffer*> uniformBuffers;
 };
 

@@ -31,6 +31,9 @@
     <Filter Include="Source Files\helping objects\high level">
       <UniqueIdentifier>{d3b00c57-d931-4c9b-8d9e-3326b95aabf6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\renderer\layout objects">
+      <UniqueIdentifier>{762406e5-186a-4825-95e5-c1b12b44bdc5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -72,6 +75,12 @@
     <ClCompile Include="Transform.cpp">
       <Filter>Source Files\helping objects\high level</Filter>
     </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files\helping objects\high level</Filter>
+    </ClCompile>
+    <ClCompile Include="uniforms.cpp">
+      <Filter>Source Files\renderer\layout objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApplicationWindow.h">
@@ -111,6 +120,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="uniforms.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

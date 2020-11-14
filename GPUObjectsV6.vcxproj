@@ -166,6 +166,7 @@
     <ClCompile Include="ApplicationWindow.cpp" />
     <ClCompile Include="AttributeHelpers.cpp" />
     <ClCompile Include="Buffer.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="GPUSelector.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -174,6 +175,7 @@
     <ClCompile Include="RenderPassManager.cpp" />
     <ClCompile Include="ResourceHeap.cpp" />
     <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="uniforms.cpp" />
     <ClCompile Include="vmaSettings.cpp" />
     <ClCompile Include="WorldScene.cpp" />
   </ItemGroup>
@@ -181,6 +183,7 @@
     <ClInclude Include="ApplicationWindow.h" />
     <ClInclude Include="AttributeHelpers.h" />
     <ClInclude Include="Buffer.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="GPUSelector.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="PipelineCreator.h" />
@@ -189,6 +192,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="ResourceHeap.h" />
     <ClInclude Include="Transform.h" />
+    <ClInclude Include="uniforms.h" />
     <ClInclude Include="vk_mem_alloc.h" />
     <ClInclude Include="WorldScene.h" />
   </ItemGroup>

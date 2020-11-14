@@ -9,6 +9,16 @@ Renderer::Renderer(vk::Device& device, vk::PhysicalDevice& physicalDevice, Windo
 Renderer::~Renderer()
 {
 	device.destroyCommandPool(commandPool);
+
+	delete vertBuffer;
+	delete indexBuffer;
+
+	for (auto buffer : uniformBuffers)
+	{
+		delete buffer;
+	}
+
+	device.destroyDescriptorPool(descriptorPool);
 }
 
 void Renderer::createRenderResources()
@@ -56,6 +66,44 @@ void Renderer::createRenderResources()
 	{
 		commandBuffers[i] = tempBuffers[i];
 	}*/
+
+	// create descriptor pool
+
+	createDescriptorPoolAndSets();
+
+
+
+}
+
+void Renderer::createDescriptorPoolAndSets()
+{
+	VkDescriptorPoolSize poolSize{};
+	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSize.descriptorCount = static_cast<uint32_t>(window.swapChainImages.size());
+
+	VkDescriptorPoolCreateInfo poolInfo{};
+	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	poolInfo.poolSizeCount = 1;
+	poolInfo.pPoolSizes = &poolSize;
+
+	poolInfo.maxSets = static_cast<uint32_t>(window.swapChainImages.size());
+
+	descriptorPool = device.createDescriptorPool({ poolInfo });
+
+
+	std::vector<vk::DescriptorSetLayout> layouts(window.swapChainImages.size(), window.pipelineCreator->descriptorSetLayout);
+	vk::DescriptorSetAllocateInfo allocInfo{};
+	allocInfo.descriptorPool = descriptorPool;
+	allocInfo.descriptorSetCount = static_cast<uint32_t>(window.swapChainImages.size());
+	allocInfo.pSetLayouts = layouts.data();
+
+	VkDescriptorSetAllocateInfo c_allocInfo = allocInfo;
+
+	descriptorSets.resize(window.swapChainImages.size());
+
+	vkAllocateDescriptorSets(device, &c_allocInfo, descriptorSets.data());
+
+
 }
 
 void Renderer::createStaticRenderCommands()
@@ -85,6 +133,43 @@ void Renderer::createStaticRenderCommands()
 	indexBuffer =
 		Buffer::StageAndCreatePrivate(device, window.deviceQueues.graphics, commandPool, allocator, indiciesBuffSize, indices.data(), options);
 
+	// make uniforms
+
+	VkDeviceSize uniformBufferSize = sizeof(TriangleUniformBufferObject);
+
+	uniformBuffers.resize(window.swapChainImages.size());
+
+	BufferCreationOptions uniformOptions = { BufferCreationOptions::cpuToGpu,{vk::BufferUsageFlagBits::eUniformBuffer}, vk::SharingMode::eExclusive };
+
+	for (size_t i = 0; i < uniformBuffers.size(); i++) {
+		uniformBuffers[i] = new Buffer(device, allocator, uniformBufferSize, uniformOptions);
+	}
+	
+	// set up descriptors 
+
+	for (size_t i = 0; i < window.swapChainImages.size(); i++) {
+		VkDescriptorBufferInfo bufferInfo{};
+		bufferInfo.buffer = uniformBuffers[i]->vkItem;
+		bufferInfo.offset = 0;
+		bufferInfo.range = sizeof(TriangleUniformBufferObject);
+
+		VkWriteDescriptorSet descriptorWrite{};
+		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrite.dstSet = descriptorSets[i];
+		descriptorWrite.dstBinding = 0;
+		descriptorWrite.dstArrayElement = 0;
+
+		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrite.descriptorCount = 1;
+
+		descriptorWrite.pBufferInfo = &bufferInfo;
+		descriptorWrite.pImageInfo = nullptr; // Optional
+		descriptorWrite.pTexelBufferView = nullptr; // Optional
+
+		device.updateDescriptorSets({ descriptorWrite }, {});
+	}
+
+
 
 	for (size_t i = 0; i < commandBuffers.size(); i++) {
 
@@ -113,6 +198,8 @@ void Renderer::createStaticRenderCommands()
 		//vkCmdBeginRenderPass(commandBuffers[i], &info, VK_SUBPASS_CONTENTS_INLINE);
 		commandBuffers[i].beginRenderPass(&renderPassInfo,vk::SubpassContents::eInline);
 
+		commandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, window.pipelineCreator->pipelineLayout, 0, { descriptorSets[i] }, {});
+
 		// encode commands 
 
 		commandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, window.pipelineCreator->trianglePipeline);
@@ -138,6 +225,32 @@ void Renderer::createStaticRenderCommands()
 
 void Renderer::renderFrame()
 {
+
+	// update frame buffer
+
+	static auto startTime = std::chrono::high_resolution_clock::now();
+
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+	static auto quadtransform = Transform();
+	quadtransform.position.z = 1;
+	//window.camera.transform.position.y = 10;
+
+
+	glm::vec3 axis = { 0,1,0 };
+	quadtransform.rotation = glm::angleAxis(glm::radians(60 * sin(time)), axis);
+
+	TriangleUniformBufferObject ubo;
+
+	ubo.model = quadtransform.matrix();
+	ubo.viewProjection = window.camera.viewProjection(window.swapchainExtent.width, window.swapchainExtent.height);
+
+	//Using a UBO this way is not the most efficient way to pass frequently changing values to the shader. A more efficient way to pass a small buffer of data to shaders are push constants. We may look at these in a future chapter.
+	uniformBuffers[window.currentSurfaceIndex]->tempMapAndWrite(&ubo, sizeof(ubo));
+
+	// submit frame
+
 	vk::SubmitInfo submitInfo{};
 
 	std::vector<vk::Semaphore> waitSemaphores = { window.imageAvailableSemaphore };

@@ -19,6 +19,7 @@ public:
 	void createGraphicsPipelines();
 
 	void createTrianglePipeline();
+	void createTerrainPipeline();
 
 	static vk::PipelineShaderStageCreateInfo createShaderStageInfo(vk::Device device, const std::vector<char>& code,vk::ShaderStageFlagBits stage);
 
@@ -26,8 +27,14 @@ public:
 
 	static std::vector<char> readFile(const std::string& filename);
 
+	// pipelines
 
-	VkPipelineLayout pipelineLayout;
+	vk::DescriptorSetLayout terrianDescriptorSetLayout;
+	VkPipelineLayout terrianPipelineLayout;
+
+	vk::DescriptorSetLayout triangleDescriptorSetLayout;
+	VkPipelineLayout trianglePipelineLayout;
+
 
 	vk::Pipeline trianglePipeline;
 	vk::Pipeline pbrPipeline;
