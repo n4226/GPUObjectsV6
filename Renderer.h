@@ -51,6 +51,8 @@ private:
 	Buffer* vertBuffer;
 	Buffer* indexBuffer;
 
+	Mesh* mesh;
+	MeshBuffer* meshBuffer;
 
 	std::vector<Buffer*> uniformBuffers;
 };

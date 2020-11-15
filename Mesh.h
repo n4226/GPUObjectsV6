@@ -39,6 +39,9 @@ struct Mesh
 
 	VkDeviceSize    fullSize();
 
+	// primatives
+
+	static Mesh* quad();
 
 };
 

@@ -133,6 +133,12 @@ void Renderer::createStaticRenderCommands()
 	indexBuffer =
 		Buffer::StageAndCreatePrivate(device, window.deviceQueues.graphics, commandPool, allocator, indiciesBuffSize, indices.data(), options);
 
+
+	BufferCreationOptions options2 = { BufferCreationOptions::cpuToGpu,{vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer}, vk::SharingMode::eExclusive };
+
+	mesh = Mesh::quad();
+	meshBuffer = new MeshBuffer(device, allocator, options2,mesh);
+	meshBuffer->writeMeshToBuffer(true);
 	// make uniforms
 
 	VkDeviceSize uniformBufferSize = sizeof(TriangleUniformBufferObject);
@@ -206,11 +212,15 @@ void Renderer::createStaticRenderCommands()
 
 		//vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, window.pipelineCreator->graphicsPipeline);
 
-		commandBuffers[i].bindVertexBuffers(0, { vertBuffer->vkItem }, { 0 });
-		commandBuffers[i].bindIndexBuffer({ indexBuffer->vkItem }, 0, vk::IndexType::eUint32);
+		//commandBuffers[i].bindVertexBuffers(0, { vertBuffer->vkItem }, { 0 });
+		//commandBuffers[i].bindIndexBuffer({ indexBuffer->vkItem }, 0, vk::IndexType::eUint32);
+		meshBuffer->bindVerticiesIntoCommandBuffer(commandBuffers[i], 0);
+		meshBuffer->bindIndiciesIntoCommandBuffer(commandBuffers[i]);
 
 		//commandBuffers[i].draw(vertices.size(), 1, 0, 0);
-		commandBuffers[i].drawIndexed(static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+		//commandBuffers[i].drawIndexed(static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+
+		commandBuffers[i].drawIndexed(static_cast<uint32_t>(meshBuffer->baseMesh->indicies.size()), 1, 0, 0, 0);
 
 		commandBuffers[i].endRenderPass();
 

@@ -88,7 +88,51 @@ VkDeviceSize Mesh::indiciesOffset()
 
 VkDeviceSize Mesh::fullSize()
 {
-	return indiciesSize() + indiciesSize();
+	return indiciesOffset() + indiciesSize();
+}
+
+Mesh* Mesh::quad()
+{
+	Mesh* quad = new Mesh();
+
+	quad->verts = {
+		{-0.5f, -0.5f, 0.f},
+		{0.5f, -0.5f, 0.f},
+		{0.5f, 0.5f, 0.f},
+		{-0.5f, 0.5f, 0.f},
+	};
+
+	quad->uvs = {
+		{0,0},
+		{1,0},
+		{1,1},
+		{0,1}
+	};
+
+	quad->normals = {
+		{0,0.5,0},
+		{0,0,0.5},
+		{0.4,0.25,0},
+		{0.5,0,0},
+	};
+	quad->tangents = {
+		{0,0.5,0},
+		{0,0,0.5},
+		{0.4,0.25,0},
+		{0.5,0,0},
+	};
+	quad->bitangents = {
+		{0,0.5,0},
+		{0,0,0.5},
+		{0.4,0.25,0},
+		{0.5,0,0},
+	};
+
+	quad->indicies = {
+		0, 1, 2, 2, 3, 0
+	};
+
+	return quad;
 }
 
 
@@ -122,9 +166,7 @@ std::array<VkVertexInputAttributeDescription, 2> TriangleVert::getAttributeDescr
 MeshBuffer::MeshBuffer(vk::Device device,VmaAllocator allocator, BufferCreationOptions options, Mesh* mesh)
 	: baseMesh(mesh)
 {
-	auto bufferSize =
-		baseMesh->verts.size() * sizeof(glm::vec3) + baseMesh->uvs.size() * sizeof(glm::vec2) +
-		baseMesh->normals.size() * sizeof(glm::vec3) + baseMesh->tangents.size() * sizeof(glm::vec3) + baseMesh->bitangents.size() * sizeof(glm::vec3);
+	auto bufferSize = baseMesh->fullSize();
 
 	buffer = new Buffer(device,allocator, static_cast<VkDeviceSize>(bufferSize), options);
 }
