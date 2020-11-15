@@ -174,7 +174,9 @@
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RenderPassManager.cpp" />
     <ClCompile Include="ResourceHeap.cpp" />
+    <ClCompile Include="TerrainPipeline.cpp" />
     <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="TrianglePipeline.cpp" />
     <ClCompile Include="uniforms.cpp" />
     <ClCompile Include="vmaSettings.cpp" />
     <ClCompile Include="WorldScene.cpp" />
@@ -191,7 +193,9 @@
     <ClInclude Include="RenderPassManager.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ResourceHeap.h" />
+    <ClInclude Include="TerrainPipeline.h" />
     <ClInclude Include="Transform.h" />
+    <ClInclude Include="TrianglePipeline.h" />
     <ClInclude Include="uniforms.h" />
     <ClInclude Include="vk_mem_alloc.h" />
     <ClInclude Include="WorldScene.h" />

@@ -10,16 +10,10 @@
 
 class PipelineCreator
 {
-
 public:
 
 	PipelineCreator(vk::Device device, vk::Extent2D swapChainExtent, RenderPassManager& renderPassManager);
 	~PipelineCreator();
-
-	void createGraphicsPipelines();
-
-	void createTrianglePipeline();
-	void createTerrainPipeline();
 
 	static vk::PipelineShaderStageCreateInfo createShaderStageInfo(vk::Device device, const std::vector<char>& code,vk::ShaderStageFlagBits stage);
 
@@ -27,22 +21,17 @@ public:
 
 	static std::vector<char> readFile(const std::string& filename);
 
-	// pipelines
+	// pipeline properties
 
-	vk::DescriptorSetLayout terrianDescriptorSetLayout;
-	VkPipelineLayout terrianPipelineLayout;
+	vk::DescriptorSetLayout descriptorSetLayout;
+	VkPipelineLayout pipelineLayout;
 
-	vk::DescriptorSetLayout triangleDescriptorSetLayout;
-	VkPipelineLayout trianglePipelineLayout;
-
-
-	vk::Pipeline trianglePipeline;
-	vk::Pipeline pbrPipeline;
-	vk::Pipeline terrianPipeline;
+	vk::Pipeline vkItem;
 
 	RenderPassManager& renderPassManager;
 
-private:
+	virtual void createGraphicsPipeline() = 0;
+protected:
 
 	vk::Device device;
 

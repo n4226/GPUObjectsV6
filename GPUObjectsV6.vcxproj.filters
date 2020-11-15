@@ -31,6 +31,9 @@
     <Filter Include="Source Files\helping objects\high level">
       <UniqueIdentifier>{d3b00c57-d931-4c9b-8d9e-3326b95aabf6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\renderer\pipelines">
+      <UniqueIdentifier>{82797cdb-d0e3-4e44-80b0-1da43b3a4cec}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files\renderer\layout objects">
       <UniqueIdentifier>{762406e5-186a-4825-95e5-c1b12b44bdc5}</UniqueIdentifier>
     </Filter>
@@ -44,9 +47,6 @@
     </ClCompile>
     <ClCompile Include="GPUSelector.cpp">
       <Filter>Source Files\application</Filter>
-    </ClCompile>
-    <ClCompile Include="PipelineCreator.cpp">
-      <Filter>Source Files\renderer</Filter>
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
       <Filter>Source Files\renderer</Filter>
@@ -80,6 +80,15 @@
     </ClCompile>
     <ClCompile Include="uniforms.cpp">
       <Filter>Source Files\renderer\layout objects</Filter>
+    </ClCompile>
+    <ClCompile Include="PipelineCreator.cpp">
+      <Filter>Source Files\renderer\pipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="TrianglePipeline.cpp">
+      <Filter>Source Files\renderer\pipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainPipeline.cpp">
+      <Filter>Source Files\renderer\pipelines</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -126,6 +135,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="uniforms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TrianglePipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainPipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

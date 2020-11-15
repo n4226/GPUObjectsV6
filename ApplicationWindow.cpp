@@ -20,8 +20,9 @@ WindowManager::WindowManager()
     // make graphics pipeline 
     
     renderPassManager = new RenderPassManager(device, swapchainImageFormat);
-    pipelineCreator = new PipelineCreator(device, swapchainExtent,*renderPassManager);
-    pipelineCreator->createGraphicsPipelines();
+    pipelineCreator = new TrianglePipeline(device, swapchainExtent,*renderPassManager);
+
+    pipelineCreator->createGraphicsPipeline();
 
     createFramebuffers();
 

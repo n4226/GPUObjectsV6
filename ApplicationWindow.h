@@ -8,6 +8,8 @@
 #include "PipelineCreator.h"
 #include <assert.h>
 #include "Camera.h"
+#include "TrianglePipeline.h"
+#include "TerrainPipeline.h"
 
 class WorldScene;
 
