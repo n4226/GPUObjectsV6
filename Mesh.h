@@ -15,7 +15,7 @@ struct Mesh
 	std::vector<glm::vec3> tangents;
 	std::vector<glm::vec3> bitangents;
 
-	std::vector<uint32_t> indicies;
+	std::vector<glm::uint32> indicies;
 
 	static std::array<VkVertexInputBindingDescription, 5> getBindingDescription();
 
@@ -28,17 +28,23 @@ struct Mesh
 	VkDeviceSize       normalsSize();
 	VkDeviceSize      tangentsSize();
 	VkDeviceSize    bitangentsSize();
+	VkDeviceSize      indiciesSize();
 
 	VkDeviceSize       vertsOffset();
 	VkDeviceSize         uvsOffset();
 	VkDeviceSize     normalsOffset();
 	VkDeviceSize    tangentsOffset();
 	VkDeviceSize  bitangentsOffset();
+	VkDeviceSize    indiciesOffset();
 
-	// don;'t know yet if im gonna include indicies in the same buffer as vertbuff
+	VkDeviceSize    fullSize();
+
 
 };
 
+/// <summary>
+/// with the current implimentation, all vertex attributes and indicies are stored in a single buffer.
+/// </summary>
 class MeshBuffer {
 public:
 	MeshBuffer(vk::Device device, VmaAllocator allocator, BufferCreationOptions options,Mesh* mesh);
@@ -49,7 +55,8 @@ public:
 	/// </summary>
 	/// <param name="mapandUnmap">if true will call map and unmap before and after writing</param>
 	void writeMeshToBuffer(bool mapandUnmap);
-	void bindIntoCommandBuffer(vk::CommandBuffer commandBuffer, uint32_t baseBinding);
+	void bindVerticiesIntoCommandBuffer(vk::CommandBuffer commandBuffer, uint32_t baseBinding);
+	void bindIndiciesIntoCommandBuffer(vk::CommandBuffer commandBuffer);
 
 	Buffer* buffer;
 	Mesh* baseMesh;

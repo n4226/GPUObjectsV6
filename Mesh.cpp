@@ -51,6 +51,11 @@ VkDeviceSize Mesh::bitangentsSize()
 	return bitangents.size() * sizeof(glm::vec3);
 }
 
+VkDeviceSize Mesh::indiciesSize()
+{
+	return indicies.size() * sizeof(glm::uint32);
+}
+
 VkDeviceSize Mesh::vertsOffset()
 {
 	return 0;
@@ -74,6 +79,16 @@ VkDeviceSize Mesh::tangentsOffset()
 VkDeviceSize Mesh::bitangentsOffset()
 {
 	return tangentsOffset() + tangentsOffset();
+}
+
+VkDeviceSize Mesh::indiciesOffset()
+{
+	return bitangentsOffset() + bitangentsSize();
+}
+
+VkDeviceSize Mesh::fullSize()
+{
+	return indiciesSize() + indiciesSize();
 }
 
 
@@ -111,12 +126,12 @@ MeshBuffer::MeshBuffer(vk::Device device,VmaAllocator allocator, BufferCreationO
 		baseMesh->verts.size() * sizeof(glm::vec3) + baseMesh->uvs.size() * sizeof(glm::vec2) +
 		baseMesh->normals.size() * sizeof(glm::vec3) + baseMesh->tangents.size() * sizeof(glm::vec3) + baseMesh->bitangents.size() * sizeof(glm::vec3);
 
-	buffer = new Buffer(device,allocator, (VkDeviceSize)bufferSize, options);
+	buffer = new Buffer(device,allocator, static_cast<VkDeviceSize>(bufferSize), options);
 }
 
 MeshBuffer::~MeshBuffer()
 {
-	delete buffer
+	delete buffer;
 }
 
 void MeshBuffer::writeMeshToBuffer(bool mapandUnmap)
@@ -124,17 +139,18 @@ void MeshBuffer::writeMeshToBuffer(bool mapandUnmap)
 	if (mapandUnmap)
 		buffer->mapMemory();
 
-	memcpy(buffer->mappedData + 0, baseMesh->verts.data(), baseMesh->verts.size() * sizeof(glm::vec3));
-	memcpy(buffer->mappedData + ,);
-	memcpy(buffer->mappedData + , );
-	memcpy(buffer->mappedData + baseMesh->verts.size() * sizeof(glm::vec3) + baseMesh->uvs.size() * sizeof(glm::vec2) + , );
-	memcpy(buffer->mappedData + baseMesh->verts.size() * sizeof(glm::vec3) + baseMesh->uvs.size() * sizeof(glm::vec2) + baseMesh->normals.size() * sizeof(glm::vec3));
+	memcpy(static_cast<char*>(buffer->mappedData) +      baseMesh->vertsOffset(),      baseMesh->verts.data(),       baseMesh->vertsSize());
+	memcpy(static_cast<char*>(buffer->mappedData) +        baseMesh->uvsOffset(),        baseMesh->uvs.data(),        baseMesh->uvsSize());
+	memcpy(static_cast<char*>(buffer->mappedData) +    baseMesh->normalsOffset(),    baseMesh->normals.data(),    baseMesh->normalsSize());
+	memcpy(static_cast<char*>(buffer->mappedData) +   baseMesh->tangentsOffset(),   baseMesh->tangents.data(),   baseMesh->tangentsSize());
+	memcpy(static_cast<char*>(buffer->mappedData) + baseMesh->bitangentsOffset(), baseMesh->bitangents.data(), baseMesh->bitangentsSize());
+	memcpy(static_cast<char*>(buffer->mappedData) +   baseMesh->indiciesOffset(),   baseMesh->indicies.data(),   baseMesh->indiciesSize());
 	
 	if (mapandUnmap)
 		buffer->unmapMemory();
 }
 
-void MeshBuffer::bindIntoCommandBuffer(vk::CommandBuffer commandBuffer, uint32_t baseBinding)
+void MeshBuffer::bindVerticiesIntoCommandBuffer(vk::CommandBuffer commandBuffer, uint32_t baseBinding)
 {
 	commandBuffer.bindVertexBuffers(baseBinding, {
 			buffer->vkItem,
@@ -143,10 +159,15 @@ void MeshBuffer::bindIntoCommandBuffer(vk::CommandBuffer commandBuffer, uint32_t
 			buffer->vkItem,
 			buffer->vkItem
 		}, {
-			0,
-			baseMesh->verts.size() * sizeof(glm::vec3),
-			baseMesh->verts.size() * sizeof(glm::vec3) + baseMesh->uvs.size() * sizeof(glm::vec2),
-			baseMesh->verts.size() * sizeof(glm::vec3) + baseMesh->uvs.size() * sizeof(glm::vec2) + baseMesh->normals.size() * sizeof(glm::vec3),
-			baseMesh->verts.size() * sizeof(glm::vec3) + baseMesh->uvs.size() * sizeof(glm::vec2) + baseMesh->normals.size() * sizeof(glm::vec3) + baseMesh->tangents.size() * sizeof(glm::vec3),
+			baseMesh->vertsOffset(),
+			baseMesh->uvsOffset(),
+			baseMesh->normalsOffset(),
+			baseMesh->tangentsOffset(),
+			baseMesh->bitangentsOffset()
 		});
+}
+
+void MeshBuffer::bindIndiciesIntoCommandBuffer(vk::CommandBuffer commandBuffer)
+{
+	commandBuffer.bindIndexBuffer(buffer->vkItem, baseMesh->indiciesOffset(), vk::IndexType::eUint32);
 }

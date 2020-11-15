@@ -28,7 +28,7 @@ struct BufferCreationOptions {
 class Buffer
 {
 public:
-
+	Buffer(const Buffer& othter) = delete;
 	Buffer(vk::Device device, VmaAllocator allocator,VkDeviceSize size, BufferCreationOptions options);
 
 	/// <summary>
@@ -67,6 +67,8 @@ public:
 
 	void gpuCopyToOther(Buffer& destination, vk::CommandBuffer& buffer);
 	
+
+
 private:
 	bool memoryMapped = false;
 	VmaAllocator allocator;
