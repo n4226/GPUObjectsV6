@@ -37,6 +37,15 @@
     <Filter Include="Source Files\renderer\layout objects">
       <UniqueIdentifier>{762406e5-186a-4825-95e5-c1b12b44bdc5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Math">
+      <UniqueIdentifier>{48d0919b-f45d-4dd6-a532-5fbe8be016c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\renderer\render systems">
+      <UniqueIdentifier>{4ae97a9d-d102-4f94-a788-7320fa634077}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\renderer\render systems\terrain system">
+      <UniqueIdentifier>{e8511338-2d5c-47ed-a340-4207e18e20df}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -90,6 +99,27 @@
     <ClCompile Include="TerrainPipeline.cpp">
       <Filter>Source Files\renderer\pipelines</Filter>
     </ClCompile>
+    <ClCompile Include="Math.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Box.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderSystem.cpp">
+      <Filter>Source Files\renderer\render systems</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainMeshLoader.cpp">
+      <Filter>Source Files\renderer\render systems\terrain system</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainQuadTree.cpp">
+      <Filter>Source Files\renderer\render systems\terrain system</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainSystem.cpp">
+      <Filter>Source Files\renderer\render systems\terrain system</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainQuadTreeNode.cpp">
+      <Filter>Source Files\renderer\render systems\terrain system</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApplicationWindow.h">
@@ -141,6 +171,27 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TerrainPipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Box.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainQuadTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainMeshLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainQuadTreeNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
