@@ -46,6 +46,9 @@
     <Filter Include="Source Files\renderer\render systems\terrain system">
       <UniqueIdentifier>{e8511338-2d5c-47ed-a340-4207e18e20df}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\tools">
+      <UniqueIdentifier>{d0378be4-9e81-4b54-8a0d-179d3bd7ba7d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -120,6 +123,9 @@
     <ClCompile Include="TerrainQuadTreeNode.cpp">
       <Filter>Source Files\renderer\render systems\terrain system</Filter>
     </ClCompile>
+    <ClCompile Include="environment.h">
+      <Filter>Source Files\application</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApplicationWindow.h">
@@ -193,6 +199,9 @@
     </ClInclude>
     <ClInclude Include="TerrainQuadTreeNode.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Instrumentor.h">
+      <Filter>Source Files\tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

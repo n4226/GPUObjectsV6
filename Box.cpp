@@ -1,16 +1,21 @@
 #include "Box.h"
 
-glm::dvec2 Box::getEnd()
+Box::Box(glm::dvec2 start, glm::dvec2 size)
+    : start(start), size(size)
+{
+}
+
+glm::dvec2 Box::getEnd() const
 {
     return start + size;
 }
 
-glm::dvec2 Box::getCenter()
+glm::dvec2 Box::getCenter() const
 {
     return start + (size * 0.5);
 }
 
-bool Box::contains(glm::dvec2 point)
+bool Box::contains(glm::dvec2 point) const
 {
     if (point.x < start.x || point.y < start.y) {
             return false;

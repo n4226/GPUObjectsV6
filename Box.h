@@ -7,12 +7,14 @@
 
 struct Box
 {
+	Box(glm::dvec2 start, glm::dvec2 size);
+
 	glm::dvec2 start, size;
 
-	glm::dvec2 getEnd();
-	glm::dvec2 getCenter();
+	glm::dvec2 getEnd() const;
+	glm::dvec2 getCenter() const;
 
-	bool contains(glm::dvec2 point);
+	bool contains(glm::dvec2 point) const;
 	//bool contains(Box other);
 
 

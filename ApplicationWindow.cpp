@@ -5,6 +5,8 @@ using namespace std;
 
 WindowManager::WindowManager()
 {
+    PROFILE_FUNCTION
+
     createWindow();
 
     createInstance();
@@ -33,6 +35,7 @@ WindowManager::WindowManager()
 
 void WindowManager::createDevice()
 {
+    PROFILE_FUNCTION
     physicalDevice = GPUSelector::primaryGPU(instance, surface);
 
     queueFamilyIndices = GPUSelector::gpuQueueFamilies(physicalDevice, surface);
@@ -79,7 +82,7 @@ void WindowManager::createDevice()
 
 void WindowManager::createSwapchain()
 {
-
+    PROFILE_FUNCTION
     SwapChainSupportDetails swapChainSupport = GPUSelector::querySwapChainSupport(physicalDevice, surface);
 
     VkSurfaceFormatKHR surfaceFormat = GPUSelector::chooseSwapSurfaceFormat(swapChainSupport.formats);
@@ -142,6 +145,7 @@ void WindowManager::createSwapchain()
 
 void WindowManager::createSwapchainImageViews()
 {
+    PROFILE_FUNCTION
     swapChainImageViews.resize(swapChainImages.size());
 
     for (size_t i = 0; i < swapChainImages.size(); i++) {
@@ -170,6 +174,7 @@ void WindowManager::createSwapchainImageViews()
 
 void WindowManager::createFramebuffers()
 {
+    PROFILE_FUNCTION
     swapChainFramebuffers.resize(swapChainImageViews.size());
 
     for (size_t i = 0; i < swapChainImageViews.size(); i++) {
@@ -191,6 +196,7 @@ void WindowManager::createFramebuffers()
 
 void WindowManager::createSemaphores()
 {
+    PROFILE_FUNCTION
     vk::SemaphoreCreateInfo semaphoreInfo{};
 
     imageAvailableSemaphore = device.createSemaphore(semaphoreInfo);
@@ -200,6 +206,7 @@ void WindowManager::createSemaphores()
 
 void WindowManager::createSurface()
 {
+    PROFILE_FUNCTION
     VkSurfaceKHR _surface;
     auto result = glfwCreateWindowSurface(instance,window,nullptr,&_surface);
 
@@ -210,6 +217,7 @@ void WindowManager::createSurface()
 
 void WindowManager::createWindow()
 {
+    PROFILE_FUNCTION
     glfwInit();
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -218,7 +226,7 @@ void WindowManager::createWindow()
 
 void WindowManager::createInstance()
 {
-
+    PROFILE_FUNCTION
     auto appInfo = vk::ApplicationInfo(
         "GPUObjectsV6",
         VK_MAKE_VERSION(1,0,0),
@@ -256,7 +264,7 @@ void WindowManager::createInstance()
 
 WindowManager::~WindowManager()
 {
-
+    PROFILE_FUNCTION
     device.destroySemaphore(imageAvailableSemaphore);
     device.destroySemaphore(renderFinishedSemaphore);
 
@@ -284,6 +292,7 @@ WindowManager::~WindowManager()
 
 void WindowManager::runWindowLoop()
 {
+    PROFILE_FUNCTION
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
         //drawView();
@@ -293,6 +302,7 @@ void WindowManager::runWindowLoop()
 
 void WindowManager::getDrawable()
 {
+    PROFILE_FUNCTION
     auto index = device.acquireNextImageKHR(swapChain, UINT64_MAX, imageAvailableSemaphore, nullptr);
     cout << "current index = " << index.value << endl;
     currentSurfaceIndex = index.value;
@@ -300,6 +310,7 @@ void WindowManager::getDrawable()
 
 void WindowManager::presentDrawable()
 {
+    PROFILE_FUNCTION
     // present frame on screen
 
     vk::PresentInfoKHR presentInfo{};
@@ -321,7 +332,7 @@ void WindowManager::presentDrawable()
 
 void WindowManager::destroyWindow()
 {
-
+    PROFILE_FUNCTION
     glfwDestroyWindow(window);
 
     glfwTerminate();

@@ -13,8 +13,11 @@
 #include <iostream>
 
 #include "WorldScene.h"
+#include "environment.h"
 
 int main() {
+
+    Instrumentor::Get().BeginSession("Launch", "instruments_Launch.json");
 
     WindowManager* windowCreator = new WindowManager();
     
@@ -23,13 +26,21 @@ int main() {
     windowCreator->camera.zFar = 1000;
 
     WorldScene* scene = new WorldScene(*windowCreator);
+    
+    Instrumentor::Get().EndSession();
+    Instrumentor::Get().BeginSession("Run", "instruments_Run.json");
 
     printf("starting render loop");
 
     scene->startScene();
 
+    Instrumentor::Get().EndSession();
+    Instrumentor::Get().BeginSession("Shutdown", "instruments_Shutdown.json");
+
     delete scene;
     delete windowCreator;
+
+    Instrumentor::Get().EndSession();
 
     return 0;
 }

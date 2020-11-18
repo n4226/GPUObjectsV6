@@ -14,6 +14,7 @@
 #include "Camera.h"
 #include "PipelineCreator.h"
 #include <chrono>
+#include "TerrainSystem.h"
 
 class Renderer
 {
@@ -23,6 +24,10 @@ public:
 	~Renderer();
 
 	void renderFrame();
+
+	
+	// systems
+	TerrainSystem* terrainSystem;
 
 private:
 
@@ -45,6 +50,7 @@ private:
 
 	vk::DescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;
+
 
 	// temp vars
 

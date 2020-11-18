@@ -4,6 +4,8 @@
 #include "ApplicationWindow.h"
 #include "Renderer.h"
 #include <GLFW/glfw3.h>
+#include "TerrainSystem.h"
+#include "environment.h"
 
 class WorldScene
 {
@@ -18,6 +20,10 @@ public:
 	Renderer* renderer;
 
 	void startScene();
+
+	void runFullUpdateLoop();
+
+	TerrainSystem* terrainSystem;
 
 private:
 

@@ -11,5 +11,6 @@ class TerrainMeshLoader
 
 	Mesh* createChunkMesh(const TerrainQuadTreeNode& chunk,double radius);
 
+
 };
 

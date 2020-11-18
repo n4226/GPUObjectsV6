@@ -10,6 +10,7 @@
 #include "Camera.h"
 #include "TrianglePipeline.h"
 #include "TerrainPipeline.h"
+#include "environment.h"
 
 class WorldScene;
 

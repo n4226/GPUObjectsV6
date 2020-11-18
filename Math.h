@@ -5,17 +5,14 @@
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
 
-// constants
 
-constexpr auto dEarthRad = 6378137.0;
-constexpr auto fEarthRad = 6378137.f;
+namespace Math {
 
-class Math
-{
-public:
-	Math() = delete;
 	// constants
 
+	constexpr auto dEarthRad = 6378137.0;
+	constexpr auto fEarthRad = 6378137.f;
+
 	/// <summary>
 	/// 
 	/// </summary>
@@ -23,7 +20,7 @@ public:
 	/// <param name="origin"></param>
 	/// <param name="radius"></param>
 	/// <returns></returns>
-	static glm::dvec3 LlatoGeo(glm::dvec3 lla, glm::dvec3 origin = glm::dvec3(),double radius = dEarthRad);
+	glm::dvec3 LlatoGeo(glm::dvec3 lla, glm::dvec3 origin = glm::dvec3(),double radius = dEarthRad);
 	/// <summary>
 	/// 
 	/// </summary>
@@ -31,7 +28,7 @@ public:
 	/// <param name="origin"></param>
 	/// <param name="radius"></param>
 	/// <returns></returns>
-	static glm::vec3 LlatoGeo(glm::vec3 lla, glm::vec3 origin = glm::dvec3(),float radius = fEarthRad);
+	glm::vec3 LlatoGeo(glm::vec3 lla, glm::vec3 origin = glm::dvec3(),float radius = fEarthRad);
 
 	/// <summary>
 	/// 
@@ -40,7 +37,7 @@ public:
 	/// <param name="radius">if left 0 rad will be found from the length of geo</param>
 	/// <param name="origin"></param>
 	/// <returns></returns>
-	static glm::dvec3 GeotoLla(glm::dvec3 geo, glm::float64 radius = 0, glm::dvec3 origin = glm::dvec3());
+	glm::dvec3 GeotoLla(glm::dvec3 geo, glm::float64 radius = 0, glm::dvec3 origin = glm::dvec3());
 	/// <summary>
 	/// 
 	/// </summary>
@@ -48,8 +45,11 @@ public:
 	/// <param name="radius">if left 0 rad will be found from the length of geo</param>
 	/// <param name="origin"></param>
 	/// <returns></returns>
-	static glm::vec3 GeotoLla(glm::vec3 geo, glm::float32 radius = 0, glm::vec3 origin = glm::vec3());
+	glm::vec3 GeotoLla(glm::vec3 geo, glm::float32 radius = 0, glm::vec3 origin = glm::vec3());
 
-private:
-};
+	// LLA Distance
+
+	double llaDistance(glm::dvec2 from,glm::dvec2 to,double radius = dEarthRad);
+
+}
 

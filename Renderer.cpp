@@ -2,12 +2,14 @@
 
 Renderer::Renderer(vk::Device& device, vk::PhysicalDevice& physicalDevice, WindowManager& window) : device(device), physicalDevice(physicalDevice), window(window)
 {
+	PROFILE_FUNCTION
 	createRenderResources();
 	createStaticRenderCommands();
 }
 
 Renderer::~Renderer()
 {
+	PROFILE_FUNCTION
 	device.destroyCommandPool(commandPool);
 
 	delete vertBuffer;
@@ -23,6 +25,7 @@ Renderer::~Renderer()
 
 void Renderer::createRenderResources()
 {
+	PROFILE_FUNCTION
 	// allocator
 
 	VmaAllocatorCreateInfo allocatorInfo = {};
@@ -77,6 +80,7 @@ void Renderer::createRenderResources()
 
 void Renderer::createDescriptorPoolAndSets()
 {
+	PROFILE_FUNCTION
 	VkDescriptorPoolSize poolSize{};
 	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSize.descriptorCount = static_cast<uint32_t>(window.swapChainImages.size());
@@ -108,7 +112,7 @@ void Renderer::createDescriptorPoolAndSets()
 
 void Renderer::createStaticRenderCommands()
 {
-
+	PROFILE_FUNCTION
 	const std::vector<TriangleVert> vertices = {
 		{{-0.5f, -0.5f, 0.f}, {1.0f, 0.0f, 0.0f}},
 		{{0.5f, -0.5f, 0.f}, {0.0f, 1.0f, 0.0f}},
@@ -235,7 +239,7 @@ void Renderer::createStaticRenderCommands()
 
 void Renderer::renderFrame()
 {
-
+	PROFILE_FUNCTION
 	// update frame buffer
 
 	static auto startTime = std::chrono::high_resolution_clock::now();
