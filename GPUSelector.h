@@ -5,6 +5,7 @@
 #include <iostream>
 #include <GLFW/glfw3.h>
 #include <optional>
+#include "environment.h"
 
 struct SwapChainSupportDetails {
 	VkSurfaceCapabilitiesKHR capabilities;

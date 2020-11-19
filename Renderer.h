@@ -25,9 +25,15 @@ public:
 
 	void renderFrame();
 
+
 	
 	// systems
 	TerrainSystem* terrainSystem;
+
+
+	vk::Device& device;
+	vk::PhysicalDevice& physicalDevice;
+	WindowManager& window;
 
 private:
 
@@ -37,9 +43,8 @@ private:
 
 	void createStaticRenderCommands();
 
-	vk::Device& device;
-	vk::PhysicalDevice& physicalDevice;
-	WindowManager& window;
+	void submitFrameQueue(vk::CommandBuffer* buffers, uint32_t bufferCount);
+
 
 	// render resources
 

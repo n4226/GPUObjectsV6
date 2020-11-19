@@ -4,7 +4,7 @@ WorldScene::WorldScene(WindowManager& window) : window(window)
 {
 	PROFILE_FUNCTION
 	renderer = new Renderer(window.device, window.physicalDevice, window);
-	terrainSystem = new TerrainSystem();
+	terrainSystem = new TerrainSystem(renderer);
 	renderer->terrainSystem = terrainSystem;
 }
 

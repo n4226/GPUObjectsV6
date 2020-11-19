@@ -4,22 +4,30 @@
 #include "TerrainQuadTree.h"
 #include "TerrainQuadTreeNode.h"
 #include "Transform.h"
+#include "VkHelpers.h"
+
+class Renderer;
 
 class TerrainSystem: public RenderSystem
 {
 public:
 
-	TerrainSystem();
+	TerrainSystem(Renderer* renderer);
+
+	void CreateRenderResources();
 
 	void update() override;
-	void renderSystem(vk::CommandBuffer buffer) override;
+	void renderSystem(vk::CommandBuffer* buffers, uint32_t& count) override;
 
 	Transform* trackedTransform = nullptr;
 	glm::dvec3* origin = nullptr;
 
+	Renderer* renderer;
+
 private:
 
 	TerrainQuadTree tree;
+
 
 	void processTree();
 
@@ -30,6 +38,15 @@ private:
 	bool determinActive(const TerrainQuadTreeNode* node);
 
 	void setActiveState(TerrainQuadTreeNode* node);
+
+	// Render Resources
+
+	/// <summary>
+	/// one for each drawable
+	/// </summary>
+	std::vector<vk::CommandPool> pools;
+
+	std::vector<vk::CommandBuffer> commandBuffers;
 
 };
 

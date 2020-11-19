@@ -49,6 +49,9 @@
     <Filter Include="Source Files\tools">
       <UniqueIdentifier>{d0378be4-9e81-4b54-8a0d-179d3bd7ba7d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\renderer\helpers">
+      <UniqueIdentifier>{f0971a57-5b8c-4f5d-a396-b9dfe7fd346b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -126,6 +129,9 @@
     <ClCompile Include="environment.h">
       <Filter>Source Files\application</Filter>
     </ClCompile>
+    <ClCompile Include="VkHelpers.cpp">
+      <Filter>Source Files\renderer\helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApplicationWindow.h">
@@ -202,6 +208,9 @@
     </ClInclude>
     <ClInclude Include="Instrumentor.h">
       <Filter>Source Files\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="VkHelpers.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

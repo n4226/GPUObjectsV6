@@ -3,6 +3,7 @@
 
 vk::PhysicalDevice GPUSelector::primaryGPU(vk::Instance instance, vk::SurfaceKHR surface)
 {
+	PROFILE_FUNCTION
 	uint32_t deviceCount = 0;
 
 	vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
@@ -24,6 +25,7 @@ vk::PhysicalDevice GPUSelector::primaryGPU(vk::Instance instance, vk::SurfaceKHR
 
 bool GPUSelector::gpuSutable(const vk::PhysicalDevice device, vk::SurfaceKHR surface)
 {
+	PROFILE_FUNCTION
 	VkPhysicalDeviceProperties deviceProperties;
 	VkPhysicalDeviceFeatures deviceFeatures;
 	vkGetPhysicalDeviceProperties(device, &deviceProperties);
@@ -51,6 +53,7 @@ bool GPUSelector::gpuSutable(const vk::PhysicalDevice device, vk::SurfaceKHR sur
 
 QueueFamilyIndices GPUSelector::gpuQueueFamilies(vk::PhysicalDevice device, vk::SurfaceKHR surface)
 {
+	PROFILE_FUNCTION
 	uint32_t queueFamilyCount = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
@@ -86,6 +89,7 @@ QueueFamilyIndices GPUSelector::gpuQueueFamilies(vk::PhysicalDevice device, vk::
 }
 
 SwapChainSupportDetails GPUSelector::querySwapChainSupport(vk::PhysicalDevice device, vk::SurfaceKHR surface) {
+	PROFILE_FUNCTION
 	SwapChainSupportDetails details	;
 
 	details.capabilities = device.getSurfaceCapabilitiesKHR(surface);
@@ -110,7 +114,7 @@ SwapChainSupportDetails GPUSelector::querySwapChainSupport(vk::PhysicalDevice de
 }
 
 vk::SurfaceFormatKHR GPUSelector::chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats) {
-
+	PROFILE_FUNCTION
 	for (const auto& availableFormat : availableFormats) {
 		if (availableFormat.format == vk::Format::eB8G8R8A8Srgb && availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear) {
 			return availableFormat;
@@ -121,7 +125,7 @@ vk::SurfaceFormatKHR GPUSelector::chooseSwapSurfaceFormat(const std::vector<vk::
 }
 
 vk::PresentModeKHR GPUSelector::chooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes) {
-
+	PROFILE_FUNCTION
 	for (const auto& availablePresentMode : availablePresentModes) {
 		if (availablePresentMode == vk::PresentModeKHR::eMailbox) {
 			return availablePresentMode;
@@ -132,6 +136,7 @@ vk::PresentModeKHR GPUSelector::chooseSwapPresentMode(const std::vector<vk::Pres
 }
 
 VkExtent2D GPUSelector::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow* window) {
+	PROFILE_FUNCTION
 	if (capabilities.currentExtent.width != UINT32_MAX) {
 		return capabilities.currentExtent;
 	}

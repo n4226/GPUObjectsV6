@@ -47,11 +47,12 @@ void Renderer::createRenderResources()
 
 	// command buffers
 
+	// MARK: becuase of the constant errors i'm adding this
+
 	commandBuffers.resize(window.swapChainFramebuffers.size());
 
 	vk::CommandBufferAllocateInfo allocInfo{};
 	allocInfo.commandPool = commandPool;
-	// MARK: becuase of the constant errors i'm adding this
 	
 
 	allocInfo.level = vk::CommandBufferLevel::ePrimary;
@@ -74,13 +75,12 @@ void Renderer::createRenderResources()
 
 	createDescriptorPoolAndSets();
 
-
-
 }
 
 void Renderer::createDescriptorPoolAndSets()
 {
 	PROFILE_FUNCTION
+
 	VkDescriptorPoolSize poolSize{};
 	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSize.descriptorCount = static_cast<uint32_t>(window.swapChainImages.size());
@@ -247,24 +247,36 @@ void Renderer::renderFrame()
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-	static auto quadtransform = Transform();
-	quadtransform.position.z = 1;
-	//window.camera.transform.position.y = 10;
+	//static auto quadtransform = Transform();
+	//quadtransform.position.z = 1;
+	////window.camera.transform.position.y = 10;
 
 
-	glm::vec3 axis = { 0,1,0 };
-	quadtransform.rotation = glm::angleAxis(glm::radians(60 * sin(time)), axis);
+	//glm::vec3 axis = { 0,1,0 };
+	//quadtransform.rotation = glm::angleAxis(glm::radians(60 * sin(time)), axis);
 
-	TriangleUniformBufferObject ubo;
+	//TriangleUniformBufferObject ubo;
 
-	ubo.model = quadtransform.matrix();
-	ubo.viewProjection = window.camera.viewProjection(window.swapchainExtent.width, window.swapchainExtent.height);
+	//ubo.model = quadtransform.matrix();
+	//ubo.viewProjection = window.camera.viewProjection(window.swapchainExtent.width, window.swapchainExtent.height);
 
-	//Using a UBO this way is not the most efficient way to pass frequently changing values to the shader. A more efficient way to pass a small buffer of data to shaders are push constants. We may look at these in a future chapter.
-	uniformBuffers[window.currentSurfaceIndex]->tempMapAndWrite(&ubo, sizeof(ubo));
+	////Using a UBO this way is not the most efficient way to pass frequently changing values to the shader. A more efficient way to pass a small buffer of data to shaders are push constants. We may look at these in a future chapter.
+	//uniformBuffers[window.currentSurfaceIndex]->tempMapAndWrite(&ubo, sizeof(ubo));
+
+
+	// run terrain system draw
+
+	vk::CommandBuffer* genreratedCommands = nullptr;
+	uint32_t genreratedCommandsCount;
+	terrainSystem->renderSystem(genreratedCommands, genreratedCommandsCount);
 
 	// submit frame
 
+	submitFrameQueue(&commandBuffers[window.currentSurfaceIndex],1);
+}
+
+void Renderer::submitFrameQueue(vk::CommandBuffer* buffers,uint32_t bufferCount)
+{
 	vk::SubmitInfo submitInfo{};
 
 	std::vector<vk::Semaphore> waitSemaphores = { window.imageAvailableSemaphore };
@@ -273,8 +285,8 @@ void Renderer::renderFrame()
 	submitInfo.pWaitSemaphores = waitSemaphores.data();
 	submitInfo.setWaitDstStageMask(waitStages);
 
-	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &commandBuffers[window.currentSurfaceIndex];
+	submitInfo.commandBufferCount = bufferCount;
+	submitInfo.pCommandBuffers = buffers;
 
 	std::vector<vk::Semaphore> signalSemaphores = { window.renderFinishedSemaphore };
 	submitInfo.setSignalSemaphores(signalSemaphores);

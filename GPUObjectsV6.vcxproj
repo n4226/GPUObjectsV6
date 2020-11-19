@@ -186,6 +186,7 @@
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="TrianglePipeline.cpp" />
     <ClCompile Include="uniforms.cpp" />
+    <ClCompile Include="VkHelpers.cpp" />
     <ClCompile Include="vmaSettings.cpp" />
     <ClCompile Include="WorldScene.cpp" />
   </ItemGroup>
@@ -213,6 +214,7 @@
     <ClInclude Include="Transform.h" />
     <ClInclude Include="TrianglePipeline.h" />
     <ClInclude Include="uniforms.h" />
+    <ClInclude Include="VkHelpers.h" />
     <ClInclude Include="vk_mem_alloc.h" />
     <ClInclude Include="WorldScene.h" />
   </ItemGroup>
