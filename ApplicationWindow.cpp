@@ -1,4 +1,5 @@
 #include "ApplicationWindow.h"
+#include "pch.h"
 
 
 using namespace std;

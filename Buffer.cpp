@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Buffer.h"
 
 
@@ -18,6 +19,7 @@ Buffer::Buffer(vk::Device device, VmaAllocator allocator, VkDeviceSize size, Buf
 
 	//vkItem = device.createBuffer(createInfo);
 	
+
 
 	// alloc memory options
 

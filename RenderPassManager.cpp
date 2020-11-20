@@ -1,4 +1,5 @@
 #include "RenderPassManager.h"
+#include "pch.h"
 
 RenderPassManager::RenderPassManager()
 {

@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "WorldScene.h"
 
 WorldScene::WorldScene(WindowManager& window) : window(window)

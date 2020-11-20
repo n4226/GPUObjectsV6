@@ -1,7 +1,10 @@
 #include "VkHelpers.h"
+#include "pch.h"
 
 void VkHelpers::allocateCommandBuffers(vk::Device device, vk::CommandPool pool, vk::CommandBuffer* buffers, uint32_t count, vk::CommandBufferLevel level)
 {
+	
+
 	vk::CommandBufferAllocateInfo allocInfo{};
 	allocInfo.commandPool = pool;
 

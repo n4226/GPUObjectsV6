@@ -1,4 +1,5 @@
 #include "GPUSelector.h"
+#include "pch.h"
 
 
 vk::PhysicalDevice GPUSelector::primaryGPU(vk::Instance instance, vk::SurfaceKHR surface)

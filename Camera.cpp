@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "pch.h"
 
 glm::mat4 Camera::projection(float width, float height)
 {

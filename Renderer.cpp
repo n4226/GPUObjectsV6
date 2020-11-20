@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Renderer.h"
 
 Renderer::Renderer(vk::Device& device, vk::PhysicalDevice& physicalDevice, WindowManager& window) : device(device), physicalDevice(physicalDevice), window(window)
@@ -264,11 +265,41 @@ void Renderer::renderFrame()
 	//uniformBuffers[window.currentSurfaceIndex]->tempMapAndWrite(&ubo, sizeof(ubo));
 
 
+	// create root cmd buffer
+
+
+	//VkCommandBufferBeginInfo beginInfo{};
+	//beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	//beginInfo.flags = VkCommandBufferUsageFlagBits::VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT; // Optional
+	//beginInfo.pInheritanceInfo = nullptr; // Optional
+
+	//commandBuffers[i].begin(beginInfo);
+
+	// begin a render pass
+
+	//vk::RenderPassBeginInfo renderPassInfo{};
+	//renderPassInfo.renderPass = window.renderPassManager->renderPass;
+	//renderPassInfo.framebuffer = window.swapChainFramebuffers[i];
+
+	//renderPassInfo.renderArea = vk::Rect2D({ 0, 0 }, window.swapchainExtent);
+
+	////VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+	//const std::array<float, 4> clearComponents = { 0.0f, 0.0f, 0.2f, 1.0f };
+	//vk::ClearValue clearColor = vk::ClearValue(vk::ClearColorValue(clearComponents));
+	//renderPassInfo.setClearValues(clearColor);
+
+	//VkRenderPassBeginInfo info = renderPassInfo;
+
+	////vkCmdBeginRenderPass(commandBuffers[i], &info, VK_SUBPASS_CONTENTS_INLINE);
+	//commandBuffers[i].beginRenderPass(&renderPassInfo, vk::SubpassContents::eInline);
+
+
 	// run terrain system draw
 
 	vk::CommandBuffer* genreratedCommands = nullptr;
 	uint32_t genreratedCommandsCount;
 	terrainSystem->renderSystem(genreratedCommands, genreratedCommandsCount);
+
 
 	// submit frame
 

@@ -1,4 +1,5 @@
 #include "TrianglePipeline.h"
+#include "pch.h"
 
 
 void TrianglePipeline::createGraphicsPipeline()

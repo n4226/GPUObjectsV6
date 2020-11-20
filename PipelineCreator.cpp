@@ -1,4 +1,5 @@
 #include "PipelineCreator.h"
+#include "pch.h"
 
 PipelineCreator::PipelineCreator(vk::Device device, vk::Extent2D swapChainExtent, RenderPassManager& renderPassManager)
     : renderPassManager(renderPassManager), swapChainExtent(swapChainExtent)

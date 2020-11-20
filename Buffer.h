@@ -1,10 +1,8 @@
 #pragma once
 
-#include <vulkan/vulkan.hpp>
+#include "pch.h"
 #include "ResourceHeap.h"
 
-//#define VMA_IMPLEMENTATION
-#include "vk_mem_alloc.h"
 
 struct BufferCreationOptions {
 	enum StorageType

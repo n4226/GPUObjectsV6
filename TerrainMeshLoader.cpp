@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "TerrainMeshLoader.h"
 
 Mesh* TerrainMeshLoader::createChunkMesh(const TerrainQuadTreeNode& chunk, double radius)

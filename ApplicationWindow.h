@@ -1,12 +1,10 @@
 #pragma once
 
 
-#include <vulkan/vulkan.hpp>
-#include <iostream>
+#include "pch.h"
 #include <GLFW/glfw3.h>
 #include "GPUSelector.h"
 #include "PipelineCreator.h"
-#include <assert.h>
 #include "Camera.h"
 #include "TrianglePipeline.h"
 #include "TerrainPipeline.h"

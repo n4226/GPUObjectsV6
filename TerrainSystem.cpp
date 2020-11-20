@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "TerrainSystem.h"
 #include "Renderer.h"
 
@@ -11,7 +12,7 @@ TerrainSystem::TerrainSystem(Renderer* renderer)
 
 void TerrainSystem::CreateRenderResources()
 {
-
+	PROFILE_FUNCTION
 	vk::CommandPoolCreateInfo poolInfo{};
 
 	poolInfo.queueFamilyIndex = renderer->window.queueFamilyIndices.graphicsFamily.value();

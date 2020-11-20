@@ -1,8 +1,6 @@
 #pragma once
 
-#include <vulkan/vulkan.hpp>
-#include "GPUSelector.h"
-#include "ApplicationWindow.h"
+#include "pch.h"
 #include "Buffer.h"
 #include "Mesh.h"
 #include "uniforms.h"
@@ -13,9 +11,7 @@
 #include "glm/gtc/quaternion.hpp"
 #include "Camera.h"
 #include "PipelineCreator.h"
-#include <chrono>
 #include "TerrainSystem.h"
-
 class Renderer
 {
 public:

@@ -52,6 +52,9 @@
     <Filter Include="Source Files\renderer\helpers">
       <UniqueIdentifier>{f0971a57-5b8c-4f5d-a396-b9dfe7fd346b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\pch">
+      <UniqueIdentifier>{7b471b28-717c-4709-978c-7aaaeec3932c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -132,6 +135,12 @@
     <ClCompile Include="VkHelpers.cpp">
       <Filter>Source Files\renderer\helpers</Filter>
     </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Header Files\pch</Filter>
+    </ClCompile>
+    <ClCompile Include="vma.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApplicationWindow.h">
@@ -211,6 +220,9 @@
     </ClInclude>
     <ClInclude Include="VkHelpers.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Header Files\pch</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

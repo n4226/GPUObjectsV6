@@ -1,6 +1,7 @@
+#include "pch.h"
 #include "TerrainQuadTree.h"
 #include "TerrainQuadTreeNode.h"
-#include <glm/glm.hpp>
+
 
 TerrainQuadTree::TerrainQuadTree(double radius)
 	: radius(radius)
