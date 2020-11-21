@@ -13,19 +13,9 @@ TerrainSystem::TerrainSystem(Renderer* renderer)
 void TerrainSystem::CreateRenderResources()
 {
 	PROFILE_FUNCTION
-	vk::CommandPoolCreateInfo poolInfo{};
 
-	poolInfo.queueFamilyIndex = renderer->window.queueFamilyIndices.graphicsFamily.value();
-	poolInfo.flags = vk::CommandPoolCreateFlags(); // Optional
-
-	pools.reserve(renderer->window.swapChainImageViews.size());
-	commandBuffers.resize(renderer->window.swapChainImageViews.size());
-
-	for (size_t i = 0; i < renderer->window.swapChainImageViews.size(); i++)
-	{
-		pools.push_back(renderer->device.createCommandPool(poolInfo));
-		VkHelpers::allocateCommandBuffers(renderer->device, pools[i], commandBuffers.data() + i, 1,vk::CommandBufferLevel::ePrimary);
-	}
+	VkHelpers::createPoolsAndCommandBufffers
+		(renderer->device, pools, commandBuffers, renderer->window.swapChainImageViews.size(), renderer->window.queueFamilyIndices.graphicsFamily.value(), vk::CommandBufferLevel::ePrimary);
 
 }
 

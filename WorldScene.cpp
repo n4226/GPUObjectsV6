@@ -27,13 +27,19 @@ void WorldScene::startScene()
 	while (!glfwWindowShouldClose(window.window)) {
 		runFullUpdateLoop();
 	}
+
+	window.device.waitIdle();
 }
 
 void WorldScene::runFullUpdateLoop()
 {
 	PROFILE_FUNCTION
-	glfwPollEvents();
+	{
+		PROFILE_SCOPE("glfwPollEvents");
+		glfwPollEvents();
+	}
 	//drawView();
+
 	// update scene
 	updateScene();
 	// draw view

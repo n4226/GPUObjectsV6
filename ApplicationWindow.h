@@ -54,13 +54,18 @@ public:
 	vk::SurfaceKHR surface;
 
 	uint32_t currentSurfaceIndex;
+	size_t currentFrame = 0;
 
 
+	const int MAX_FRAMES_IN_FLIGHT = 3;
 
 	// Synchronization objects
 
-	vk::Semaphore imageAvailableSemaphore;
-	vk::Semaphore renderFinishedSemaphore;
+	std::vector<VkSemaphore> imageAvailableSemaphores;
+	std::vector<VkSemaphore> renderFinishedSemaphores;
+	std::vector<VkFence> inFlightFences;
+	std::vector<VkFence> imagesInFlight;
+
 
 private:
 

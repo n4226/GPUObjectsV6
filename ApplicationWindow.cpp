@@ -198,11 +198,20 @@ void WindowManager::createFramebuffers()
 void WindowManager::createSemaphores()
 {
     PROFILE_FUNCTION
+
+    imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+    imagesInFlight.resize(swapChainImages.size(), VK_NULL_HANDLE);
+
     vk::SemaphoreCreateInfo semaphoreInfo{};
-
-    imageAvailableSemaphore = device.createSemaphore(semaphoreInfo);
-    renderFinishedSemaphore = device.createSemaphore(semaphoreInfo);
-
+    vk::FenceCreateInfo fenceInfo{};
+    fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        imageAvailableSemaphores[i] = device.createSemaphore(semaphoreInfo);
+        renderFinishedSemaphores[i] = device.createSemaphore(semaphoreInfo);
+        inFlightFences[i] = device.createFence(fenceInfo);
+    }
 }
 
 void WindowManager::createSurface()
@@ -266,9 +275,11 @@ void WindowManager::createInstance()
 WindowManager::~WindowManager()
 {
     PROFILE_FUNCTION
-    device.destroySemaphore(imageAvailableSemaphore);
-    device.destroySemaphore(renderFinishedSemaphore);
-
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        device.destroySemaphore(imageAvailableSemaphores[i]);
+        device.destroySemaphore(renderFinishedSemaphores[i]);
+        device.destroyFence(inFlightFences[i]);
+    }
     for (auto framebuffer : swapChainFramebuffers) {
         vkDestroyFramebuffer(device, framebuffer, nullptr);
     }
@@ -304,9 +315,20 @@ void WindowManager::runWindowLoop()
 void WindowManager::getDrawable()
 {
     PROFILE_FUNCTION
-    auto index = device.acquireNextImageKHR(swapChain, UINT64_MAX, imageAvailableSemaphore, nullptr);
+
+    vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+
+    auto index = device.acquireNextImageKHR(swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], nullptr);
     cout << "current index = " << index.value << endl;
     currentSurfaceIndex = index.value;
+
+    // Check if a previous frame is using this image (i.e. there is its fence to wait on)
+    if (imagesInFlight[currentSurfaceIndex] != VK_NULL_HANDLE) {
+        vkWaitForFences(device, 1, &imagesInFlight[currentSurfaceIndex], VK_TRUE, UINT64_MAX);
+    }
+
+    // Mark the image as now being in use by this frame
+    imagesInFlight[currentSurfaceIndex] = inFlightFences[currentFrame];
 }
 
 void WindowManager::presentDrawable()
@@ -316,7 +338,7 @@ void WindowManager::presentDrawable()
 
     vk::PresentInfoKHR presentInfo{};
 
-    std::vector<vk::Semaphore> signalSemaphores = { renderFinishedSemaphore };
+    std::vector<vk::Semaphore> signalSemaphores = { renderFinishedSemaphores[currentFrame] };
 
     presentInfo.setWaitSemaphores(signalSemaphores);
 
@@ -328,6 +350,8 @@ void WindowManager::presentDrawable()
     presentInfo.pResults = nullptr; // Optional
 
     deviceQueues.presentation.presentKHR(presentInfo);
+
+    currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
  }
 
 

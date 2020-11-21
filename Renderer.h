@@ -17,6 +17,7 @@ class Renderer
 public:
 
 	Renderer(vk::Device& device, vk::PhysicalDevice& physicalDevice, WindowManager& window);
+	void createDynamicRenderCommands(vk::Device& device, WindowManager& window);
 	~Renderer();
 
 	void renderFrame();
@@ -44,8 +45,12 @@ private:
 
 	// render resources
 
+
+	std::vector<vk::CommandPool> dynamicCommandPools;
+	std::vector<vk::CommandBuffer> dynamicCommandBuffers;
+
 	vk::CommandPool commandPool;
-	std::vector<vk::CommandBuffer> commandBuffers;
+	std::vector<vk::CommandBuffer> staticCommandBuffers;
 
 	VmaAllocator allocator;
 

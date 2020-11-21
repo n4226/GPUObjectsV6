@@ -6,6 +6,8 @@ Renderer::Renderer(vk::Device& device, vk::PhysicalDevice& physicalDevice, Windo
 	PROFILE_FUNCTION
 	createRenderResources();
 	createStaticRenderCommands();
+
+	createDynamicRenderCommands(device, window);
 }
 
 Renderer::~Renderer()
@@ -50,16 +52,16 @@ void Renderer::createRenderResources()
 
 	// MARK: becuase of the constant errors i'm adding this
 
-	commandBuffers.resize(window.swapChainFramebuffers.size());
+	staticCommandBuffers.resize(window.swapChainFramebuffers.size());
 
 	vk::CommandBufferAllocateInfo allocInfo{};
 	allocInfo.commandPool = commandPool;
 	
 
 	allocInfo.level = vk::CommandBufferLevel::ePrimary;
-	allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
+	allocInfo.commandBufferCount = (uint32_t)staticCommandBuffers.size();
 	
-	commandBuffers = device.allocateCommandBuffers(allocInfo);
+	staticCommandBuffers = device.allocateCommandBuffers(allocInfo);
 	/*VkCommandBufferAllocateInfo newAllocInfo = allocInfo;
 
 	std::vector<VkCommandBuffer> tempBuffers;
@@ -109,6 +111,12 @@ void Renderer::createDescriptorPoolAndSets()
 	vkAllocateDescriptorSets(device, &c_allocInfo, descriptorSets.data());
 
 
+}
+
+void Renderer::createDynamicRenderCommands(vk::Device& device, WindowManager& window)
+{
+	VkHelpers::createPoolsAndCommandBufffers
+	(device, dynamicCommandPools, dynamicCommandBuffers, window.swapChainImageViews.size(), window.queueFamilyIndices.graphicsFamily.value(), vk::CommandBufferLevel::ePrimary);
 }
 
 void Renderer::createStaticRenderCommands()
@@ -182,14 +190,14 @@ void Renderer::createStaticRenderCommands()
 
 
 
-	for (size_t i = 0; i < commandBuffers.size(); i++) {
+	for (size_t i = 0; i < staticCommandBuffers.size(); i++) {
 
 		VkCommandBufferBeginInfo beginInfo{};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = VkCommandBufferUsageFlagBits::VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT; // Optional
+		beginInfo.flags = 0; // Optional
 		beginInfo.pInheritanceInfo = nullptr; // Optional
 
-		commandBuffers[i].begin(beginInfo);
+		staticCommandBuffers[i].begin(beginInfo);
 
 		// begin a render pass
 
@@ -207,31 +215,31 @@ void Renderer::createStaticRenderCommands()
 		VkRenderPassBeginInfo info = renderPassInfo;
 
 		//vkCmdBeginRenderPass(commandBuffers[i], &info, VK_SUBPASS_CONTENTS_INLINE);
-		commandBuffers[i].beginRenderPass(&renderPassInfo,vk::SubpassContents::eInline);
+		staticCommandBuffers[i].beginRenderPass(&renderPassInfo,vk::SubpassContents::eInline);
 
-		commandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, window.pipelineCreator->pipelineLayout, 0, { descriptorSets[i] }, {});
+		staticCommandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, window.pipelineCreator->pipelineLayout, 0, { descriptorSets[i] }, {});
 
 		// encode commands 
 
-		commandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, window.pipelineCreator->vkItem);
+		staticCommandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, window.pipelineCreator->vkItem);
 
 		//vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, window.pipelineCreator->graphicsPipeline);
 
 		//commandBuffers[i].bindVertexBuffers(0, { vertBuffer->vkItem }, { 0 });
 		//commandBuffers[i].bindIndexBuffer({ indexBuffer->vkItem }, 0, vk::IndexType::eUint32);
-		meshBuffer->bindVerticiesIntoCommandBuffer(commandBuffers[i], 0);
-		meshBuffer->bindIndiciesIntoCommandBuffer(commandBuffers[i]);
+		meshBuffer->bindVerticiesIntoCommandBuffer(staticCommandBuffers[i], 0);
+		meshBuffer->bindIndiciesIntoCommandBuffer(staticCommandBuffers[i]);
 
 		//commandBuffers[i].draw(vertices.size(), 1, 0, 0);
 		//commandBuffers[i].drawIndexed(static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
-		commandBuffers[i].drawIndexed(static_cast<uint32_t>(meshBuffer->baseMesh->indicies.size()), 1, 0, 0, 0);
+		staticCommandBuffers[i].drawIndexed(static_cast<uint32_t>(meshBuffer->baseMesh->indicies.size()), 1, 0, 0, 0);
 
-		commandBuffers[i].endRenderPass();
+		staticCommandBuffers[i].endRenderPass();
 
 		// end encoding
 
-		commandBuffers[i].end();
+		staticCommandBuffers[i].end();
 
 
 	}
@@ -248,51 +256,57 @@ void Renderer::renderFrame()
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-	//static auto quadtransform = Transform();
-	//quadtransform.position.z = 1;
-	////window.camera.transform.position.y = 10;
+	static auto quadtransform = Transform();
+	quadtransform.position.z = 1;
+	//window.camera.transform.position.y = 10;
 
 
-	//glm::vec3 axis = { 0,1,0 };
-	//quadtransform.rotation = glm::angleAxis(glm::radians(60 * sin(time)), axis);
+	glm::vec3 axis = { 0,1,0 };
+	quadtransform.rotation = glm::angleAxis(glm::radians(60 * sin(time)), axis);
 
-	//TriangleUniformBufferObject ubo;
+	TriangleUniformBufferObject ubo;
 
-	//ubo.model = quadtransform.matrix();
-	//ubo.viewProjection = window.camera.viewProjection(window.swapchainExtent.width, window.swapchainExtent.height);
+	ubo.model = quadtransform.matrix();
+	ubo.viewProjection = window.camera.viewProjection(window.swapchainExtent.width, window.swapchainExtent.height);
 
-	////Using a UBO this way is not the most efficient way to pass frequently changing values to the shader. A more efficient way to pass a small buffer of data to shaders are push constants. We may look at these in a future chapter.
-	//uniformBuffers[window.currentSurfaceIndex]->tempMapAndWrite(&ubo, sizeof(ubo));
+	//Using a UBO this way is not the most efficient way to pass frequently changing values to the shader. A more efficient way to pass a small buffer of data to shaders are push constants. We may look at these in a future chapter.
+	uniformBuffers[window.currentSurfaceIndex]->tempMapAndWrite(&ubo, sizeof(ubo));
 
+
+#pragma region CreateRootCMDBuffer
 
 	// create root cmd buffer
 
+	device.resetCommandPool(dynamicCommandPools[window.currentSurfaceIndex], {});
 
-	//VkCommandBufferBeginInfo beginInfo{};
-	//beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	//beginInfo.flags = VkCommandBufferUsageFlagBits::VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT; // Optional
-	//beginInfo.pInheritanceInfo = nullptr; // Optional
+	VkCommandBufferBeginInfo beginInfo{};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = 0; //VkCommandBufferUsageFlagBits::VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT; // Optional
+	beginInfo.pInheritanceInfo = nullptr; // Optional
 
-	//commandBuffers[i].begin(beginInfo);
+	dynamicCommandBuffers[window.currentSurfaceIndex].begin(beginInfo);
+
 
 	// begin a render pass
 
-	//vk::RenderPassBeginInfo renderPassInfo{};
-	//renderPassInfo.renderPass = window.renderPassManager->renderPass;
-	//renderPassInfo.framebuffer = window.swapChainFramebuffers[i];
+	vk::RenderPassBeginInfo renderPassInfo{};
+	renderPassInfo.renderPass = window.renderPassManager->renderPass;
+	renderPassInfo.framebuffer = window.swapChainFramebuffers[window.currentSurfaceIndex];
 
-	//renderPassInfo.renderArea = vk::Rect2D({ 0, 0 }, window.swapchainExtent);
+	renderPassInfo.renderArea = vk::Rect2D({ 0, 0 }, window.swapchainExtent);
 
-	////VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-	//const std::array<float, 4> clearComponents = { 0.0f, 0.0f, 0.2f, 1.0f };
-	//vk::ClearValue clearColor = vk::ClearValue(vk::ClearColorValue(clearComponents));
-	//renderPassInfo.setClearValues(clearColor);
+	//VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+	const std::array<float, 4> clearComponents = { 0.0f, 0.0f, 0.2f, 1.0f };
+	vk::ClearValue clearColor = vk::ClearValue(vk::ClearColorValue(clearComponents));
+	renderPassInfo.setClearValues(clearColor);
 
-	//VkRenderPassBeginInfo info = renderPassInfo;
+	VkRenderPassBeginInfo info = renderPassInfo;
 
-	////vkCmdBeginRenderPass(commandBuffers[i], &info, VK_SUBPASS_CONTENTS_INLINE);
-	//commandBuffers[i].beginRenderPass(&renderPassInfo, vk::SubpassContents::eInline);
+	//vkCmdBeginRenderPass(commandBuffers[i], &info, VK_SUBPASS_CONTENTS_INLINE);
+	dynamicCommandBuffers[window.currentSurfaceIndex].beginRenderPass(&renderPassInfo, vk::SubpassContents::eSecondaryCommandBuffers);
 
+
+#pragma endregion
 
 	// run terrain system draw
 
@@ -301,16 +315,21 @@ void Renderer::renderFrame()
 	terrainSystem->renderSystem(genreratedCommands, genreratedCommandsCount);
 
 
+	// end encoding 
+
+	dynamicCommandBuffers[window.currentSurfaceIndex].endRenderPass();
+	dynamicCommandBuffers[window.currentSurfaceIndex].end();
+
 	// submit frame
 
-	submitFrameQueue(&commandBuffers[window.currentSurfaceIndex],1);
+	submitFrameQueue(&staticCommandBuffers[window.currentSurfaceIndex],1);
 }
 
 void Renderer::submitFrameQueue(vk::CommandBuffer* buffers,uint32_t bufferCount)
 {
 	vk::SubmitInfo submitInfo{};
 
-	std::vector<vk::Semaphore> waitSemaphores = { window.imageAvailableSemaphore };
+	std::vector<vk::Semaphore> waitSemaphores = { window.imageAvailableSemaphores[window.currentFrame] };
 	std::vector<vk::PipelineStageFlags> waitStages = { vk::PipelineStageFlags(vk::PipelineStageFlagBits::eColorAttachmentOutput) };
 	submitInfo.waitSemaphoreCount = waitSemaphores.size();
 	submitInfo.pWaitSemaphores = waitSemaphores.data();
@@ -319,11 +338,13 @@ void Renderer::submitFrameQueue(vk::CommandBuffer* buffers,uint32_t bufferCount)
 	submitInfo.commandBufferCount = bufferCount;
 	submitInfo.pCommandBuffers = buffers;
 
-	std::vector<vk::Semaphore> signalSemaphores = { window.renderFinishedSemaphore };
+	std::vector<vk::Semaphore> signalSemaphores = { window.renderFinishedSemaphores[window.currentFrame] };
 	submitInfo.setSignalSemaphores(signalSemaphores);
 
 
+	vkResetFences(device, 1, &window.inFlightFences[window.currentFrame]);
+
 	// submit queue
 
-	window.deviceQueues.graphics.submit({ submitInfo }, nullptr);
+	window.deviceQueues.graphics.submit({ submitInfo }, window.inFlightFences[window.currentFrame]);
 }
