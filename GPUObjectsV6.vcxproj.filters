@@ -141,6 +141,12 @@
     <ClCompile Include="vma.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IndexAllocator.cpp">
+      <Filter>Source Files\renderer\helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="VaribleIndexAllocator.cpp">
+      <Filter>Source Files\renderer\helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApplicationWindow.h">
@@ -223,6 +229,12 @@
     </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>Header Files\pch</Filter>
+    </ClInclude>
+    <ClInclude Include="IndexAllocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VaribleIndexAllocator.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

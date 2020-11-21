@@ -1,7 +1,7 @@
 #pragma once
 
 //#include "TerrainQuadTreeNode.h"
-#include <vector>
+#include "pch.h"
 #include "RenderSystem.h"
 
 class TerrainQuadTreeNode;
@@ -16,7 +16,7 @@ public:
 
 	std::vector<TerrainQuadTreeNode> rootNodes;
 
-	std::vector<TerrainQuadTreeNode*> leafNodes;
+	std::set<TerrainQuadTreeNode*> leafNodes;
 
 
 };

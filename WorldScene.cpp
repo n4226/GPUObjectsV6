@@ -6,6 +6,8 @@ WorldScene::WorldScene(WindowManager& window) : window(window)
 	PROFILE_FUNCTION
 	renderer = new Renderer(window.device, window.physicalDevice, window);
 	terrainSystem = new TerrainSystem(renderer);
+	terrainSystem->trackedTransform = &playerTrans;
+	terrainSystem->origin = &origin;
 	renderer->terrainSystem = terrainSystem;
 }
 
@@ -52,5 +54,8 @@ void WorldScene::runFullUpdateLoop()
 void WorldScene::updateScene()
 {
 	PROFILE_FUNCTION
+
+	playerTrans.position = Math::LlatoGeo(playerLLA, glm::dvec3(0, 0, 10),1);
+
 	terrainSystem->update();
 }

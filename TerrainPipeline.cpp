@@ -6,6 +6,9 @@ void TerrainPipeline::createGraphicsPipeline()
 {
     // DescriptorSetLayout
 
+    // global uniforms - 
+    // binding 0 = viewProj
+
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
     uboLayoutBinding.binding = 0;
     uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;

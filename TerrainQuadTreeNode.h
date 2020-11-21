@@ -10,7 +10,7 @@ class TerrainQuadTreeNode
 {
 public:
 
-	TerrainQuadTreeNode(Box frame,TerrainQuadTreeNode* parent,TerrainQuadTree* tree);
+	TerrainQuadTreeNode(Box frame,TerrainQuadTreeNode* parent,TerrainQuadTree* tree, uint16_t lodLevel = 0);
 
 	Box frame;
 	glm::dvec3 center_geo;
@@ -18,10 +18,23 @@ public:
 	glm::dvec3 end_geo;
 
 	TerrainQuadTreeNode* parent;
-	std::vector<TerrainQuadTreeNode*> children;
+	bool isSplit = false;
+	std::vector<TerrainQuadTreeNode> children;
 
+	// stored properties 
+
+	uint16_t lodLevel;
+	bool visable;
+	bool active = true;
 
 	TerrainQuadTree* tree;
+
+	// lyfcycle events
+
+	void split();
+	void combine();
+
+	void willBeCombined();
 
 };
 

@@ -25,6 +25,13 @@ public:
 
 	TerrainSystem* terrainSystem;
 
+	glm::dvec3 origin = glm::dvec3(0, 0, 0);
+
+	// player
+
+	glm::dvec3 playerLLA = glm::dvec3(0,0,10);
+	Transform playerTrans;
+
 private:
 
 	void loadScene();

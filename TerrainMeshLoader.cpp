@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "TerrainMeshLoader.h"
 
-Mesh* TerrainMeshLoader::createChunkMesh(const TerrainQuadTreeNode& chunk, double radius)
+Mesh* TerrainMeshLoader::createChunkMesh(const TerrainQuadTreeNode& chunk)
 {
     Mesh* mesh = new Mesh();
 
@@ -25,7 +25,7 @@ Mesh* TerrainMeshLoader::createChunkMesh(const TerrainQuadTreeNode& chunk, doubl
             auto lon = frame.start.y + chunkStrideLon;
             glm::dvec3 lla(lat, lon, 0);
 
-            auto geo_unCentered = Math::LlatoGeo(lla, {}, radius);
+            auto geo_unCentered = Math::LlatoGeo(lla, {}, chunk.tree->radius);
 
             mesh->verts.emplace_back(geo_unCentered - chunk.center_geo);//Math::LlatoGeo(glm::dvec3(frame.getCenter(), 0), {}, radius));
             mesh->normals.emplace_back(static_cast<glm::vec3>(glm::normalize(geo_unCentered)));

@@ -3,6 +3,7 @@
 #include "RenderSystem.h"
 #include "TerrainQuadTree.h"
 #include "TerrainQuadTreeNode.h"
+#include "TerrainMeshLoader.h"
 #include "Transform.h"
 #include "VkHelpers.h"
 
@@ -17,21 +18,25 @@ public:
 	void CreateRenderResources();
 
 	void update() override;
-	void renderSystem(vk::CommandBuffer* buffers, uint32_t& count) override;
+	vk::CommandBuffer* renderSystem(uint32_t subpass) override;
 
 	Transform* trackedTransform = nullptr;
 	glm::dvec3* origin = nullptr;
 
 	Renderer* renderer;
 
+	const uint16_t lodLevels = 13;
+
 private:
 
 	TerrainQuadTree tree;
 
+	TerrainMeshLoader loader;
 
 	void processTree();
 
-	void redrawChunk(const TerrainQuadTreeNode* node);
+	void drawChunk(const TerrainQuadTreeNode* node);
+	void removeDrawChunk(const TerrainQuadTreeNode* node);
 
 	double threshold(const TerrainQuadTreeNode* node);
 
@@ -44,9 +49,11 @@ private:
 	/// <summary>
 	/// one for each drawable
 	/// </summary>
-	std::vector<vk::CommandPool> pools;
-
+	std::vector<vk::CommandPool> cmdBufferPools;
 	std::vector<vk::CommandBuffer> commandBuffers;
+
+	vk::DescriptorPool descriptorPool;
+	std::vector<VkDescriptorSet> descriptorSets;
 
 };
 

@@ -12,12 +12,13 @@
 #include "Camera.h"
 #include "PipelineCreator.h"
 #include "TerrainSystem.h"
+#include "VaribleIndexAllocator.h"
+
 class Renderer
 {
 public:
 
 	Renderer(vk::Device& device, vk::PhysicalDevice& physicalDevice, WindowManager& window);
-	void createDynamicRenderCommands(vk::Device& device, WindowManager& window);
 	~Renderer();
 
 	void renderFrame();
@@ -32,6 +33,10 @@ public:
 	vk::PhysicalDevice& physicalDevice;
 	WindowManager& window;
 
+	VmaAllocator allocator;
+
+	std::vector<Buffer*> uniformBuffers;
+
 private:
 
 	void createRenderResources();
@@ -39,6 +44,8 @@ private:
 	void createDescriptorPoolAndSets();
 
 	void createStaticRenderCommands();
+
+	void createDynamicRenderCommands(vk::Device& device, WindowManager& window);
 
 	void submitFrameQueue(vk::CommandBuffer* buffers, uint32_t bufferCount);
 
@@ -52,7 +59,6 @@ private:
 	vk::CommandPool commandPool;
 	std::vector<vk::CommandBuffer> staticCommandBuffers;
 
-	VmaAllocator allocator;
 
 	vk::DescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;
@@ -66,6 +72,17 @@ private:
 	Mesh* mesh;
 	MeshBuffer* meshBuffer;
 
-	std::vector<Buffer*> uniformBuffers;
+
+
+	// dindless vars
+
+	VaribleIndexAllocator* gloablVertAllocator;
+	VaribleIndexAllocator* gloablIndAllocator;
+
+	Buffer* globalVerticies;
+	Buffer* globalIndicies;
+	Buffer* globalVerticiesStaging;
+	Buffer* globalIndiciesStaging;
+
 };
 

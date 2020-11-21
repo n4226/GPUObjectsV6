@@ -23,6 +23,11 @@ Renderer::~Renderer()
 		delete buffer;
 	}
 
+	delete globalVerticiesStaging;
+	delete globalVerticies;
+	delete globalIndiciesStaging;
+	delete globalIndicies;
+
 	device.destroyDescriptorPool(descriptorPool);
 }
 
@@ -62,19 +67,30 @@ void Renderer::createRenderResources()
 	allocInfo.commandBufferCount = (uint32_t)staticCommandBuffers.size();
 	
 	staticCommandBuffers = device.allocateCommandBuffers(allocInfo);
-	/*VkCommandBufferAllocateInfo newAllocInfo = allocInfo;
+	
+#pragma region Create Global vert and in
 
-	std::vector<VkCommandBuffer> tempBuffers;
-	tempBuffers.resize(commandBuffers.size());
+	BufferCreationOptions options = { BufferCreationOptions::cpu,{vk::BufferUsageFlagBits::eVertexBuffer}, vk::SharingMode::eExclusive };
 
-	vkAllocateCommandBuffers(device, &newAllocInfo, tempBuffers.data());
+	globalVerticiesStaging = new Buffer(device,allocator,6000000,options);
 
-	for (size_t i = 0; i < tempBuffers.size(); i++)
-	{
-		commandBuffers[i] = tempBuffers[i];
-	}*/
+	options.storage = BufferCreationOptions::gpu;
 
-	// create descriptor pool
+	globalVerticies = new Buffer(device,allocator,6000000,options);
+
+	options.usage = vk::BufferUsageFlagBits::eIndexBuffer;
+	options.storage = BufferCreationOptions::cpu;
+
+	globalIndiciesStaging = new Buffer(device,allocator,6000000,options);
+
+	options.storage = BufferCreationOptions::gpu;
+
+	globalIndicies = new Buffer(device,allocator,6000000,options);
+
+	gloablVertAllocator = new VaribleIndexAllocator(6000000);
+	gloablIndAllocator =  new VaribleIndexAllocator(6000000);
+	 
+#pragma endregion
 
 	createDescriptorPoolAndSets();
 
@@ -310,10 +326,12 @@ void Renderer::renderFrame()
 
 	// run terrain system draw
 
-	vk::CommandBuffer* genreratedCommands = nullptr;
-	uint32_t genreratedCommandsCount;
-	terrainSystem->renderSystem(genreratedCommands, genreratedCommandsCount);
+	auto generatedTerrainCmds = terrainSystem->renderSystem(0);
 
+
+	// exicute indirect commands
+
+	dynamicCommandBuffers[window.currentSurfaceIndex].executeCommands({ 1, generatedTerrainCmds });
 
 	// end encoding 
 
@@ -322,7 +340,7 @@ void Renderer::renderFrame()
 
 	// submit frame
 
-	submitFrameQueue(&staticCommandBuffers[window.currentSurfaceIndex],1);
+	submitFrameQueue(&dynamicCommandBuffers[window.currentSurfaceIndex],1);
 }
 
 void Renderer::submitFrameQueue(vk::CommandBuffer* buffers,uint32_t bufferCount)

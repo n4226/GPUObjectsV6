@@ -14,6 +14,6 @@ class RenderSystem: public System
     /// system might be able to do this in parelel
 	/// </summary>
 	/// <param name="buffer"></param>
-	virtual void renderSystem(vk::CommandBuffer* buffers,uint32_t& count) = 0;
+	virtual vk::CommandBuffer* renderSystem(uint32_t subpass) = 0;
 };
 

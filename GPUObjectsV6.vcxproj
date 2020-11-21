@@ -172,6 +172,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="environment.h" />
     <ClCompile Include="GPUSelector.cpp" />
+    <ClCompile Include="IndexAllocator.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -191,6 +192,7 @@
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="TrianglePipeline.cpp" />
     <ClCompile Include="uniforms.cpp" />
+    <ClCompile Include="VaribleIndexAllocator.cpp" />
     <ClCompile Include="VkHelpers.cpp" />
     <ClCompile Include="vma.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -205,6 +207,7 @@
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="GPUSelector.h" />
+    <ClInclude Include="IndexAllocator.h" />
     <ClInclude Include="Instrumentor.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="Mesh.h" />
@@ -223,6 +226,7 @@
     <ClInclude Include="Transform.h" />
     <ClInclude Include="TrianglePipeline.h" />
     <ClInclude Include="uniforms.h" />
+    <ClInclude Include="VaribleIndexAllocator.h" />
     <ClInclude Include="VkHelpers.h" />
     <ClInclude Include="vk_mem_alloc.h" />
     <ClInclude Include="WorldScene.h" />
