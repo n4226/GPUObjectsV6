@@ -20,6 +20,6 @@ public:
 
 private:
 
-	VkDeviceAddress currentAdress;
+	VkDeviceAddress currentAdress = 0;
 };
 

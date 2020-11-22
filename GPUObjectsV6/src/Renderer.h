@@ -37,6 +37,14 @@ public:
 
 	std::vector<Buffer*> uniformBuffers;
 
+	// dindless vars
+
+	VaribleIndexAllocator* gloablVertAllocator;
+	VaribleIndexAllocator* gloablIndAllocator;
+
+	BindlessMeshBuffer* globalMesh;
+	BindlessMeshBuffer* globalMeshStaging;
+
 private:
 
 	void createRenderResources();
@@ -73,16 +81,6 @@ private:
 	MeshBuffer* meshBuffer;
 
 
-
-	// dindless vars
-
-	VaribleIndexAllocator* gloablVertAllocator;
-	VaribleIndexAllocator* gloablIndAllocator;
-
-	Buffer* globalVerticies;
-	Buffer* globalIndicies;
-	Buffer* globalVerticiesStaging;
-	Buffer* globalIndiciesStaging;
 
 };
 

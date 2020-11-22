@@ -319,7 +319,7 @@ void WindowManager::getDrawable()
     vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
     auto index = device.acquireNextImageKHR(swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], nullptr);
-    cout << "current index = " << index.value << endl;
+    //cout << "current index = " << index.value << endl;
     currentSurfaceIndex = index.value;
 
     // Check if a previous frame is using this image (i.e. there is its fence to wait on)

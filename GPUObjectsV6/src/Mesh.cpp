@@ -79,7 +79,7 @@ VkDeviceSize Mesh::tangentsOffset()
 
 VkDeviceSize Mesh::bitangentsOffset()
 {
-	return tangentsOffset() + tangentsOffset();
+	return tangentsOffset() + tangentsSize();
 }
 
 VkDeviceSize Mesh::indiciesOffset()
@@ -213,4 +213,127 @@ void MeshBuffer::bindVerticiesIntoCommandBuffer(vk::CommandBuffer commandBuffer,
 void MeshBuffer::bindIndiciesIntoCommandBuffer(vk::CommandBuffer commandBuffer)
 {
 	commandBuffer.bindIndexBuffer(buffer->vkItem, baseMesh->indiciesOffset(), vk::IndexType::eUint32);
+}
+
+
+
+BindlessMeshBuffer::BindlessMeshBuffer(vk::Device device, VmaAllocator allocator, BufferCreationOptions options, VkDeviceSize vertexCount, VkDeviceSize indexCount)
+	: vertexCount(vertexCount), indexCount(indexCount)
+{
+	auto vertbufferSize = (4 * sizeof(glm::vec3) + sizeof(glm::vec2)) * vertexCount;
+
+	options.usage = vk::BufferUsageFlagBits::eVertexBuffer;
+
+	vertBuffer = new Buffer(device, allocator, vertbufferSize, options);
+
+	options.usage = vk::BufferUsageFlagBits::eIndexBuffer;
+
+	indexBuffer = new Buffer(device, allocator, indexCount * sizeof(glm::uint32_t), options);
+
+}
+
+BindlessMeshBuffer::~BindlessMeshBuffer()
+{
+	delete vertBuffer;
+	delete indexBuffer;
+}
+
+void BindlessMeshBuffer::writeMeshToBuffer(VkDeviceAddress vertIndex, VkDeviceAddress indIndex, Mesh* mesh, bool mapandUnmap)
+{
+	if (mapandUnmap)
+	{ 
+		vertBuffer->mapMemory();
+		indexBuffer->mapMemory();
+	}
+
+	memcpy(static_cast<char*>(vertBuffer->mappedData) + vertsOffset()      + vertIndex * sizeof(glm::vec3), mesh->verts.data(),      mesh->vertsSize());
+	memcpy(static_cast<char*>(vertBuffer->mappedData) + uvsOffset()        + vertIndex * sizeof(glm::vec2), mesh->uvs.data(),        mesh->uvsSize());
+	memcpy(static_cast<char*>(vertBuffer->mappedData) + normalsOffset()    + vertIndex * sizeof(glm::vec3), mesh->normals.data(),    mesh->normalsSize());
+	memcpy(static_cast<char*>(vertBuffer->mappedData) + tangentsOffset()   + vertIndex * sizeof(glm::vec3), mesh->tangents.data(),   mesh->tangentsSize());
+	memcpy(static_cast<char*>(vertBuffer->mappedData) + bitangentsOffset() + vertIndex * sizeof(glm::vec3), mesh->bitangents.data(), mesh->bitangentsSize());
+
+	memcpy(static_cast<char*>(indexBuffer->mappedData)                     + indIndex * sizeof(glm::uint32), mesh->indicies.data(), mesh->indiciesSize());
+	
+	if (mapandUnmap)
+	{
+		vertBuffer->unmapMemory();
+		indexBuffer->unmapMemory();
+	}
+}
+
+void BindlessMeshBuffer::bindVerticiesIntoCommandBuffer(vk::CommandBuffer commandBuffer, uint32_t baseBinding)
+{
+	commandBuffer.bindVertexBuffers(baseBinding, {
+			vertBuffer->vkItem,
+			vertBuffer->vkItem,
+			vertBuffer->vkItem,
+			vertBuffer->vkItem,
+			vertBuffer->vkItem
+		}, {
+			vertsOffset(),
+			uvsOffset(),
+			normalsOffset(),
+			tangentsOffset(),
+			bitangentsOffset()
+		});
+}
+
+void BindlessMeshBuffer::bindIndiciesIntoCommandBuffer(vk::CommandBuffer commandBuffer)
+{
+	commandBuffer.bindIndexBuffer(indexBuffer->vkItem,0, vk::IndexType::eUint32);
+}
+
+VkDeviceSize BindlessMeshBuffer::vertsSize()
+{
+	return vertexCount * sizeof(glm::vec3);
+}
+
+VkDeviceSize BindlessMeshBuffer::uvsSize()
+{
+	return vertexCount * sizeof(glm::vec2);
+}
+
+VkDeviceSize BindlessMeshBuffer::normalsSize()
+{
+	return vertexCount * sizeof(glm::vec3);
+}
+
+VkDeviceSize BindlessMeshBuffer::tangentsSize()
+{
+	return vertexCount * sizeof(glm::vec3);
+}
+
+VkDeviceSize BindlessMeshBuffer::bitangentsSize()
+{
+	return vertexCount * sizeof(glm::vec3);
+}
+
+VkDeviceSize BindlessMeshBuffer::indiciesSize()
+{
+	return indexCount * sizeof(glm::uint32);
+}
+
+VkDeviceSize BindlessMeshBuffer::vertsOffset()
+{
+	return 0;
+}
+
+VkDeviceSize BindlessMeshBuffer::uvsOffset()
+{
+	return vertsOffset() + vertsSize();
+}
+
+VkDeviceSize BindlessMeshBuffer::normalsOffset()
+{
+	return uvsOffset() + uvsSize();
+}
+
+VkDeviceSize BindlessMeshBuffer::tangentsOffset()
+{
+	return normalsOffset() + normalsSize();
+}
+
+VkDeviceSize BindlessMeshBuffer::bitangentsOffset()
+{
+	return tangentsOffset() + tangentsSize();
 }

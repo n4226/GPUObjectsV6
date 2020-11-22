@@ -10,7 +10,7 @@ glm::mat4 Camera::projection(float width, float height)
 
 glm::mat4 Camera::view()
 {
-    return transform.matrix();
+    return glm::inverse(transform.matrix());
 }
 
 glm::mat4 Camera::viewProjection(float width, float height)

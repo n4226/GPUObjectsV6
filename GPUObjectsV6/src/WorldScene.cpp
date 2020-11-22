@@ -55,7 +55,15 @@ void WorldScene::updateScene()
 {
 	PROFILE_FUNCTION
 
-	playerTrans.position = Math::LlatoGeo(playerLLA, glm::dvec3(0, 0, 10),1);
+	static auto startTime = std::chrono::high_resolution_clock::now();
+
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	time = std::chrono::duration<double, std::chrono::seconds::period>(currentTime - startTime).count();
+
+	// the camera looks at -> +z
+	playerTrans.position = glm::vec3(0, -0.4,-1);
+	//Math::LlatoGeo(playerLLA, glm::dvec3(0, 0, 10),1);
+	window.camera.transform = playerTrans;
 
 	terrainSystem->update();
 }

@@ -29,7 +29,7 @@ int main() {
     Instrumentor::Get().EndSession();
     Instrumentor::Get().BeginSession("Run", "instruments_Run.json");
 
-    printf("starting render loop");
+    printf("starting render loop\n");
 
     scene->startScene();
 

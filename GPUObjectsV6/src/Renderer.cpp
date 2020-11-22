@@ -23,10 +23,8 @@ Renderer::~Renderer()
 		delete buffer;
 	}
 
-	delete globalVerticiesStaging;
-	delete globalVerticies;
-	delete globalIndiciesStaging;
-	delete globalIndicies;
+	delete globalMeshStaging;
+	delete globalMesh;
 
 	device.destroyDescriptorPool(descriptorPool);
 }
@@ -72,23 +70,17 @@ void Renderer::createRenderResources()
 
 	BufferCreationOptions options = { BufferCreationOptions::cpu,{vk::BufferUsageFlagBits::eVertexBuffer}, vk::SharingMode::eExclusive };
 
-	globalVerticiesStaging = new Buffer(device,allocator,6000000,options);
+	//TODO temp 
+	options.storage = BufferCreationOptions::cpuToGpu;
 
+	globalMeshStaging = new BindlessMeshBuffer(device, allocator, options, 1000000, 1000000);
+	
 	options.storage = BufferCreationOptions::gpu;
 
-	globalVerticies = new Buffer(device,allocator,6000000,options);
+	globalMesh = new BindlessMeshBuffer(device, allocator, options, 1000000, 1000000);
 
-	options.usage = vk::BufferUsageFlagBits::eIndexBuffer;
-	options.storage = BufferCreationOptions::cpu;
-
-	globalIndiciesStaging = new Buffer(device,allocator,6000000,options);
-
-	options.storage = BufferCreationOptions::gpu;
-
-	globalIndicies = new Buffer(device,allocator,6000000,options);
-
-	gloablVertAllocator = new VaribleIndexAllocator(6000000);
-	gloablIndAllocator =  new VaribleIndexAllocator(6000000);
+	gloablVertAllocator = new VaribleIndexAllocator(globalMesh->vertexCount);
+	gloablIndAllocator =  new VaribleIndexAllocator(globalMesh->indexCount);
 	 
 #pragma endregion
 
@@ -170,7 +162,7 @@ void Renderer::createStaticRenderCommands()
 	meshBuffer->writeMeshToBuffer(true);
 	// make uniforms
 
-	VkDeviceSize uniformBufferSize = sizeof(TriangleUniformBufferObject);
+	VkDeviceSize uniformBufferSize = sizeof(SceneUniforms); //sizeof(TriangleUniformBufferObject);
 
 	uniformBuffers.resize(window.swapChainImages.size());
 
@@ -186,7 +178,7 @@ void Renderer::createStaticRenderCommands()
 		VkDescriptorBufferInfo bufferInfo{};
 		bufferInfo.buffer = uniformBuffers[i]->vkItem;
 		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(TriangleUniformBufferObject);
+		bufferInfo.range = sizeof(SceneUniforms);
 
 		VkWriteDescriptorSet descriptorWrite{};
 		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -267,10 +259,7 @@ void Renderer::renderFrame()
 	PROFILE_FUNCTION
 	// update frame buffer
 
-	static auto startTime = std::chrono::high_resolution_clock::now();
-
-	auto currentTime = std::chrono::high_resolution_clock::now();
-	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+	
 
 	static auto quadtransform = Transform();
 	quadtransform.position.z = 1;
@@ -278,15 +267,24 @@ void Renderer::renderFrame()
 
 
 	glm::vec3 axis = { 0,1,0 };
-	quadtransform.rotation = glm::angleAxis(glm::radians(60 * sin(time)), axis);
+	quadtransform.rotation = glm::angleAxis(glm::radians(60 * sin(0.f)), axis);
 
-	TriangleUniformBufferObject ubo;
+
+	SceneUniforms uniforms;
+
+	uniforms.viewProjection = window.camera.viewProjection(window.swapchainExtent.width, window.swapchainExtent.height);
+	uniformBuffers[window.currentSurfaceIndex]->tempMapAndWrite(&uniforms, 0, sizeof(uniforms));
+
+
+	/*TriangleUniformBufferObject ubo;
 
 	ubo.model = quadtransform.matrix();
-	ubo.viewProjection = window.camera.viewProjection(window.swapchainExtent.width, window.swapchainExtent.height);
+	ubo.viewProjection = window.camera.viewProjection(window.swapchainExtent.width, window.swapchainExtent.height);*/
+
+
 
 	//Using a UBO this way is not the most efficient way to pass frequently changing values to the shader. A more efficient way to pass a small buffer of data to shaders are push constants. We may look at these in a future chapter.
-	uniformBuffers[window.currentSurfaceIndex]->tempMapAndWrite(&ubo, sizeof(ubo));
+	//uniformBuffers[window.currentSurfaceIndex]->tempMapAndWrite(&ubo, sizeof(ubo));
 
 
 #pragma region CreateRootCMDBuffer

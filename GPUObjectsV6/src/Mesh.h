@@ -68,6 +68,45 @@ public:
 private:
 };
 
+
+class BindlessMeshBuffer {
+public:
+	BindlessMeshBuffer(vk::Device device, VmaAllocator allocator, BufferCreationOptions options,VkDeviceSize vertexCount, VkDeviceSize indexCount);
+	~BindlessMeshBuffer();
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="mapandUnmap">if true will call map and unmap before and after writing</param>
+	void writeMeshToBuffer(VkDeviceAddress vertIndex, VkDeviceAddress indIndex, Mesh* mesh,bool mapandUnmap);
+	void bindVerticiesIntoCommandBuffer(vk::CommandBuffer commandBuffer, uint32_t baseBinding);
+	void bindIndiciesIntoCommandBuffer (vk::CommandBuffer commandBuffer);
+
+	const VkDeviceSize vertexCount;
+	const VkDeviceSize indexCount;
+
+	Buffer* vertBuffer;
+	Buffer* indexBuffer;
+
+	VkDeviceSize         vertsSize();
+	VkDeviceSize           uvsSize();
+	VkDeviceSize       normalsSize();
+	VkDeviceSize      tangentsSize();
+	VkDeviceSize    bitangentsSize();
+	VkDeviceSize      indiciesSize();
+
+	VkDeviceSize       vertsOffset();
+	VkDeviceSize         uvsOffset();
+	VkDeviceSize     normalsOffset();
+	VkDeviceSize    tangentsOffset();
+	VkDeviceSize  bitangentsOffset();
+
+private:
+
+
+};
+
+
 // treianlge pipeline
 struct TriangleVert {
 	glm::vec3 position;

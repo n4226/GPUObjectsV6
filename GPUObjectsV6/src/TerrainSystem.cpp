@@ -3,11 +3,15 @@
 #include "Renderer.h"
 
 TerrainSystem::TerrainSystem(Renderer* renderer)
-	: tree(1), renderer(renderer), loader()
+	: tree(1), renderer(renderer), meshLoader()
 {
 	PROFILE_FUNCTION
 
 	CreateRenderResources();
+
+	for (TerrainQuadTreeNode* child : tree.leafNodes) {
+		drawChunk(child);
+	}
 }
 
 void TerrainSystem::CreateRenderResources()
@@ -44,7 +48,7 @@ void TerrainSystem::CreateRenderResources()
 		VkDescriptorBufferInfo bufferInfo{};
 		bufferInfo.buffer = renderer->uniformBuffers[i]->vkItem;
 		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(TriangleUniformBufferObject);
+		bufferInfo.range = sizeof(SceneUniforms);
 
 		VkWriteDescriptorSet descriptorWrite{};
 		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -90,19 +94,22 @@ vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass)
 
 	buffer->begin(beginInfo);
 
-	// setup descriptor bindings
+	buffer->bindPipeline(vk::PipelineBindPoint::eGraphics, renderer->window.pipelineCreator->vkItem);
+
+
+	// setup descriptor and buffer bindings
 	
 	buffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, renderer->window.pipelineCreator->pipelineLayout, 0, { descriptorSets[renderer->window.currentSurfaceIndex] }, {});
+	
+	renderer->globalMeshStaging->bindVerticiesIntoCommandBuffer(*buffer, 0);
+	renderer->globalMeshStaging->bindIndiciesIntoCommandBuffer(*buffer);
 
 	// encode draws
 
-	static auto chunk = TerrainQuadTreeNode(Box(glm::dvec2(0, 0), glm::dvec2(45, 45)), nullptr, &tree);
-	static auto mesh = loader.createChunkMesh(chunk);
-	BufferCreationOptions bOptions = { BufferCreationOptions::cpuToGpu,{vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer}, vk::SharingMode::eExclusive };
-	static auto meshBuff = new MeshBuffer(renderer->device, renderer->allocator, bOptions, mesh);
-	meshBuff->writeMeshToBuffer(true);
-
-	
+	for (TreeNodeDrawData& data : drawObjects)
+	{
+		buffer->drawIndexed(data.indexCount,1,data.indIndex,data.vertIndex,0);
+	}
 
 	buffer->end();
 
@@ -125,9 +132,9 @@ void TerrainSystem::processTree()
 		{
 			// split node
 
-			removeDrawChunk(node);
+			//removeDrawChunk(node);
 
-			node->split();
+			//node->split();
 
 			for (TerrainQuadTreeNode& child : node->children) {
 				drawChunk(&child);
@@ -145,24 +152,44 @@ void TerrainSystem::processTree()
 				for (TerrainQuadTreeNode& child : node->parent->children) {
 					removeDrawChunk(&child);
 				}
-				node->parent->combine();
+				//node->parent->combine();
 
-				drawChunk(node->parent);
+				//drawChunk(node->parent);
 			}
 		}
 
 	}
 }
 
-void TerrainSystem::drawChunk(const TerrainQuadTreeNode* node)
+void TerrainSystem::drawChunk(TerrainQuadTreeNode* node)
 {
 	PROFILE_FUNCTION
 
-	
+	if (node->hasdraw) return;
+
+	auto mesh = meshLoader.createChunkMesh(*node);
+
+	// these indicies are in vert count space - meaning 1 = 1 vert not 1 byte
+	auto vertIndex = renderer->gloablVertAllocator->alloc(mesh->verts.size());
+	auto indIndex = renderer->gloablIndAllocator->alloc(mesh->indicies.size());
+
+	renderer->globalMeshStaging->writeMeshToBuffer(vertIndex,indIndex, mesh, true);
+
+	//renderer->globalMeshStaging->vertBuffer->gpuCopyToOther(renderer->globalMesh->vertBuffer)
+
+	node->hasdraw = true;
+
+	TreeNodeDrawData drawData;
+	drawData.indIndex = indIndex;
+	drawData.vertIndex = vertIndex;
+	drawData.vertcount = mesh->verts.size();
+	drawData.indexCount = mesh->indicies.size();
+
+	drawObjects.push_back(drawData);
 
 }
 
-void TerrainSystem::removeDrawChunk(const TerrainQuadTreeNode* node)
+void TerrainSystem::removeDrawChunk(TerrainQuadTreeNode* node)
 {
 	PROFILE_FUNCTION
 
@@ -178,7 +205,7 @@ double TerrainSystem::threshold(const TerrainQuadTreeNode* node)
 
 bool TerrainSystem::determinActive(const TerrainQuadTreeNode* node)
 {
-	return false;
+	return true;
 }
 
 void TerrainSystem::setActiveState(TerrainQuadTreeNode* node)

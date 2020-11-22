@@ -6,6 +6,8 @@
 #include "glm/glm.hpp"
 #include <vector>
 
+
+
 class TerrainQuadTreeNode
 {
 public:
@@ -28,6 +30,10 @@ public:
 	bool active = true;
 
 	TerrainQuadTree* tree;
+
+	// render resources
+
+	bool hasdraw = false;
 
 	// lyfcycle events
 

@@ -25,9 +25,9 @@ struct QueueFamilyIndices {
 };
 
 struct GPUQueues {
-	vk::Queue graphics;
-	vk::Queue resourceTransfer;
-	vk::Queue presentation;
+	vk::Queue graphics         ;
+	vk::Queue resourceTransfer ;
+	vk::Queue presentation     ;
 };
 
 class GPUSelector

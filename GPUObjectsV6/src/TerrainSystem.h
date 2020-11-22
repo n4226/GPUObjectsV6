@@ -9,6 +9,14 @@
 
 class Renderer;
 
+struct TreeNodeDrawData
+{
+	size_t vertIndex;
+	size_t vertcount;
+	size_t indIndex;
+	size_t indexCount;
+};
+
 class TerrainSystem: public RenderSystem
 {
 public:
@@ -29,14 +37,15 @@ public:
 
 private:
 
+
 	TerrainQuadTree tree;
 
-	TerrainMeshLoader loader;
+	TerrainMeshLoader meshLoader;
 
 	void processTree();
 
-	void drawChunk(const TerrainQuadTreeNode* node);
-	void removeDrawChunk(const TerrainQuadTreeNode* node);
+	void drawChunk(TerrainQuadTreeNode* node);
+	void removeDrawChunk(TerrainQuadTreeNode* node);
 
 	double threshold(const TerrainQuadTreeNode* node);
 
@@ -54,6 +63,8 @@ private:
 
 	vk::DescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;
+
+	std::vector<TreeNodeDrawData> drawObjects;
 
 };
 

@@ -32,6 +32,8 @@ public:
 	glm::dvec3 playerLLA = glm::dvec3(0,0,10);
 	Transform playerTrans;
 
+	double time = 0;
+
 private:
 
 	void loadScene();
