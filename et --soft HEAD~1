@@ -1,0 +1,125 @@
+[33mcommit 64531e879f6c6dd6ef9acb8bf1903e5efc9806d0[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m
+Author: n4226 <mikesamipad1@gmail.com>
+Date:   Sat Nov 21 20:29:33 2020 -0500
+
+    add proper project structure
+
+[33mcommit 52da7746d3542b586b07000c2645ac918ceef247[m[33m ([m[1;31morigin/master[m[33m)[m
+Author: n4226 <mikesamipad1@gmail.com>
+Date:   Sat Nov 21 20:18:24 2020 -0500
+
+    moved project files around
+
+[33mcommit c41f1dfade35165d22ff8d2f9914585346f98ae3[m
+Author: n4226 <mikesamipad1@gmail.com>
+Date:   Sat Nov 21 17:44:16 2020 -0500
+
+    add terrain system tree spliting and combining
+
+[33mcommit 02058e4fb431a847ea8cb06e331575bbaf3b5ac2[m
+Author: n4226 <mikesamipad1@gmail.com>
+Date:   Sat Nov 21 07:13:43 2020 -0500
+
+    add proper vsync
+
+[33mcommit e706c9d0b74764841575856261c53613560b1d5b[m
+Author: n4226 <mikesamipad1@gmail.com>
+Date:   Fri Nov 20 17:44:56 2020 -0500
+
+    add pch.h
+
+[33mcommit 26031571764ad1c5ea7f688305f91ef418f1b0f7[m
+Author: n4226 <mikesamipad1@gmail.com>
+Date:   Thu Nov 19 17:42:02 2020 -0500
+
+    start add of command pools to terrain system object
+
+[33mcommit e150c26a52033fb392a00264468973967a1f636f[m
+Author: n4226 <mikesamipad1@gmail.com>
+Date:   Wed Nov 18 16:12:00 2020 -0500
+
+    add chrome profiling and more terrain system
+
+[33mcommit 6bb34b184804936fde2c5881260f9662038f7472[m
+Author: n4226 <mikesamipad1@gmail.com>
+Date:   Mon Nov 16 16:59:25 2020 -0500
+
+    add terrrain chunk esh cgen code
+
+[33mcommit 35a20264dd9d0e699c2502138e8fe566bbd2fe7e[m
+Author: n4226 <mikesamipad1@gmail.com>
+Date:   Sun Nov 15 08:21:56 2020 -0500
+
+    working terrain pipeline for cube
+
+[33mcommit 89b58b0cb5a3309fdd7dd6d0086ce4da8c3e65db[m
+Author: n4226 <mikesamipad1@gmail.com>
+Date:   Sat Nov 14 19:59:02 2020 -0500
+
+    add working polymorphism pipeline creator classes
+
+[33mcommit 76e7275a8d55b192ab7746bdd4b84693206e3532[m
+Author: n4226 <mikesamipad1@gmail.com>
+Date:   Sat Nov 14 19:04:46 2020 -0500
+
+    add some of mesh vert input attributes
+
+[33mcommit 7a343fa38db9c4c3547436c4b68878c4bd09dbd9[m
+Author: n4226 <mikesamipad1@gmail.com>
+Date:   Sat Nov 14 14:24:36 2020 -0500
+
+    add some terrain pipeline and mesh structures
+
+[33mcommit 196de16fd5468c0468a2f983a0e3030f7704d04d[m
+Author: n4226 <mikesamipad1@gmail.com>
+Date:   Sat Nov 14 12:53:00 2020 -0500
+
+    quad renedering with unmodified terrain pipeline
+
+[33mcommit b8a3d150ee022caa4dedc716328606704463ae46[m
+Author: n4226 <mikesamipad1@gmail.com>
+Date:   Sat Nov 14 12:41:35 2020 -0500
+
+    moving square 3d was working but not now
+
+[33mcommit b68868ce78e988a90451d9368ac7b4b195ead30b[m
+Author: n4226 <mikesamipad1@gmail.com>
+Date:   Thu Nov 12 19:12:29 2020 -0500
+
+    add stat of transforms struct
+
+[33mcommit b55e5c8c6035b120828b4334fbf108ea12b9991f[m
+Author: n4226 <mikesamipad1@gmail.com>
+Date:   Thu Nov 12 16:57:01 2020 -0500
+
+    add working square with indicies
+
+[33mcommit 057476cd8d98316def06fa74d880fbf31d6da9bb[m
+Author: n4226 <mikesamipad1@gmail.com>
+Date:   Thu Nov 12 16:41:24 2020 -0500
+
+    add working staging buffer
+
+[33mcommit d6f4b9edbaf00d5b10062fa9f09d0698364730fe[m
+Author: n4226 <mikesamipad1@gmail.com>
+Date:   Mon Nov 9 16:20:55 2020 -0500
+
+    add working triangle again but with a vert buffer
+
+[33mcommit d3ed8792dd204d98576dc97d870845ee758988c2[m
+Author: n4226 <mikesamipad1@gmail.com>
+Date:   Mon Nov 9 16:09:20 2020 -0500
+
+    add buffer type not fully working yet
+
+[33mcommit af4f50e282a374bfa866b69655c9b6d0221c642e[m
+Author: n4226 <mikesamipad1@gmail.com>
+Date:   Sat Nov 7 18:13:42 2020 -0500
+
+    add working triangle
+
+[33mcommit edaf6aba32a8fe77ff73c33ebfa4a4e02932ab52[m
+Author: Mike <Mike@MASTER>
+Date:   Sat Oct 31 16:12:26 2020 -0400
+
+    Add .gitignore and .gitattributes.

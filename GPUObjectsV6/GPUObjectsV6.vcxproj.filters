@@ -1,0 +1,259 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\application">
+      <UniqueIdentifier>{0244f337-05d5-499e-9362-8935796d4d60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\renderer">
+      <UniqueIdentifier>{0a5332db-c135-45ae-90c3-0e34ca885caf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\structs">
+      <UniqueIdentifier>{1208a565-50eb-4f29-b1b8-afbc469a6539}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\shaders">
+      <UniqueIdentifier>{da84b4da-eb96-447b-ab39-9f859b54cf24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\helping objects">
+      <UniqueIdentifier>{f6fb40e4-b085-418b-bd61-2c015c52a81d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\helping objects\high level">
+      <UniqueIdentifier>{d3b00c57-d931-4c9b-8d9e-3326b95aabf6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\renderer\pipelines">
+      <UniqueIdentifier>{82797cdb-d0e3-4e44-80b0-1da43b3a4cec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\renderer\layout objects">
+      <UniqueIdentifier>{762406e5-186a-4825-95e5-c1b12b44bdc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Math">
+      <UniqueIdentifier>{48d0919b-f45d-4dd6-a532-5fbe8be016c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\renderer\render systems">
+      <UniqueIdentifier>{4ae97a9d-d102-4f94-a788-7320fa634077}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\renderer\render systems\terrain system">
+      <UniqueIdentifier>{e8511338-2d5c-47ed-a340-4207e18e20df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\tools">
+      <UniqueIdentifier>{d0378be4-9e81-4b54-8a0d-179d3bd7ba7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\renderer\helpers">
+      <UniqueIdentifier>{f0971a57-5b8c-4f5d-a396-b9dfe7fd346b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\pch">
+      <UniqueIdentifier>{7b471b28-717c-4709-978c-7aaaeec3932c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\ApplicationWindow.cpp">
+      <Filter>Source Files\application</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AttributeHelpers.cpp">
+      <Filter>Source Files\helping objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Box.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Buffer.cpp">
+      <Filter>Source Files\helping objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Camera.cpp">
+      <Filter>Source Files\helping objects\high level</Filter>
+    </ClCompile>
+    <ClCompile Include="src\environment.h">
+      <Filter>Source Files\application</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GPUSelector.cpp">
+      <Filter>Source Files\application</Filter>
+    </ClCompile>
+    <ClCompile Include="src\IndexAllocator.cpp">
+      <Filter>Source Files\renderer\helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Math.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Mesh.cpp">
+      <Filter>Source Files\helping objects\high level</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pch.cpp">
+      <Filter>Header Files\pch</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PipelineCreator.cpp">
+      <Filter>Source Files\renderer\pipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer.cpp">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderPassManager.cpp">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderSystem.cpp">
+      <Filter>Source Files\renderer\render systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ResourceHeap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TerrainMeshLoader.cpp">
+      <Filter>Source Files\renderer\render systems\terrain system</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TerrainPipeline.cpp">
+      <Filter>Source Files\renderer\pipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TerrainQuadTree.cpp">
+      <Filter>Source Files\renderer\render systems\terrain system</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TerrainQuadTreeNode.cpp">
+      <Filter>Source Files\renderer\render systems\terrain system</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TerrainSystem.cpp">
+      <Filter>Source Files\renderer\render systems\terrain system</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Transform.cpp">
+      <Filter>Source Files\helping objects\high level</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TrianglePipeline.cpp">
+      <Filter>Source Files\renderer\pipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uniforms.cpp">
+      <Filter>Source Files\renderer\layout objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VaribleIndexAllocator.cpp">
+      <Filter>Source Files\renderer\helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VkHelpers.cpp">
+      <Filter>Source Files\renderer\helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vma.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vmaSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WorldScene.cpp">
+      <Filter>Source Files\application</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\ApplicationWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AttributeHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Box.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GPUSelector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\IndexAllocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Instrumentor.h">
+      <Filter>Source Files\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pch.h">
+      <Filter>Header Files\pch</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PipelineCreator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderPassManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ResourceHeap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TerrainMeshLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TerrainPipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TerrainQuadTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TerrainQuadTreeNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TerrainSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TrianglePipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\uniforms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VaribleIndexAllocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vk_mem_alloc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VkHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\WorldScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\triangle.frag">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="shaders\triangle.vert">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="shaders\terrain.frag">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="shaders\terrain.vert">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="src\GPUObjectsV6.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
