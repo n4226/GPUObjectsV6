@@ -16,6 +16,7 @@ class WindowManager
 {
 public:
 	WindowManager();
+	void createAllocator();
 	~WindowManager();
 
 	/// <summary>
@@ -40,6 +41,7 @@ public:
 
 	vk::Device device = nullptr;
 	vk::PhysicalDevice physicalDevice = nullptr;
+	VmaAllocator allocator;
 
 	// Swap Chain
 
@@ -50,8 +52,8 @@ public:
 	std::vector<vk::ImageView> swapChainImageViews;
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 
-	VkImage depthImage;
-	vk::ImageView depthImageView;
+	VkFormat depthBufferFormat;
+	Image* depthImage;
 
 	GPUQueues deviceQueues;
 	QueueFamilyIndices queueFamilyIndices;

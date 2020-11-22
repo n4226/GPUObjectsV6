@@ -8,6 +8,7 @@ WindowManager::WindowManager()
 {
     PROFILE_FUNCTION
 
+
     createWindow();
 
     createInstance();
@@ -15,6 +16,8 @@ WindowManager::WindowManager()
     createSurface();
 
     createDevice();
+
+    createAllocator();
 
     createSwapchain();
 
@@ -24,7 +27,7 @@ WindowManager::WindowManager()
 
     // make graphics pipeline 
     
-    renderPassManager = new RenderPassManager(device, swapchainImageFormat);
+    renderPassManager = new RenderPassManager(device, swapchainImageFormat, depthBufferFormat);
     pipelineCreator = new TerrainPipeline(device, swapchainExtent,*renderPassManager);
 
     pipelineCreator->createGraphicsPipeline();
@@ -34,6 +37,17 @@ WindowManager::WindowManager()
     createSemaphores();
 
     //TODO: Add swap chain recreation for window resizing suport
+}
+
+void WindowManager::createAllocator()
+{
+    VmaAllocatorCreateInfo allocatorInfo = {};
+    allocatorInfo.vulkanApiVersion = VK_API_VERSION_1_2;
+    allocatorInfo.physicalDevice = physicalDevice;
+    allocatorInfo.device = device;
+    allocatorInfo.instance = instance;
+
+    vmaCreateAllocator(&allocatorInfo, &allocator);
 }
 
 
@@ -46,7 +60,7 @@ void WindowManager::recreateSwapchain()
     createSwapchain();
     createSwapchainImageViews();
 
-    renderPassManager = new RenderPassManager(device, swapchainImageFormat);
+    renderPassManager = new RenderPassManager(device, swapchainImageFormat,depthBufferFormat);
     pipelineCreator = new TerrainPipeline(device, swapchainExtent, *renderPassManager);
 
     pipelineCreator->createGraphicsPipeline();
@@ -200,7 +214,26 @@ void WindowManager::createSwapchainImageViews()
 
 void WindowManager::createDepthImage()
 {
-    
+    depthBufferFormat = VkFormat(GPUSelector::findSupportedFormat(physicalDevice, { vk::Format::eD32Sfloat }, vk::ImageTiling::eOptimal, vk::FormatFeatureFlagBits::eDepthStencilAttachment));
+
+
+    ImageCreationOptions depthOptions;
+
+    depthOptions.sharingMode = vk::SharingMode::eExclusive;
+    depthOptions.storage = ResourceStorageType::gpu;
+    depthOptions.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+
+    depthOptions.type = vk::ImageType::e2D;
+    depthOptions.layout = vk::ImageLayout::eUndefined;
+    depthOptions.tilling = vk::ImageTiling::eOptimal;
+
+
+
+    depthOptions.format = vk::Format(depthBufferFormat);
+
+
+    depthImage = new Image(device, allocator, { swapchainExtent.width,swapchainExtent.height,1 }, depthOptions, vk::ImageAspectFlagBits::eDepth);
+
 }
 
 void WindowManager::createFramebuffers()
@@ -210,7 +243,8 @@ void WindowManager::createFramebuffers()
 
     for (size_t i = 0; i < swapChainImageViews.size(); i++) {
         std::vector<vk::ImageView> attachments = {
-            swapChainImageViews[i]
+            swapChainImageViews[i],
+            depthImage->view
         };
 
         vk::FramebufferCreateInfo framebufferInfo{};

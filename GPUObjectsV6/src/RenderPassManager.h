@@ -6,8 +6,7 @@ class RenderPassManager
 {
 public:
 
-	RenderPassManager();
-	RenderPassManager(vk::Device device, VkFormat swapChainImageFormat);
+	RenderPassManager(vk::Device device, VkFormat swapChainImageFormat, VkFormat depthBufferFormat);
 	~RenderPassManager();
 
 	VkRenderPass renderPass;
@@ -16,7 +15,7 @@ private:
 	void createMainRenderPass();
 
 	VkFormat swapChainImageFormat;
-
+	VkFormat depthBufferFormat;
 	vk::Device device;
 };
 

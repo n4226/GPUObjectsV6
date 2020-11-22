@@ -49,6 +49,8 @@ private:
 
 	void createRenderResources();
 
+	void createDepthAttatchments();
+
 	void createDescriptorPoolAndSets();
 
 	void createStaticRenderCommands();

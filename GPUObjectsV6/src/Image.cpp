@@ -4,7 +4,7 @@
 
 
 
-Image::Image(vk::Device device, VmaAllocator allocator, vk::Extent3D size, ImageCreationOptions options)
+Image::Image(vk::Device device, VmaAllocator allocator, vk::Extent3D size, ImageCreationOptions options,vk::ImageAspectFlags aspectFlags)
 	: size(size), allocator(allocator), device(device)
 {
 
@@ -45,12 +45,13 @@ Image::Image(vk::Device device, VmaAllocator allocator, vk::Extent3D size, Image
 
 	vmaCreateImage(allocator, &c_imageInfo, &allocInfo, &vkItem, &allocation, nullptr);
 
-	ImageViewCreationOptions viewOptions = { vk::ImageViewType::e2D, options.format };
+	ImageViewCreationOptions viewOptions = { vk::ImageViewType::e2D, options.format, aspectFlags };
 
 	view = VkHelpers::createImageView(device, vkItem, viewOptions);
 }
 
 Image::~Image()
 {
+	device.destroyImageView(view);
 	vmaDestroyImage(allocator, vkItem, allocation);
 }

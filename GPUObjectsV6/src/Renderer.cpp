@@ -32,15 +32,8 @@ Renderer::~Renderer()
 void Renderer::createRenderResources()
 {
 	PROFILE_FUNCTION
-	// allocator
 
-	VmaAllocatorCreateInfo allocatorInfo = {};
-	allocatorInfo.vulkanApiVersion = VK_API_VERSION_1_2;
-	allocatorInfo.physicalDevice = physicalDevice;
-	allocatorInfo.device = device;
-	allocatorInfo.instance = window.instance;
-
-	vmaCreateAllocator(&allocatorInfo, &allocator);
+	allocator = window.allocator;
 
 	// command pool
 
@@ -85,6 +78,14 @@ void Renderer::createRenderResources()
 #pragma endregion
 
 	createDescriptorPoolAndSets();
+
+	// create depth attatchment(s)
+	createDepthAttatchments();
+
+}
+
+void Renderer::createDepthAttatchments()
+{
 
 }
 
@@ -198,59 +199,64 @@ void Renderer::createStaticRenderCommands()
 
 
 
-	for (size_t i = 0; i < staticCommandBuffers.size(); i++) {
+	//for (size_t i = 0; i < staticCommandBuffers.size(); i++) {
 
-		VkCommandBufferBeginInfo beginInfo{};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = 0; // Optional
-		beginInfo.pInheritanceInfo = nullptr; // Optional
+	//	VkCommandBufferBeginInfo beginInfo{};
+	//	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	//	beginInfo.flags = 0; // Optional
+	//	beginInfo.pInheritanceInfo = nullptr; // Optional
 
-		staticCommandBuffers[i].begin(beginInfo);
+	//	staticCommandBuffers[i].begin(beginInfo);
 
-		// begin a render pass
+	//	// begin a render pass
 
-		vk::RenderPassBeginInfo renderPassInfo{};
-		renderPassInfo.renderPass = window.renderPassManager->renderPass;
-		renderPassInfo.framebuffer = window.swapChainFramebuffers[i];
+	//	vk::RenderPassBeginInfo renderPassInfo{};
+	//	renderPassInfo.renderPass = window.renderPassManager->renderPass;
+	//	renderPassInfo.framebuffer = window.swapChainFramebuffers[i];
 
-		renderPassInfo.renderArea = vk::Rect2D( { 0, 0 }, window.swapchainExtent);
-		
-		//VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-		const std::array<float,4> clearComponents = { 0.0f, 0.0f, 0.2f, 1.0f };
-		vk::ClearValue clearColor = vk::ClearValue(vk::ClearColorValue(clearComponents));
-		renderPassInfo.setClearValues(clearColor);
+	//	renderPassInfo.renderArea = vk::Rect2D( { 0, 0 }, window.swapchainExtent);
+	//	
+	//	//VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+	//	const std::array<float,4> clearComponents = { 0.0f, 0.0f, 0.2f, 1.0f };
 
-		VkRenderPassBeginInfo info = renderPassInfo;
+	//	std::array<vk::ClearValue, 2> clearColors = {
+	//		vk::ClearValue(vk::ClearColorValue(clearComponents)),
+	//		vk::ClearValue(vk::ClearDepthStencilValue({1.f,0}))
+	//	};
 
-		//vkCmdBeginRenderPass(commandBuffers[i], &info, VK_SUBPASS_CONTENTS_INLINE);
-		staticCommandBuffers[i].beginRenderPass(&renderPassInfo,vk::SubpassContents::eInline);
+	//	renderPassInfo.setClearValues(clearColors);
 
-		staticCommandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, window.pipelineCreator->pipelineLayout, 0, { descriptorSets[i] }, {});
+	//	VkRenderPassBeginInfo info = renderPassInfo;
 
-		// encode commands 
+	//	//vkCmdBeginRenderPass(commandBuffers[i], &info, VK_SUBPASS_CONTENTS_INLINE);
+	//	staticCommandBuffers[i].beginRenderPass(&renderPassInfo,vk::SubpassContents::eInline);
 
-		staticCommandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, window.pipelineCreator->vkItem);
+	//	staticCommandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, window.pipelineCreator->pipelineLayout, 0, { descriptorSets[i] }, {});
 
-		//vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, window.pipelineCreator->graphicsPipeline);
+	//	// encode commands 
 
-		//commandBuffers[i].bindVertexBuffers(0, { vertBuffer->vkItem }, { 0 });
-		//commandBuffers[i].bindIndexBuffer({ indexBuffer->vkItem }, 0, vk::IndexType::eUint32);
-		meshBuffer->bindVerticiesIntoCommandBuffer(staticCommandBuffers[i], 0);
-		meshBuffer->bindIndiciesIntoCommandBuffer(staticCommandBuffers[i]);
+	//	staticCommandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, window.pipelineCreator->vkItem);
 
-		//commandBuffers[i].draw(vertices.size(), 1, 0, 0);
-		//commandBuffers[i].drawIndexed(static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+	//	//vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, window.pipelineCreator->graphicsPipeline);
 
-		staticCommandBuffers[i].drawIndexed(static_cast<uint32_t>(meshBuffer->baseMesh->indicies.size()), 1, 0, 0, 0);
+	//	//commandBuffers[i].bindVertexBuffers(0, { vertBuffer->vkItem }, { 0 });
+	//	//commandBuffers[i].bindIndexBuffer({ indexBuffer->vkItem }, 0, vk::IndexType::eUint32);
+	//	meshBuffer->bindVerticiesIntoCommandBuffer(staticCommandBuffers[i], 0);
+	//	meshBuffer->bindIndiciesIntoCommandBuffer(staticCommandBuffers[i]);
 
-		staticCommandBuffers[i].endRenderPass();
+	//	//commandBuffers[i].draw(vertices.size(), 1, 0, 0);
+	//	//commandBuffers[i].drawIndexed(static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
-		// end encoding
+	//	staticCommandBuffers[i].drawIndexed(static_cast<uint32_t>(meshBuffer->baseMesh->indicies.size()), 1, 0, 0, 0);
 
-		staticCommandBuffers[i].end();
+	//	staticCommandBuffers[i].endRenderPass();
+
+	//	// end encoding
+
+	//	staticCommandBuffers[i].end();
 
 
-	}
+	//}
 }
 
 
@@ -309,10 +315,16 @@ void Renderer::renderFrame()
 
 	renderPassInfo.renderArea = vk::Rect2D({ 0, 0 }, window.swapchainExtent);
 
-	//VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-	const std::array<float, 4> clearComponents = { 0.0f, 0.0f, 0.2f, 1.0f };
-	vk::ClearValue clearColor = vk::ClearValue(vk::ClearColorValue(clearComponents));
-	renderPassInfo.setClearValues(clearColor);
+
+		//VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+		const std::array<float,4> clearComponents = { 0.0f, 0.0f, 0.2f, 1.0f };
+
+		std::array<vk::ClearValue, 2> clearColors = {
+			vk::ClearValue(vk::ClearColorValue(clearComponents)),
+			vk::ClearValue(vk::ClearDepthStencilValue({1.f,0}))
+		};
+
+	renderPassInfo.setClearValues(clearColors);
 
 	VkRenderPassBeginInfo info = renderPassInfo;
 

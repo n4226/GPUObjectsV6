@@ -20,6 +20,7 @@ struct ImageCreationOptions {
 struct ImageViewCreationOptions {
 	vk::ImageViewType type;
 	vk::Format format;
+	vk::ImageAspectFlags aspectFlags;
 };
 
 class Image
@@ -27,7 +28,7 @@ class Image
 public:
 	
 	Image(const Image& othter) = delete;
-	Image(vk::Device device, VmaAllocator allocator, vk::Extent3D size, ImageCreationOptions options);
+	Image(vk::Device device, VmaAllocator allocator, vk::Extent3D size, ImageCreationOptions options, vk::ImageAspectFlags aspectFlags);
 	~Image();
 
 	vk::Extent3D size;
