@@ -68,14 +68,14 @@ void Renderer::createRenderResources()
 	
 #pragma region Create Global vert and in
 
-	BufferCreationOptions options = { BufferCreationOptions::cpu,{vk::BufferUsageFlagBits::eVertexBuffer}, vk::SharingMode::eExclusive };
+	BufferCreationOptions options = { ResourceStorageType::cpu,{vk::BufferUsageFlagBits::eVertexBuffer}, vk::SharingMode::eExclusive };
 
 	//TODO temp 
-	options.storage = BufferCreationOptions::cpuToGpu;
+	options.storage = ResourceStorageType::cpuToGpu;
 
 	globalMeshStaging = new BindlessMeshBuffer(device, allocator, options, 1000000, 1000000);
 	
-	options.storage = BufferCreationOptions::gpu;
+	options.storage = ResourceStorageType::gpu;
 
 	globalMesh = new BindlessMeshBuffer(device, allocator, options, 1000000, 1000000);
 
@@ -144,7 +144,7 @@ void Renderer::createStaticRenderCommands()
 	VkDeviceSize vertBuffSize = sizeof(TriangleVert) * vertices.size();
 	VkDeviceSize indiciesBuffSize = sizeof(uint32_t) * indices.size();
 
-	BufferCreationOptions options = { BufferCreationOptions::cpu,{vk::BufferUsageFlagBits::eVertexBuffer}, vk::SharingMode::eExclusive };
+	BufferCreationOptions options = { ResourceStorageType::cpu,{vk::BufferUsageFlagBits::eVertexBuffer}, vk::SharingMode::eExclusive };
 
 	vertBuffer =
 		Buffer::StageAndCreatePrivate(device,window.deviceQueues.graphics, commandPool, allocator, vertBuffSize, vertices.data(), options);
@@ -155,7 +155,7 @@ void Renderer::createStaticRenderCommands()
 		Buffer::StageAndCreatePrivate(device, window.deviceQueues.graphics, commandPool, allocator, indiciesBuffSize, indices.data(), options);
 
 
-	BufferCreationOptions options2 = { BufferCreationOptions::cpuToGpu,{vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer}, vk::SharingMode::eExclusive };
+	BufferCreationOptions options2 = { ResourceStorageType::cpuToGpu,{vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer}, vk::SharingMode::eExclusive };
 
 	mesh = Mesh::quad();
 	meshBuffer = new MeshBuffer(device, allocator, options2,mesh);
@@ -166,7 +166,7 @@ void Renderer::createStaticRenderCommands()
 
 	uniformBuffers.resize(window.swapChainImages.size());
 
-	BufferCreationOptions uniformOptions = { BufferCreationOptions::cpuToGpu,{vk::BufferUsageFlagBits::eUniformBuffer}, vk::SharingMode::eExclusive };
+	BufferCreationOptions uniformOptions = { ResourceStorageType::cpuToGpu,{vk::BufferUsageFlagBits::eUniformBuffer}, vk::SharingMode::eExclusive };
 
 	for (size_t i = 0; i < uniformBuffers.size(); i++) {
 		uniformBuffers[i] = new Buffer(device, allocator, uniformBufferSize, uniformOptions);

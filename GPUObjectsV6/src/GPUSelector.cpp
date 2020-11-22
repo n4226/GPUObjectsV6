@@ -156,3 +156,21 @@ VkExtent2D GPUSelector::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabil
 		return actualExtent;
 	}
 }
+
+vk::Format GPUSelector::findSupportedFormat(vk::PhysicalDevice phdevice, const std::vector<vk::Format>& candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features)
+{
+	for (vk::Format format : candidates) {
+		vk::FormatProperties props;
+		phdevice.getFormatProperties(format, &props);
+		//vkGetPhysicalDeviceFormatProperties(phdevice, format, &props);
+
+		if (tiling == vk::ImageTiling::eLinear && (props.linearTilingFeatures & features) == features) {
+			return format;
+		}
+		else if (tiling == vk::ImageTiling::eOptimal && (props.optimalTilingFeatures & features) == features) {
+			return format;
+		}
+	}
+
+	throw std::runtime_error("failed to find supported format!");
+}

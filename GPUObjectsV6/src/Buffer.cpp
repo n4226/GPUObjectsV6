@@ -138,14 +138,14 @@ Buffer* Buffer::StageAndCreatePrivate(vk::Device device, vk::Queue& queue, vk::C
 	auto orignalUsage = options.usage;
 
 	options.usage |= vk::BufferUsageFlagBits::eTransferSrc;
-	options.storage = BufferCreationOptions::cpu;
+	options.storage = ResourceStorageType::cpu;
 
 	Buffer staging = Buffer(device,allocator,size,options);
 
 	staging.tempMapAndWrite(data,size);
 
 	options.usage = orignalUsage | vk::BufferUsageFlagBits::eTransferDst;
-	options.storage = BufferCreationOptions::gpu;
+	options.storage = ResourceStorageType::gpu;
 
 	Buffer* buffer = new Buffer(device, allocator, size, options);
 

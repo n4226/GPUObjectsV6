@@ -20,6 +20,8 @@ WindowManager::WindowManager()
 
     createSwapchainImageViews();
 
+    createDepthImage();
+
     // make graphics pipeline 
     
     renderPassManager = new RenderPassManager(device, swapchainImageFormat);
@@ -32,6 +34,29 @@ WindowManager::WindowManager()
     createSemaphores();
 
     //TODO: Add swap chain recreation for window resizing suport
+}
+
+
+void WindowManager::recreateSwapchain()
+{
+    device.waitIdle();
+
+    cleanupSwapchain();
+
+    createSwapchain();
+    createSwapchainImageViews();
+
+    renderPassManager = new RenderPassManager(device, swapchainImageFormat);
+    pipelineCreator = new TerrainPipeline(device, swapchainExtent, *renderPassManager);
+
+    pipelineCreator->createGraphicsPipeline();
+
+
+    createFramebuffers();
+
+    //TODO buffers might need to be recreated
+    //createCommandBuffers();
+
 }
 
 void WindowManager::createDevice()
@@ -173,6 +198,11 @@ void WindowManager::createSwapchainImageViews()
 
 }
 
+void WindowManager::createDepthImage()
+{
+    
+}
+
 void WindowManager::createFramebuffers()
 {
     PROFILE_FUNCTION
@@ -272,14 +302,9 @@ void WindowManager::createInstance()
     instance = vk::createInstance(info);
 }
 
-WindowManager::~WindowManager()
+
+void WindowManager::cleanupSwapchain()
 {
-    PROFILE_FUNCTION
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        device.destroySemaphore(imageAvailableSemaphores[i]);
-        device.destroySemaphore(renderFinishedSemaphores[i]);
-        device.destroyFence(inFlightFences[i]);
-    }
     for (auto framebuffer : swapChainFramebuffers) {
         vkDestroyFramebuffer(device, framebuffer, nullptr);
     }
@@ -288,12 +313,26 @@ WindowManager::~WindowManager()
     delete pipelineCreator;
     delete renderPassManager;
 
+
     for (auto imageView : swapChainImageViews) {
         vkDestroyImageView(device, imageView, nullptr);
     }
 
 
     device.destroySwapchainKHR(swapChain);
+}
+
+WindowManager::~WindowManager()
+{
+    PROFILE_FUNCTION
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        device.destroySemaphore(imageAvailableSemaphores[i]);
+        device.destroySemaphore(renderFinishedSemaphores[i]);
+        device.destroyFence(inFlightFences[i]);
+    }
+
+    cleanupSwapchain();
+
     device.destroy();
 
     instance.destroySurfaceKHR(surface);
@@ -301,6 +340,7 @@ WindowManager::~WindowManager()
 
     destroyWindow();
 }
+
 
 void WindowManager::runWindowLoop()
 {
@@ -312,7 +352,7 @@ void WindowManager::runWindowLoop()
 }
 
 
-void WindowManager::getDrawable()
+bool WindowManager::getDrawable()
 {
     PROFILE_FUNCTION
 
@@ -322,6 +362,16 @@ void WindowManager::getDrawable()
     //cout << "current index = " << index.value << endl;
     currentSurfaceIndex = index.value;
 
+
+    if (index.result == vk::Result::eErrorOutOfDateKHR)
+    {
+       recreateSwapchain();
+       return 1;
+    }
+    else if (static_cast<int>(index.result) < 0) {//(index.result != vk::Result::eSuccess && index.result != vk::Result::eSuboptimalKHR) {
+       // throw std::runtime_error("failed to acquire swap chain image");
+    }
+
     // Check if a previous frame is using this image (i.e. there is its fence to wait on)
     if (imagesInFlight[currentSurfaceIndex] != VK_NULL_HANDLE) {
         vkWaitForFences(device, 1, &imagesInFlight[currentSurfaceIndex], VK_TRUE, UINT64_MAX);
@@ -329,6 +379,8 @@ void WindowManager::getDrawable()
 
     // Mark the image as now being in use by this frame
     imagesInFlight[currentSurfaceIndex] = inFlightFences[currentFrame];
+
+    return 0;
 }
 
 void WindowManager::presentDrawable()
@@ -349,7 +401,17 @@ void WindowManager::presentDrawable()
 
     presentInfo.pResults = nullptr; // Optional
 
-    deviceQueues.presentation.presentKHR(presentInfo);
+    auto result = deviceQueues.presentation.presentKHR(presentInfo);
+
+    if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR || framebufferResized)
+    {
+      framebufferResized = false;
+      //TODO - not working yet need to manually intercept window size changes
+      recreateSwapchain();
+    }
+    else if (result != vk::Result::eSuccess) {
+       // throw std::runtime_error("failed to present swap chain image");
+    }
 
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
  }

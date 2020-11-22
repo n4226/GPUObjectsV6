@@ -18,8 +18,11 @@ public:
 	WindowManager();
 	~WindowManager();
 
-
-	void getDrawable();
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <returns>weather to abort the frame</returns>
+	bool getDrawable();
 	void presentDrawable();
 
 
@@ -47,6 +50,8 @@ public:
 	std::vector<vk::ImageView> swapChainImageViews;
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 
+	VkImage depthImage;
+	vk::ImageView depthImageView;
 
 	GPUQueues deviceQueues;
 	QueueFamilyIndices queueFamilyIndices;
@@ -66,8 +71,12 @@ public:
 	std::vector<VkFence> inFlightFences;
 	std::vector<VkFence> imagesInFlight;
 
+	bool framebufferResized = false;
 
+	void recreateSwapchain();
 private:
+
+	void cleanupSwapchain();
 
 	void runWindowLoop();
 
@@ -84,6 +93,7 @@ private:
 	void createSwapchain();
 
 	void createSwapchainImageViews();
+	void createDepthImage();
 
 	void createFramebuffers();
 

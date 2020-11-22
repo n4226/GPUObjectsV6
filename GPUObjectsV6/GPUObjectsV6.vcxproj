@@ -100,6 +100,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Image.cpp" />
     <ClCompile Include="src\ApplicationWindow.cpp" />
     <ClCompile Include="src\AttributeHelpers.cpp" />
     <ClCompile Include="src\Box.cpp" />
@@ -136,6 +137,7 @@
     <ClCompile Include="src\WorldScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Image.h" />
     <ClInclude Include="src\ApplicationWindow.h" />
     <ClInclude Include="src\AttributeHelpers.h" />
     <ClInclude Include="src\Box.h" />

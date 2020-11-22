@@ -45,7 +45,7 @@ void WorldScene::runFullUpdateLoop()
 	// update scene
 	updateScene();
 	// draw view
-	window.getDrawable();
+	if (window.getDrawable() == true) return;
 	renderer->renderFrame();
 	window.presentDrawable();
 }
@@ -61,7 +61,7 @@ void WorldScene::updateScene()
 	time = std::chrono::duration<double, std::chrono::seconds::period>(currentTime - startTime).count();
 
 	// the camera looks at -> +z
-	playerTrans.position = glm::vec3(0, -0.4,-1);
+	playerTrans.position = glm::vec3(0, 0,-4);
 	//Math::LlatoGeo(playerLLA, glm::dvec3(0, 0, 10),1);
 	window.camera.transform = playerTrans;
 

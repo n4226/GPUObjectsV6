@@ -1,6 +1,7 @@
 #pragma once
 
 #include "pch.h"
+#include "Image.h"
 
 namespace VkHelpers
 {
@@ -16,5 +17,8 @@ namespace VkHelpers
 	/// <param name="queueFamilyIndex"></param>
 	/// <param name="level"></param>
 	void createPoolsAndCommandBufffers(vk::Device device, std::vector<vk::CommandPool>& pools, std::vector<vk::CommandBuffer>& buffers, uint32_t count, uint32_t queueFamilyIndex, vk::CommandBufferLevel level = vk::CommandBufferLevel::ePrimary);
+
+	vk::ImageView createImageView(vk::Device device, VkImage image, ImageViewCreationOptions options);
+
 };
 

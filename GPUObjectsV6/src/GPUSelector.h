@@ -45,6 +45,8 @@ public:
 
 	static VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow* window);
 
+	static vk::Format findSupportedFormat(vk::PhysicalDevice phdevice, const std::vector<vk::Format>& candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features);
+
 private: 
 	static bool gpuSutable(const vk::PhysicalDevice device, vk::SurfaceKHR surface);
 

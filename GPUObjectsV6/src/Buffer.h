@@ -3,22 +3,22 @@
 #include "pch.h"
 #include "ResourceHeap.h"
 
+enum ResourceStorageType
+{
+	gpu = VMA_MEMORY_USAGE_GPU_ONLY,
+	cpu = VMA_MEMORY_USAGE_CPU_ONLY,
+	cpuToGpu = VMA_MEMORY_USAGE_CPU_TO_GPU,
+	gpuToCpu = VMA_MEMORY_USAGE_GPU_TO_CPU,
+	cpuCopy = VMA_MEMORY_USAGE_CPU_COPY,
+	/// <summary>
+	/// Not available on non TBDR architecture GPUs
+	/// </summary>
+	gpuLazy = VMA_MEMORY_USAGE_GPU_LAZILY_ALLOCATED
+
+};
 
 struct BufferCreationOptions {
-	enum StorageType
-	{
-		gpu = VMA_MEMORY_USAGE_GPU_ONLY,
-		cpu = VMA_MEMORY_USAGE_CPU_ONLY,
-		cpuToGpu = VMA_MEMORY_USAGE_CPU_TO_GPU,
-		gpuToCpu = VMA_MEMORY_USAGE_GPU_TO_CPU,
-		cpuCopy = VMA_MEMORY_USAGE_CPU_COPY,
-		/// <summary>
-		/// Not available on non TBDR architecture GPUs
-		/// </summary>
-		gpuLazy = VMA_MEMORY_USAGE_GPU_LAZILY_ALLOCATED
-
-	};
-	StorageType storage;
+	ResourceStorageType storage;
 	vk::BufferUsageFlags usage;
 	vk::SharingMode sharingMode;
 };
