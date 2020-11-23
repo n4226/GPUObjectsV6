@@ -93,16 +93,22 @@ void Renderer::createDescriptorPoolAndSets()
 {
 	PROFILE_FUNCTION
 
-	VkDescriptorPoolSize poolSize{};
-	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	poolSize.descriptorCount = static_cast<uint32_t>(window.swapChainImages.size());
+	VkDescriptorPoolSize globalUniformPoolSize{};
+	globalUniformPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	globalUniformPoolSize.descriptorCount = static_cast<uint32_t>(window.swapChainImages.size());
+
+	VkDescriptorPoolSize modelUniformPoolSize{};
+	modelUniformPoolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	modelUniformPoolSize.descriptorCount = 100;
+
+	std::array<VkDescriptorPoolSize, 2> poolSizes = { globalUniformPoolSize, modelUniformPoolSize };
 
 	VkDescriptorPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolInfo.poolSizeCount = 1;
-	poolInfo.pPoolSizes = &poolSize;
+	poolInfo.poolSizeCount = poolSizes.size();
+	poolInfo.pPoolSizes = poolSizes.data();
 
-	poolInfo.maxSets = static_cast<uint32_t>(window.swapChainImages.size());
+	poolInfo.maxSets = static_cast<uint32_t>(window.swapChainImages.size()) + 1;
 
 	descriptorPool = device.createDescriptorPool({ poolInfo });
 

@@ -16,11 +16,21 @@ void TerrainPipeline::createGraphicsPipeline()
     uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
     uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
 
+    VkDescriptorSetLayoutBinding modelUniformLayoutBinding{};
+    modelUniformLayoutBinding.binding = 1;
+    modelUniformLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    modelUniformLayoutBinding.descriptorCount = 1;
+    modelUniformLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    modelUniformLayoutBinding.pImmutableSamplers = nullptr; // Optional
+
+    std::array< VkDescriptorSetLayoutBinding, 2> bindings = {
+        uboLayoutBinding, modelUniformLayoutBinding
+    };
 
     VkDescriptorSetLayoutCreateInfo layoutInfo{};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = 1;
-    layoutInfo.pBindings = &uboLayoutBinding;
+    layoutInfo.bindingCount = bindings.size();
+    layoutInfo.pBindings = bindings.data();
 
 
     descriptorSetLayout = device.createDescriptorSetLayout({ layoutInfo });
