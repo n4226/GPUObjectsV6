@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "WorldScene.h"
+#include "CameraSystem.h"
+#include "FloatingOriginSystem.h"
 
 WorldScene::WorldScene(WindowManager& window) : window(window)
 {
@@ -7,9 +9,14 @@ WorldScene::WorldScene(WindowManager& window) : window(window)
 	renderer = new Renderer(window.device, window.physicalDevice, window);
 	terrainSystem = new TerrainSystem(renderer,&origin);
 	terrainSystem->trackedTransform = &playerTrans;
+	terrainSystem->world = this;
 	renderer->terrainSystem = terrainSystem;
+	generalSystems = { new FloatingOriginSystem(), new CameraSystem() };
 
-
+	for (System* sys : generalSystems) {
+		sys->world = this;
+	}
+	generalSystems[0]->update();
 }
 
 WorldScene::~WorldScene()
@@ -17,6 +24,11 @@ WorldScene::~WorldScene()
 	PROFILE_FUNCTION
 	delete renderer;
 	delete terrainSystem;
+
+	for (System* sys : generalSystems) {
+		delete sys;
+	}
+
 }
 
 void WorldScene::loadScene()
@@ -62,23 +74,15 @@ void WorldScene::updateScene()
 	time = std::chrono::duration<double, std::chrono::seconds::period>(currentTime - startTime).count();
 	timef = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-	// the camera looks at -> +z
 
-	glm::vec3 axis = { 0,1,0 };
-	auto rot = glm::angleAxis(glm::radians(60 * sin((float)time)), axis);
 
-	playerTrans.position = 
-		glm::vec3(0, 0.3, -1.8) * (cos(timef * 0.5f) * 0.4f + 1.f); 
-	//glm::vec3(rot * glm::vec4(0,0,-2,1));
 
-	auto newPos = playerTrans.position;
 
-	/*newPos.x = newPos.z;
-	newPos.z = playerTrans.position.x;*/
-	
-	//playerTrans.rotation = glm::angleAxis(glm::radians(45.f),glm::vec3(0,0,1)) * glm::quat(glm::lookAt(-newPos, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)));
-	//Math::LlatoGeo(playerLLA, glm::dvec3(0, 0, 10),1);
-	window.camera.transform = playerTrans;
+	for (System* sys : generalSystems) {
+		sys->update();
+	}
 
 	terrainSystem->update();
+
+	window.camera.transform = playerTrans;
 }

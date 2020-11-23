@@ -100,6 +100,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\CameraSystem.cpp" />
+    <ClCompile Include="src\FloatingOriginSystem.cpp" />
     <ClCompile Include="src\Image.cpp" />
     <ClCompile Include="src\ApplicationWindow.cpp" />
     <ClCompile Include="src\AttributeHelpers.cpp" />
@@ -137,6 +139,8 @@
     <ClCompile Include="src\WorldScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\CameraSystem.h" />
+    <ClInclude Include="src\FloatingOriginSystem.h" />
     <ClInclude Include="src\Image.h" />
     <ClInclude Include="src\ApplicationWindow.h" />
     <ClInclude Include="src\AttributeHelpers.h" />

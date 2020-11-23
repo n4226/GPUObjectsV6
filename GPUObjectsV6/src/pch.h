@@ -19,6 +19,7 @@
 #include "Buffer.h"
 #include "Image.h"
 #include "uniforms.h"
+#include "RenderSystem.h"
 
 // stl
 

@@ -46,9 +46,9 @@ void TerrainQuadTreeNode::combine()
 		child.willBeCombined();
 		tree->leafNodes.erase(&child);
 	}
-	tree->leafNodes.insert(this);
-
 	children.clear();
+
+	tree->leafNodes.insert(this);
 }
 
 void TerrainQuadTreeNode::willBeCombined()

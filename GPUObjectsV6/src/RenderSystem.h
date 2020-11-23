@@ -5,9 +5,12 @@
 class WorldScene;
 
 class System {
+public:
+	//System(WorldScene* world);
+
 	WorldScene* world = nullptr;
 
-	virtual void update() = 0;
+	virtual void update();
 };
 
 class RenderSystem: public System

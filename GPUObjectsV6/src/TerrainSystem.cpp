@@ -2,8 +2,8 @@
 #include "TerrainSystem.h"
 #include "Renderer.h"
 
-TerrainSystem::TerrainSystem(Renderer* renderer,glm::dvec3* origin)
-	: tree(1), renderer(renderer), meshLoader(), origin(origin)
+TerrainSystem::TerrainSystem(Renderer* renderer, glm::dvec3* origin)
+	: tree(10000), renderer(renderer), meshLoader(), origin(origin)
 {
 	PROFILE_FUNCTION
 
@@ -156,7 +156,7 @@ void TerrainSystem::drawChunk(TerrainQuadTreeNode* node)
 	// model 
 
 	Transform transform;
-	transform.position = node->center_geo -*origin;
+	transform.position = node->center_geo - *origin;
 	transform.scale = glm::vec3{ 1,1,1 };
 	transform.rotation = glm::identity<glm::quat>();
 

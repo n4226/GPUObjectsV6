@@ -153,6 +153,12 @@
     <ClCompile Include="src\Image.cpp">
       <Filter>Source Files\helping objects</Filter>
     </ClCompile>
+    <ClCompile Include="src\CameraSystem.cpp">
+      <Filter>Source Files\application\scene systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FloatingOriginSystem.cpp">
+      <Filter>Source Files\application\scene systems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ApplicationWindow.h">
@@ -243,6 +249,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FloatingOriginSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CameraSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

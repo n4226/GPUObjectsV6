@@ -21,8 +21,8 @@ int main() {
     WindowManager* windowCreator = new WindowManager();
     
     windowCreator->camera.fov = 60;
-    windowCreator->camera.zNear = 0.01;
-    windowCreator->camera.zFar = 1000;
+    windowCreator->camera.zNear = 0.1;
+    windowCreator->camera.zFar = 100000;
 
     WorldScene* scene = new WorldScene(*windowCreator);
     

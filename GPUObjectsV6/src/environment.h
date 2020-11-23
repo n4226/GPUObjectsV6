@@ -25,3 +25,5 @@
 
 /// 100,000
 #define maxModelUniformDescriptorArrayCount 100000
+/// 10,000
+#define FLOATING_ORIGIN_SNAP_DISTANCE 10000

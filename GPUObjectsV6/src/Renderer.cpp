@@ -13,6 +13,7 @@ Renderer::Renderer(vk::Device& device, vk::PhysicalDevice& physicalDevice, Windo
 Renderer::~Renderer()
 {
 	PROFILE_FUNCTION
+
 	device.destroyCommandPool(commandPool);
 
 	delete vertBuffer;
