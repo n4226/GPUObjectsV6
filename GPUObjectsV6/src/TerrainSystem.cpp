@@ -9,11 +9,20 @@ TerrainSystem::TerrainSystem(Renderer* renderer, glm::dvec3* origin)
 
 	CreateRenderResources();
 
+
 	for (TerrainQuadTreeNode* child : tree.leafNodes) {
 		drawChunk(child);
 	}
 
 	writePendingDrawOobjects();
+}
+
+TerrainSystem::~TerrainSystem()
+{
+	for (auto pool : cmdBufferPools)
+	{
+		renderer->device.destroyCommandPool(pool);
+	}
 }
 
 void TerrainSystem::CreateRenderResources()

@@ -5,7 +5,7 @@ Renderer::Renderer(vk::Device& device, vk::PhysicalDevice& physicalDevice, Windo
 {
 	PROFILE_FUNCTION
 	createRenderResources();
-	createStaticRenderCommands();
+	createUniformsAndDescriptors();
 
 	createDynamicRenderCommands(device, window);
 }
@@ -14,10 +14,10 @@ Renderer::~Renderer()
 {
 	PROFILE_FUNCTION
 
-	device.destroyCommandPool(commandPool);
-
-	delete vertBuffer;
-	delete indexBuffer;
+	for (auto pool : dynamicCommandPools)
+	{
+		device.destroyCommandPool(pool);
+	}
 
 	for (auto buffer : uniformBuffers)
 	{
@@ -26,6 +26,13 @@ Renderer::~Renderer()
 
 	delete globalMeshStagingBuffer;
 	delete globalMeshBuffer;
+
+	delete globalModelBuffer;
+	delete globalModelBufferStaging;
+
+	delete gloablIndAllocator;
+	delete gloablVertAllocator;
+	delete globalModelBufferAllocator;
 
 	device.destroyDescriptorPool(descriptorPool);
 }
@@ -36,29 +43,6 @@ void Renderer::createRenderResources()
 
 	allocator = window.allocator;
 
-	// command pool
-
-	vk::CommandPoolCreateInfo poolInfo{};
-
-	poolInfo.queueFamilyIndex = window.queueFamilyIndices.graphicsFamily.value();
-	poolInfo.flags = vk::CommandPoolCreateFlags(); // Optional
-
-	commandPool = device.createCommandPool(poolInfo);
-
-	// command buffers
-
-	// MARK: becuase of the constant errors i'm adding this
-
-	staticCommandBuffers.resize(window.swapChainFramebuffers.size());
-
-	vk::CommandBufferAllocateInfo allocInfo{};
-	allocInfo.commandPool = commandPool;
-	
-
-	allocInfo.level = vk::CommandBufferLevel::ePrimary;
-	allocInfo.commandBufferCount = (uint32_t)staticCommandBuffers.size();
-	
-	staticCommandBuffers = device.allocateCommandBuffers(allocInfo);
 	
 #pragma region Create Global vert and in
 
@@ -143,39 +127,11 @@ void Renderer::createDynamicRenderCommands(vk::Device& device, WindowManager& wi
 	(device, dynamicCommandPools, dynamicCommandBuffers, window.swapChainImageViews.size(), window.queueFamilyIndices.graphicsFamily.value(), vk::CommandBufferLevel::ePrimary);
 }
 
-void Renderer::createStaticRenderCommands()
+void Renderer::createUniformsAndDescriptors()
 {
 	PROFILE_FUNCTION
-	const std::vector<TriangleVert> vertices = {
-		{{-0.5f, -0.5f, 0.f}, {1.0f, 0.0f, 0.0f}},
-		{{0.5f, -0.5f, 0.f}, {0.0f, 1.0f, 0.0f}},
-		{{0.5f, 0.5f, 0.f}, {0.0f, 0.0f, 1.0f}},
-		{{-0.5f, 0.5f, 0.f}, {.5f, .5f, 0.0f}}
-	};
-
-	const std::vector<uint32_t> indices = {
-		0, 1, 2, 2, 3, 0
-	};
-
-	VkDeviceSize vertBuffSize = sizeof(TriangleVert) * vertices.size();
-	VkDeviceSize indiciesBuffSize = sizeof(uint32_t) * indices.size();
-
-	BufferCreationOptions options = { ResourceStorageType::cpu,{vk::BufferUsageFlagBits::eVertexBuffer}, vk::SharingMode::eExclusive };
-
-	vertBuffer =
-		Buffer::StageAndCreatePrivate(device,window.deviceQueues.graphics, commandPool, allocator, vertBuffSize, vertices.data(), options);
-
-	options.usage = { vk::BufferUsageFlagBits::eIndexBuffer };
 	
-	indexBuffer =
-		Buffer::StageAndCreatePrivate(device, window.deviceQueues.graphics, commandPool, allocator, indiciesBuffSize, indices.data(), options);
 
-
-	BufferCreationOptions options2 = { ResourceStorageType::cpuToGpu,{vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eIndexBuffer}, vk::SharingMode::eExclusive };
-
-	mesh = Mesh::quad();
-	meshBuffer = new MeshBuffer(device, allocator, options2,mesh);
-	meshBuffer->writeMeshToBuffer(true);
 	// make uniforms
 
 	VkDeviceSize uniformBufferSize = sizeof(SceneUniforms); //sizeof(TriangleUniformBufferObject);
@@ -233,100 +189,21 @@ void Renderer::createStaticRenderCommands()
 		device.updateDescriptorSets({ globalUniformDescriptorWrite, modelUniformsDescriptorWrite }, {});
 	}
 
-
-
-	//for (size_t i = 0; i < staticCommandBuffers.size(); i++) {
-
-	//	VkCommandBufferBeginInfo beginInfo{};
-	//	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	//	beginInfo.flags = 0; // Optional
-	//	beginInfo.pInheritanceInfo = nullptr; // Optional
-
-	//	staticCommandBuffers[i].begin(beginInfo);
-
-	//	// begin a render pass
-
-	//	vk::RenderPassBeginInfo renderPassInfo{};
-	//	renderPassInfo.renderPass = window.renderPassManager->renderPass;
-	//	renderPassInfo.framebuffer = window.swapChainFramebuffers[i];
-
-	//	renderPassInfo.renderArea = vk::Rect2D( { 0, 0 }, window.swapchainExtent);
-	//	
-	//	//VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-	//	const std::array<float,4> clearComponents = { 0.0f, 0.0f, 0.2f, 1.0f };
-
-	//	std::array<vk::ClearValue, 2> clearColors = {
-	//		vk::ClearValue(vk::ClearColorValue(clearComponents)),
-	//		vk::ClearValue(vk::ClearDepthStencilValue({1.f,0}))
-	//	};
-
-	//	renderPassInfo.setClearValues(clearColors);
-
-	//	VkRenderPassBeginInfo info = renderPassInfo;
-
-	//	//vkCmdBeginRenderPass(commandBuffers[i], &info, VK_SUBPASS_CONTENTS_INLINE);
-	//	staticCommandBuffers[i].beginRenderPass(&renderPassInfo,vk::SubpassContents::eInline);
-
-	//	staticCommandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, window.pipelineCreator->pipelineLayout, 0, { descriptorSets[i] }, {});
-
-	//	// encode commands 
-
-	//	staticCommandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, window.pipelineCreator->vkItem);
-
-	//	//vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, window.pipelineCreator->graphicsPipeline);
-
-	//	//commandBuffers[i].bindVertexBuffers(0, { vertBuffer->vkItem }, { 0 });
-	//	//commandBuffers[i].bindIndexBuffer({ indexBuffer->vkItem }, 0, vk::IndexType::eUint32);
-	//	meshBuffer->bindVerticiesIntoCommandBuffer(staticCommandBuffers[i], 0);
-	//	meshBuffer->bindIndiciesIntoCommandBuffer(staticCommandBuffers[i]);
-
-	//	//commandBuffers[i].draw(vertices.size(), 1, 0, 0);
-	//	//commandBuffers[i].drawIndexed(static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
-
-	//	staticCommandBuffers[i].drawIndexed(static_cast<uint32_t>(meshBuffer->baseMesh->indicies.size()), 1, 0, 0, 0);
-
-	//	staticCommandBuffers[i].endRenderPass();
-
-	//	// end encoding
-
-	//	staticCommandBuffers[i].end();
-
-
-	//}
 }
 
 
 void Renderer::renderFrame()
 {
 	PROFILE_FUNCTION
-	// update frame buffer
-
-	
-
-	static auto quadtransform = Transform();
-	quadtransform.position.z = 1;
-	//window.camera.transform.position.y = 10;
 
 
-	glm::vec3 axis = { 0,1,0 };
-	quadtransform.rotation = glm::angleAxis(glm::radians(60 * sin(0.f)), axis);
 
+	// update uniform buffer
 
 	SceneUniforms uniforms;
 
 	uniforms.viewProjection = window.camera.viewProjection(window.swapchainExtent.width, window.swapchainExtent.height);
 	uniformBuffers[window.currentSurfaceIndex]->tempMapAndWrite(&uniforms, 0, sizeof(uniforms));
-
-
-	/*TriangleUniformBufferObject ubo;
-
-	ubo.model = quadtransform.matrix();
-	ubo.viewProjection = window.camera.viewProjection(window.swapchainExtent.width, window.swapchainExtent.height);*/
-
-
-
-	//Using a UBO this way is not the most efficient way to pass frequently changing values to the shader. A more efficient way to pass a small buffer of data to shaders are push constants. We may look at these in a future chapter.
-	//uniformBuffers[window.currentSurfaceIndex]->tempMapAndWrite(&ubo, sizeof(ubo));
 
 
 #pragma region CreateRootCMDBuffer

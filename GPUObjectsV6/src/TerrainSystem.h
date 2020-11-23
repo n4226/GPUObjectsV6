@@ -25,6 +25,7 @@ class TerrainSystem: public RenderSystem
 public:
 
 	TerrainSystem(Renderer* renderer, glm::dvec3* origin);
+	~TerrainSystem();
 
 	void CreateRenderResources();
 

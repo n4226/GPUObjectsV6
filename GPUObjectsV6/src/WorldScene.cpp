@@ -22,8 +22,9 @@ WorldScene::WorldScene(WindowManager& window) : window(window)
 WorldScene::~WorldScene()
 {
 	PROFILE_FUNCTION
-	delete renderer;
+
 	delete terrainSystem;
+	delete renderer;
 
 	for (System* sys : generalSystems) {
 		delete sys;

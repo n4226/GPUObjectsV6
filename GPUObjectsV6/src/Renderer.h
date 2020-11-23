@@ -58,7 +58,7 @@ private:
 
 	void createDescriptorPoolAndSets();
 
-	void createStaticRenderCommands();
+	void createUniformsAndDescriptors();
 
 	void createDynamicRenderCommands(vk::Device& device, WindowManager& window);
 
@@ -71,21 +71,11 @@ private:
 	std::vector<vk::CommandPool> dynamicCommandPools;
 	std::vector<vk::CommandBuffer> dynamicCommandBuffers;
 
-	vk::CommandPool commandPool;
-	std::vector<vk::CommandBuffer> staticCommandBuffers;
 
 
 	vk::DescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;
 
-
-	// temp vars
-
-	Buffer* vertBuffer;
-	Buffer* indexBuffer;
-
-	Mesh* mesh;
-	MeshBuffer* meshBuffer;
 
 	friend TerrainSystem;
 

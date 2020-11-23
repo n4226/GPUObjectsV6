@@ -363,6 +363,11 @@ void WindowManager::cleanupSwapchain()
 WindowManager::~WindowManager()
 {
     PROFILE_FUNCTION
+
+    delete depthImage;
+
+    vmaDestroyAllocator(allocator);
+
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         device.destroySemaphore(imageAvailableSemaphores[i]);
         device.destroySemaphore(renderFinishedSemaphores[i]);
