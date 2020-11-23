@@ -138,12 +138,20 @@ void TerrainSystem::drawChunk(TerrainQuadTreeNode* node)
 
 	// model 
 
-	ModelUniforms trans;
-	trans.model = glm::identity<glm::mat4>();
+	Transform transform;
+	transform.position = glm::vec3{ 0,0,0 };
+	transform.scale = glm::vec3{ 1,2,1 };
+	transform.rotation = glm::identity<glm::quat>();
+
+	ModelUniforms mtrans;
+	mtrans.model = transform.matrix();
+
+
 
 	auto modelIndex = renderer->globalModelBufferAllocator->alloc();
+	auto modelAllocSize = renderer->globalModelBufferAllocator->allocSize;
 
-	renderer->globalModelBufferStaging->tempMapAndWrite(&trans,modelIndex,sizeof(ModelUniforms));
+	renderer->globalModelBufferStaging->tempMapAndWrite(&mtrans,modelIndex,modelAllocSize);
 
 	TreeNodeDrawData drawData;
 	drawData.indIndex = indIndex;
@@ -151,7 +159,7 @@ void TerrainSystem::drawChunk(TerrainQuadTreeNode* node)
 	drawData.vertcount = mesh->verts.size();
 	drawData.indexCount = mesh->indicies.size();
 
-	drawData.drawData.modelIndex = static_cast<glm::uint32>(modelIndex);
+	drawData.drawData.modelIndex = static_cast<glm::uint32>(modelIndex / modelAllocSize);
 	
 	node->hasdraw = true;
 	drawObjects.push_back(drawData);

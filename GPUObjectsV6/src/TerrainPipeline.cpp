@@ -200,13 +200,18 @@ void TerrainPipeline::createGraphicsPipeline()
     dynamicState.dynamicStateCount = 1;
     dynamicState.pDynamicStates = dynamicStates;
 
+    vk::PushConstantRange pushConstRange;
+    pushConstRange.stageFlags = vk::ShaderStageFlagBits::eVertex;
+    pushConstRange.offset = 0;
+    pushConstRange.size = sizeof(DrawPushData);
+
 
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
     //pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = descriptorSetLayouts.size(); // Optional
     pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data(); // Optional
-    pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
-    pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
+    pipelineLayoutInfo.pushConstantRangeCount = 1; // Optional
+    pipelineLayoutInfo.pPushConstantRanges = &pushConstRange; // Optional
 
     pipelineLayout = device.createPipelineLayout(pipelineLayoutInfo);
 

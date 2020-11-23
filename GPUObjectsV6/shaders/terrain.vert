@@ -2,10 +2,19 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_KHR_vulkan_glsl : enable
+#extension GL_EXT_nonuniform_qualifier : enable
 
 layout(binding = 0) uniform UniformBufferObject {
     mat4 viewProjection;
 } ubo;
+
+struct ModelUniforms {
+    mat4 model;
+};
+
+layout(binding = 1) buffer a_ModelUniforms {
+    ModelUniforms data[];
+} modelUniform;
 
 layout( push_constant ) uniform DrawPushData {
   uint modelIndex;
@@ -32,6 +41,6 @@ layout(location = 0) out vec3 fragColor;
 //);
 
 void main() {
-    gl_Position = ubo.viewProjection * vec4(inPosition, 1.0);
+    gl_Position = ubo.viewProjection * modelUniform.data[drawData.modelIndex].model * vec4(inPosition, 1.0);
     fragColor = inNormal;
 }
