@@ -24,6 +24,8 @@
 
 #include <chrono>
 #include <vector>
+#include <array>
+#include <map>
 #include <iostream>
 #include <assert.h>
 #include <set>

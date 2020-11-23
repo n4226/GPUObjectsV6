@@ -24,7 +24,7 @@ class TerrainSystem: public RenderSystem
 {
 public:
 
-	TerrainSystem(Renderer* renderer);
+	TerrainSystem(Renderer* renderer, glm::dvec3* origin);
 
 	void CreateRenderResources();
 
@@ -40,6 +40,11 @@ public:
 
 private:
 
+	// temp resources
+
+	std::set<TerrainQuadTreeNode*> toSplit = {};
+	std::set<TerrainQuadTreeNode*> toCombine = {};
+	std::map<TerrainQuadTreeNode*, TreeNodeDrawData> pendingDrawObjects;
 
 	TerrainQuadTree tree;
 
@@ -72,8 +77,7 @@ private:
 	/*vk::DescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;*/
 
-	std::vector<TreeNodeDrawData> drawObjects;
-	std::vector<TreeNodeDrawData> pendingDrawObjects;
+	std::map<TerrainQuadTreeNode*,TreeNodeDrawData> drawObjects;
 
 };
 

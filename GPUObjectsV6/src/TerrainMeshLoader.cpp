@@ -3,6 +3,8 @@
 
 Mesh* TerrainMeshLoader::createChunkMesh(const TerrainQuadTreeNode& chunk)
 {
+    PROFILE_FUNCTION
+
     Mesh* mesh = new Mesh();
 
     size_t resolution = 10;
@@ -28,8 +30,11 @@ Mesh* TerrainMeshLoader::createChunkMesh(const TerrainQuadTreeNode& chunk)
             auto geo_unCentered = Math::LlatoGeo(lla, {}, chunk.tree->radius);
 
             mesh->verts.emplace_back(geo_unCentered - chunk.center_geo);//Math::LlatoGeo(glm::dvec3(frame.getCenter(), 0), {}, radius));
+#if DEBUG
+            mesh->normals.emplace_back(static_cast<glm::vec3>(glm::normalize(geo_unCentered)) * (static_cast<float>(chunk.lodLevel + 1) / 13.f));
+#else
             mesh->normals.emplace_back(static_cast<glm::vec3>(glm::normalize(geo_unCentered)));
-
+#endif
             // chunk uvs
             auto uvx = chunkStrideLat / frame.size.x;
             auto uvy = chunkStrideLon / frame.size.y;

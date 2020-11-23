@@ -5,10 +5,11 @@ WorldScene::WorldScene(WindowManager& window) : window(window)
 {
 	PROFILE_FUNCTION
 	renderer = new Renderer(window.device, window.physicalDevice, window);
-	terrainSystem = new TerrainSystem(renderer);
+	terrainSystem = new TerrainSystem(renderer,&origin);
 	terrainSystem->trackedTransform = &playerTrans;
-	terrainSystem->origin = &origin;
 	renderer->terrainSystem = terrainSystem;
+
+
 }
 
 WorldScene::~WorldScene()
@@ -59,6 +60,7 @@ void WorldScene::updateScene()
 
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	time = std::chrono::duration<double, std::chrono::seconds::period>(currentTime - startTime).count();
+	timef = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
 	// the camera looks at -> +z
 
@@ -66,7 +68,7 @@ void WorldScene::updateScene()
 	auto rot = glm::angleAxis(glm::radians(60 * sin((float)time)), axis);
 
 	playerTrans.position = 
-		glm::vec3(0, 0, -2); 
+		glm::vec3(0, 0.3, -1.8) * (cos(timef * 0.5f) * 0.4f + 1.f); 
 	//glm::vec3(rot * glm::vec4(0,0,-2,1));
 
 	auto newPos = playerTrans.position;

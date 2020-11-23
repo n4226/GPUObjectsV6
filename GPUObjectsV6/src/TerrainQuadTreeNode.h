@@ -25,7 +25,7 @@ public:
 
 	// stored properties 
 
-	uint16_t lodLevel;
+	uint16_t lodLevel = 0;
 	bool visable;
 	bool active = true;
 
@@ -42,5 +42,6 @@ public:
 
 	void willBeCombined();
 
+	bool operator<(const TerrainQuadTreeNode& rhs) const;
 };
 

@@ -240,6 +240,7 @@ BindlessMeshBuffer::~BindlessMeshBuffer()
 
 void BindlessMeshBuffer::writeMeshToBuffer(VkDeviceAddress vertIndex, VkDeviceAddress indIndex, Mesh* mesh, bool mapandUnmap)
 {
+	PROFILE_FUNCTION
 	if (mapandUnmap)
 	{ 
 		vertBuffer->mapMemory();

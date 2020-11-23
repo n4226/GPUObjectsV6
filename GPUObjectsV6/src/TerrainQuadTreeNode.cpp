@@ -55,3 +55,11 @@ void TerrainQuadTreeNode::willBeCombined()
 {
 
 }
+
+bool TerrainQuadTreeNode::operator<(const TerrainQuadTreeNode& rhs) const
+{
+	return 
+		frame.start.x < rhs.frame.start.x && frame.size.x < rhs.frame.size.x &&
+		frame.start.y < rhs.frame.start.y && frame.size.y < rhs.frame.size.y;
+}
+

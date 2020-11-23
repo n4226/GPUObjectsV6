@@ -55,6 +55,9 @@
     <Filter Include="Header Files\pch">
       <UniqueIdentifier>{7b471b28-717c-4709-978c-7aaaeec3932c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\application\scene systems">
+      <UniqueIdentifier>{01c2a18f-7363-4e47-b25f-ed5066ea02da}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ApplicationWindow.cpp">

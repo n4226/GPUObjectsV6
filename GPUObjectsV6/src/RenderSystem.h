@@ -2,7 +2,11 @@
 #include "environment.h"
 #include "pch.h"
 
+class WorldScene;
+
 class System {
+	WorldScene* world = nullptr;
+
 	virtual void update() = 0;
 };
 

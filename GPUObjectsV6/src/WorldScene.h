@@ -25,6 +25,8 @@ public:
 
 	TerrainSystem* terrainSystem;
 
+	std::vector<System> generalSystems;
+
 	glm::dvec3 origin = glm::dvec3(0, 0, 0);
 
 	// player
@@ -33,6 +35,7 @@ public:
 	Transform playerTrans;
 
 	double time = 0;
+	float timef = 0;
 
 private:
 

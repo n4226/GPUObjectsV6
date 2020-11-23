@@ -2,8 +2,8 @@
 #include "TerrainSystem.h"
 #include "Renderer.h"
 
-TerrainSystem::TerrainSystem(Renderer* renderer)
-	: tree(1), renderer(renderer), meshLoader()
+TerrainSystem::TerrainSystem(Renderer* renderer,glm::dvec3* origin)
+	: tree(1), renderer(renderer), meshLoader(), origin(origin)
 {
 	PROFILE_FUNCTION
 
@@ -12,6 +12,8 @@ TerrainSystem::TerrainSystem(Renderer* renderer)
 	for (TerrainQuadTreeNode* child : tree.leafNodes) {
 		drawChunk(child);
 	}
+
+	writePendingDrawOobjects();
 }
 
 void TerrainSystem::CreateRenderResources()
@@ -62,10 +64,11 @@ vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass)
 
 	// encode draws
 
-	for (TreeNodeDrawData& data : drawObjects)
+
+	for (auto it = drawObjects.begin(); it != drawObjects.end(); it++)
 	{
-		buffer->pushConstants(renderer->window.pipelineCreator->pipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(DrawPushData), &data.drawData);
-		buffer->drawIndexed(data.indexCount,1,data.indIndex,data.vertIndex,0);
+		buffer->pushConstants(renderer->window.pipelineCreator->pipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(DrawPushData), &it->second.drawData);
+		buffer->drawIndexed(it->second.indexCount,1, it->second.indIndex, it->second.vertIndex,0);
 	}
 
 	buffer->end();
@@ -89,13 +92,8 @@ void TerrainSystem::processTree()
 		{
 			// split node
 
-			//removeDrawChunk(node);
+			toSplit.insert(node);
 
-			//node->split();
-
-			for (TerrainQuadTreeNode& child : node->children) {
-				drawChunk(&child);
-			}
 		}
 		else if (node->parent != nullptr && node->parent->isSplit)
 		{
@@ -106,16 +104,35 @@ void TerrainSystem::processTree()
 			if (nextDistance > nextThreshold * 1.1)
 			{
 				//combine node
-				for (TerrainQuadTreeNode& child : node->parent->children) {
-					removeDrawChunk(&child);
-				}
-				//node->parent->combine();
-
-				//drawChunk(node->parent);
+				if (toCombine.count(node->parent) == 0)
+					toCombine.insert(node->parent);
 			}
 		}
 
 	}
+
+	for (TerrainQuadTreeNode* node : toSplit) {
+		removeDrawChunk(node);
+
+		node->split();
+
+		for (TerrainQuadTreeNode& child : node->children) {
+			drawChunk(&child);
+		}
+	}
+
+	for (TerrainQuadTreeNode* node : toCombine) {
+
+		for (TerrainQuadTreeNode& child : node->children) {
+			removeDrawChunk(&child);
+		}
+		node->combine();
+
+		drawChunk(node);
+	}
+
+	toSplit.clear();
+	toCombine.clear();
 }
 
 void TerrainSystem::drawChunk(TerrainQuadTreeNode* node)
@@ -139,8 +156,8 @@ void TerrainSystem::drawChunk(TerrainQuadTreeNode* node)
 	// model 
 
 	Transform transform;
-	transform.position = glm::vec3{ 0,0,0 };
-	transform.scale = glm::vec3{ 1,2,1 };
+	transform.position = node->center_geo -*origin;
+	transform.scale = glm::vec3{ 1,1,1 };
 	transform.rotation = glm::identity<glm::quat>();
 
 	ModelUniforms mtrans;
@@ -162,7 +179,7 @@ void TerrainSystem::drawChunk(TerrainQuadTreeNode* node)
 	drawData.drawData.modelIndex = static_cast<glm::uint32>(modelIndex / modelAllocSize);
 	
 	node->hasdraw = true;
-	drawObjects.push_back(drawData);
+	pendingDrawObjects[node] = drawData;
 
 }
 
@@ -170,6 +187,11 @@ void TerrainSystem::removeDrawChunk(TerrainQuadTreeNode* node)
 {
 	PROFILE_FUNCTION
 
+		node->hasdraw = false;
+	auto draw = drawObjects[node];
+	drawObjects.erase(node);
+
+	//TODO: deallocate buffers here 
 
 }
 
@@ -208,6 +230,6 @@ void TerrainSystem::writePendingDrawOobjects()
 	//modelUniformsDescriptorWrite.pImageInfo = nullptr; // Optional
 	//modelUniformsDescriptorWrite.pTexelBufferView = nullptr; // Optional
 
-
+	drawObjects.insert(pendingDrawObjects.begin(), pendingDrawObjects.end());
 	pendingDrawObjects.clear();
 }
