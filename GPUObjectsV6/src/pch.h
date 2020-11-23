@@ -18,6 +18,7 @@
 #include "environment.h"
 #include "Buffer.h"
 #include "Image.h"
+#include "uniforms.h"
 
 // stl
 

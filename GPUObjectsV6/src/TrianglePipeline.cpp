@@ -20,7 +20,7 @@ void TrianglePipeline::createGraphicsPipeline()
     layoutInfo.pBindings = &uboLayoutBinding;
 
 
-    descriptorSetLayout = device.createDescriptorSetLayout({ layoutInfo });
+    descriptorSetLayouts.push_back(device.createDescriptorSetLayout({ layoutInfo }));
 
     // programmable stages 
 
@@ -145,8 +145,8 @@ void TrianglePipeline::createGraphicsPipeline()
 
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
     //pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 1; // Optional
-    pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout; // Optional
+    pipelineLayoutInfo.setLayoutCount = descriptorSetLayouts.size(); // Optional
+    pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data(); // Optional
     pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
     pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 

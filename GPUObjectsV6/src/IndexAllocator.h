@@ -20,6 +20,7 @@ public:
 	void free(VkDeviceAddress index);
 
 	const VkDeviceSize totalSize;
+	const VkDeviceSize indexCount;
 	const VkDeviceSize allocSize;
 	VkDeviceSize usedSize = 0;
 
@@ -31,7 +32,7 @@ private:
 	/// </summary>
 	//std::set<VkDeviceAddress> usedIndicies;
 
-	VkDeviceAddress currentIndex;
+	VkDeviceAddress currentIndex = 0;
 
 };
 

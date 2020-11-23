@@ -23,8 +23,8 @@ Renderer::~Renderer()
 		delete buffer;
 	}
 
-	delete globalMeshStaging;
-	delete globalMesh;
+	delete globalMeshStagingBuffer;
+	delete globalMeshBuffer;
 
 	device.destroyDescriptorPool(descriptorPool);
 }
@@ -66,14 +66,21 @@ void Renderer::createRenderResources()
 	//TODO temp 
 	options.storage = ResourceStorageType::cpuToGpu;
 
-	globalMeshStaging = new BindlessMeshBuffer(device, allocator, options, 1000000, 1000000);
-	
+	globalMeshStagingBuffer = new BindlessMeshBuffer(device, allocator, options, 1000000, 1000000);
+
+	options.usage = vk::BufferUsageFlagBits::eStorageBuffer;
+	globalModelBufferStaging = new Buffer(device, allocator, sizeof(ModelUniforms) * maxModelUniformDescriptorArrayCount, options);
+	options.usage = vk::BufferUsageFlagBits::eVertexBuffer;
+
+
 	options.storage = ResourceStorageType::gpu;
 
-	globalMesh = new BindlessMeshBuffer(device, allocator, options, 1000000, 1000000);
+	globalMeshBuffer = new BindlessMeshBuffer(device, allocator, options, 1000000, 1000000);
 
-	gloablVertAllocator = new VaribleIndexAllocator(globalMesh->vertexCount);
-	gloablIndAllocator =  new VaribleIndexAllocator(globalMesh->indexCount);
+	gloablVertAllocator = new VaribleIndexAllocator(globalMeshBuffer->vertexCount);
+	gloablIndAllocator =  new VaribleIndexAllocator(globalMeshBuffer->indexCount);
+
+	globalModelBufferAllocator = new IndexAllocator(maxModelUniformDescriptorArrayCount, sizeof(ModelUniforms));
 	 
 #pragma endregion
 
@@ -97,9 +104,10 @@ void Renderer::createDescriptorPoolAndSets()
 	globalUniformPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	globalUniformPoolSize.descriptorCount = static_cast<uint32_t>(window.swapChainImages.size());
 
+	// the total max number of this descriptor allocated - if 2 sets and each one has 2 of this descriptor than thes would have to be 4 in order to allocate both sets
 	VkDescriptorPoolSize modelUniformPoolSize{};
 	modelUniformPoolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-	modelUniformPoolSize.descriptorCount = 100;
+	modelUniformPoolSize.descriptorCount = static_cast<uint32_t>(window.swapChainImages.size());
 
 	std::array<VkDescriptorPoolSize, 2> poolSizes = { globalUniformPoolSize, modelUniformPoolSize };
 
@@ -108,12 +116,12 @@ void Renderer::createDescriptorPoolAndSets()
 	poolInfo.poolSizeCount = poolSizes.size();
 	poolInfo.pPoolSizes = poolSizes.data();
 
-	poolInfo.maxSets = static_cast<uint32_t>(window.swapChainImages.size()) + 1;
+	poolInfo.maxSets = static_cast<uint32_t>(window.swapChainImages.size());
 
 	descriptorPool = device.createDescriptorPool({ poolInfo });
 
 
-	std::vector<vk::DescriptorSetLayout> layouts(window.swapChainImages.size(), window.pipelineCreator->descriptorSetLayout);
+	std::vector<vk::DescriptorSetLayout> layouts(window.swapChainImages.size(), window.pipelineCreator->descriptorSetLayouts[0]);
 	vk::DescriptorSetAllocateInfo allocInfo{};
 	allocInfo.descriptorPool = descriptorPool;
 	allocInfo.descriptorSetCount = static_cast<uint32_t>(window.swapChainImages.size());
@@ -182,25 +190,46 @@ void Renderer::createStaticRenderCommands()
 	// set up descriptors 
 
 	for (size_t i = 0; i < window.swapChainImages.size(); i++) {
-		VkDescriptorBufferInfo bufferInfo{};
-		bufferInfo.buffer = uniformBuffers[i]->vkItem;
-		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(SceneUniforms);
 
-		VkWriteDescriptorSet descriptorWrite{};
-		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrite.dstSet = descriptorSets[i];
-		descriptorWrite.dstBinding = 0;
-		descriptorWrite.dstArrayElement = 0;
+		VkDescriptorBufferInfo globalUniformBufferInfo{};
+		globalUniformBufferInfo.buffer = uniformBuffers[i]->vkItem;
+		globalUniformBufferInfo.offset = 0;
+		globalUniformBufferInfo.range = sizeof(SceneUniforms);
 
-		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrite.descriptorCount = 1;
+		VkDescriptorBufferInfo modelUniformBufferInfo{};
+		//TODO fix this to actuall non staging buffer
+		modelUniformBufferInfo.buffer = globalModelBufferStaging->vkItem;
+		modelUniformBufferInfo.offset = 0;
+		modelUniformBufferInfo.range = sizeof(ModelUniforms) * maxModelUniformDescriptorArrayCount;
 
-		descriptorWrite.pBufferInfo = &bufferInfo;
-		descriptorWrite.pImageInfo = nullptr; // Optional
-		descriptorWrite.pTexelBufferView = nullptr; // Optional
+		VkWriteDescriptorSet globalUniformDescriptorWrite{};
+		globalUniformDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		globalUniformDescriptorWrite.dstSet = descriptorSets[i];
+		globalUniformDescriptorWrite.dstBinding = 0;
+		globalUniformDescriptorWrite.dstArrayElement = 0;
 
-		device.updateDescriptorSets({ descriptorWrite }, {});
+		globalUniformDescriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		globalUniformDescriptorWrite.descriptorCount = 1;
+
+		globalUniformDescriptorWrite.pBufferInfo = &globalUniformBufferInfo;
+		globalUniformDescriptorWrite.pImageInfo = nullptr; // Optional
+		globalUniformDescriptorWrite.pTexelBufferView = nullptr; // Optional
+
+		VkWriteDescriptorSet modelUniformsDescriptorWrite{};
+		modelUniformsDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		modelUniformsDescriptorWrite.dstSet = descriptorSets[i];
+		modelUniformsDescriptorWrite.dstBinding = 1;
+		modelUniformsDescriptorWrite.dstArrayElement = 0;
+
+		modelUniformsDescriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		modelUniformsDescriptorWrite.descriptorCount = 1;
+
+		modelUniformsDescriptorWrite.pBufferInfo = &modelUniformBufferInfo;
+		modelUniformsDescriptorWrite.pImageInfo = nullptr; // Optional
+		modelUniformsDescriptorWrite.pTexelBufferView = nullptr; // Optional
+
+
+		device.updateDescriptorSets({ globalUniformDescriptorWrite, modelUniformsDescriptorWrite }, {});
 	}
 
 

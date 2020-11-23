@@ -13,6 +13,7 @@
 #include "PipelineCreator.h"
 #include "TerrainSystem.h"
 #include "VaribleIndexAllocator.h"
+#include "IndexAllocator.h"
 
 class Renderer
 {
@@ -42,9 +43,13 @@ public:
 	VaribleIndexAllocator* gloablVertAllocator;
 	VaribleIndexAllocator* gloablIndAllocator;
 
-	BindlessMeshBuffer* globalMesh;
-	BindlessMeshBuffer* globalMeshStaging;
+	BindlessMeshBuffer* globalMeshBuffer;
+	BindlessMeshBuffer* globalMeshStagingBuffer;
 
+
+	IndexAllocator* globalModelBufferAllocator;
+	Buffer* globalModelBuffer;
+	Buffer* globalModelBufferStaging;
 private:
 
 	void createRenderResources();
@@ -82,7 +87,7 @@ private:
 	Mesh* mesh;
 	MeshBuffer* meshBuffer;
 
-
+	friend TerrainSystem;
 
 };
 

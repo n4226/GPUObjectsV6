@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "pch.h"
 
 
 struct TriangleUniformBufferObject {
@@ -10,4 +10,13 @@ struct TriangleUniformBufferObject {
 
 struct SceneUniforms {
     glm::mat4 viewProjection;
+};
+
+struct ModelUniforms {
+    glm::mat4 model;
+};
+
+struct DrawPushData
+{
+    glm::uint32 modelIndex;
 };

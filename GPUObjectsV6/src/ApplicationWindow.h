@@ -103,14 +103,11 @@ private:
 
 
 	std::vector<const char*> validationLayers = {
+		#if RDX_ENABLE_VK_VALIDATION_LAYERS
 		"VK_LAYER_KHRONOS_validation"
+		#endif
 	};
 
-#ifdef NDEBUG
-	const bool enableValidationLayers = false;
-#else
-	const bool enableValidationLayers = true;
-#endif
 
 };
 

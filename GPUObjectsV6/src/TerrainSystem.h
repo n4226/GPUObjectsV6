@@ -1,5 +1,6 @@
 #pragma once
 
+#include "pch.h"
 #include "RenderSystem.h"
 #include "TerrainQuadTree.h"
 #include "TerrainQuadTreeNode.h"
@@ -15,6 +16,8 @@ struct TreeNodeDrawData
 	size_t vertcount;
 	size_t indIndex;
 	size_t indexCount;
+
+	DrawPushData drawData;
 };
 
 class TerrainSystem: public RenderSystem
@@ -53,6 +56,11 @@ private:
 
 	void setActiveState(TerrainQuadTreeNode* node);
 
+	//updating descriptors
+
+	void writePendingDrawOobjects();
+
+
 	// Render Resources
 
 	/// <summary>
@@ -61,10 +69,11 @@ private:
 	std::vector<vk::CommandPool> cmdBufferPools;
 	std::vector<vk::CommandBuffer> commandBuffers;
 
-	vk::DescriptorPool descriptorPool;
-	std::vector<VkDescriptorSet> descriptorSets;
+	/*vk::DescriptorPool descriptorPool;
+	std::vector<VkDescriptorSet> descriptorSets;*/
 
 	std::vector<TreeNodeDrawData> drawObjects;
+	std::vector<TreeNodeDrawData> pendingDrawObjects;
 
 };
 

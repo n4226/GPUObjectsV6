@@ -91,9 +91,16 @@ void WindowManager::createDevice()
     //vk::PhysicalDeviceFeatures deviceFeatures();
     VkPhysicalDeviceFeatures deviceFeatures{};
 
-    if (!enableValidationLayers) {
-        validationLayers.clear();
-    }
+    VkPhysicalDeviceDescriptorIndexingFeatures desIndexingFeatures{};
+    desIndexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
+    desIndexingFeatures.pNext = nullptr;
+
+    desIndexingFeatures.descriptorBindingUpdateUnusedWhilePending = VK_TRUE;
+    // not suported by gtx 1080 ti
+    //desIndexingFeatures.descriptorBindingUniformBufferUpdateAfterBind = VK_TRUE;
+    desIndexingFeatures.descriptorBindingVariableDescriptorCount = VK_TRUE;
+    desIndexingFeatures.descriptorBindingPartiallyBound = VK_TRUE;
+
     // devie extensions
     const std::vector<const char*> extensionNames = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
     vk::DeviceCreateFlags flags();
@@ -112,6 +119,9 @@ void WindowManager::createDevice()
 
     createInfo.enabledExtensionCount = extensionNames.size();
     createInfo.ppEnabledExtensionNames = extensionNames.data();
+
+    // features
+    createInfo.pNext = &desIndexingFeatures;
 
     device = physicalDevice.createDevice(vk::DeviceCreateInfo(createInfo), nullptr);
 
@@ -315,12 +325,6 @@ void WindowManager::createInstance()
     const char** glfwExtensions;
 
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-
-    if (!enableValidationLayers) {
-        validationLayers.clear();
-    }
-
 
 
 

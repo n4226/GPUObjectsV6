@@ -7,7 +7,8 @@ void TerrainPipeline::createGraphicsPipeline()
     // DescriptorSetLayout
 
     // global uniforms - 
-    // binding 0 = viewProj
+    // set = 0, binding = 0 -> viewProj
+    // set = 0, binding = 1 -> modelMat - per opbject/instance
 
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
     uboLayoutBinding.binding = 0;
@@ -16,10 +17,16 @@ void TerrainPipeline::createGraphicsPipeline()
     uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
     uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
 
+
+    // this is now one descripor to a large buffer where shaders will offset into proper model index
+
     VkDescriptorSetLayoutBinding modelUniformLayoutBinding{};
     modelUniformLayoutBinding.binding = 1;
-    modelUniformLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    modelUniformLayoutBinding.descriptorCount = 1;
+    modelUniformLayoutBinding.descriptorType = 
+        //VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    // the max number of elements in this varible size array
+    modelUniformLayoutBinding.descriptorCount = 1;//maxModelUniformDescriptorArrayCount;
     modelUniformLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
     modelUniformLayoutBinding.pImmutableSamplers = nullptr; // Optional
 
@@ -27,13 +34,33 @@ void TerrainPipeline::createGraphicsPipeline()
         uboLayoutBinding, modelUniformLayoutBinding
     };
 
+    // this allows the adding of flags for each binding in the layout
+    VkDescriptorSetLayoutBindingFlagsCreateInfo bindingFlagsInfo;
+    bindingFlagsInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
+    bindingFlagsInfo.pNext = nullptr;
+
+    std::array<VkDescriptorBindingFlags, 2> bindingFlags = { 
+        // global uniform
+        VkDescriptorBindingFlags(),
+        // model uniforms
+        VkDescriptorBindingFlags(
+            //vk::DescriptorBindingFlagBits::eUpdateAfterBind is not availabel on 1080 tifor uniform buffers
+            //vk::DescriptorBindingFlagBits::eVariableDescriptorCount | vk::DescriptorBindingFlagBits::ePartiallyBound | vk::DescriptorBindingFlagBits::eUpdateUnusedWhilePending
+        )
+    };
+
+    bindingFlagsInfo.bindingCount = bindingFlags.size();
+    bindingFlagsInfo.pBindingFlags = bindingFlags.data();
+
     VkDescriptorSetLayoutCreateInfo layoutInfo{};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     layoutInfo.bindingCount = bindings.size();
     layoutInfo.pBindings = bindings.data();
+    // might not need this
+    //layoutInfo.flags = VkDescriptorSetLayoutCreateFlagBits(vk::DescriptorSetLayoutCreateFlagBits::eUpdateAfterBindPool);
+    layoutInfo.pNext = &bindingFlagsInfo;
 
-
-    descriptorSetLayout = device.createDescriptorSetLayout({ layoutInfo });
+    descriptorSetLayouts.push_back(device.createDescriptorSetLayout({ layoutInfo }));
 
     // programmable stages 
 
@@ -176,8 +203,8 @@ void TerrainPipeline::createGraphicsPipeline()
 
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
     //pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 1; // Optional
-    pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout; // Optional
+    pipelineLayoutInfo.setLayoutCount = descriptorSetLayouts.size(); // Optional
+    pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data(); // Optional
     pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
     pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 

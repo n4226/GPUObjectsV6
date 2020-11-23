@@ -54,12 +54,12 @@ void Buffer::unmapMemory()
 	}
 }
 
-void Buffer::tempMapAndWrite(const void* data, size_t internalOffset, size_t size)
+void Buffer::tempMapAndWrite(const void* srcData, size_t internalOffset, size_t size)
 {
 	if (size == 0)
 		size = this->size;
 	mapMemory();
-	memcpy(static_cast<char*>(mappedData) + internalOffset, data, (size_t)size);
+	memcpy(static_cast<char*>(mappedData) + internalOffset, srcData, (size_t)size);
 	// not necicary on windows with big 3 drivers see vma docs on cash flushing for info
 	//vmaFlushAllocation(allocator,stageVertBuffer.allocation,);
 	unmapMemory();

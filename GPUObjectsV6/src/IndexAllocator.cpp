@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "IndexAllocator.h"
 
-IndexAllocator::IndexAllocator(VkDeviceSize size, VkDeviceSize allocSize)
-	: totalSize(size), allocSize(allocSize)
+IndexAllocator::IndexAllocator(VkDeviceSize indexCount, VkDeviceSize allocSize)
+	: totalSize(indexCount * allocSize), indexCount(indexCount), allocSize(allocSize)
 {
 
 }
@@ -14,6 +14,7 @@ IndexAllocator::~IndexAllocator()
 
 VkDeviceAddress IndexAllocator::alloc()
 {
+	assert(currentIndex * allocSize < totalSize);
 	return (currentIndex++) * allocSize;
 }
 

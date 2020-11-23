@@ -23,7 +23,7 @@ public:
 
 	// pipeline properties
 
-	vk::DescriptorSetLayout descriptorSetLayout;
+	std::vector<vk::DescriptorSetLayout> descriptorSetLayouts;
 	VkPipelineLayout pipelineLayout;
 
 	vk::Pipeline vkItem;

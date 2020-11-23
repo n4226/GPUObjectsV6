@@ -13,7 +13,9 @@ PipelineCreator::~PipelineCreator()
     device.destroyPipelineLayout(pipelineLayout);
     device.destroyPipeline(vkItem);
 
-    device.destroyDescriptorSetLayout(descriptorSetLayout);
+    for (vk::DescriptorSetLayout& layout : descriptorSetLayouts) {
+        device.destroyDescriptorSetLayout(layout);
+    }
 }
 
 

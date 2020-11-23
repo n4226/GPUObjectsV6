@@ -21,50 +21,6 @@ void TerrainSystem::CreateRenderResources()
 	VkHelpers::createPoolsAndCommandBufffers
 		(renderer->device, cmdBufferPools, commandBuffers, renderer->window.swapChainImageViews.size(), renderer->window.queueFamilyIndices.graphicsFamily.value(), vk::CommandBufferLevel::eSecondary);
 
-	vk::DescriptorPoolSize poolSize{};
-	poolSize.type = vk::DescriptorType::eUniformBuffer;
-	poolSize.descriptorCount = 1;
-
-	vk::DescriptorPoolCreateInfo poolInfo{};
-	poolInfo.setPoolSizes({ 1, &poolSize });
-
-	poolInfo.maxSets = static_cast<uint32_t>(renderer->window.swapChainImageViews.size());
-
-	descriptorPool = renderer->device.createDescriptorPool(poolInfo);
-
-	std::vector<vk::DescriptorSetLayout> layouts(renderer->window.swapChainImages.size(), renderer->window.pipelineCreator->descriptorSetLayout);
-	vk::DescriptorSetAllocateInfo allocInfo{};
-	allocInfo.descriptorPool = descriptorPool;
-	allocInfo.descriptorSetCount = static_cast<uint32_t>(renderer->window.swapChainImages.size());
-	allocInfo.pSetLayouts = layouts.data();
-
-	VkDescriptorSetAllocateInfo c_allocInfo = allocInfo;
-
-	descriptorSets.resize(renderer->window.swapChainImages.size());
-
-	vkAllocateDescriptorSets(renderer->device, &c_allocInfo, descriptorSets.data());
-
-	for (size_t i = 0; i < renderer->window.swapChainImages.size(); i++) {
-		VkDescriptorBufferInfo bufferInfo{};
-		bufferInfo.buffer = renderer->uniformBuffers[i]->vkItem;
-		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(SceneUniforms);
-
-		VkWriteDescriptorSet descriptorWrite{};
-		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrite.dstSet = descriptorSets[i];
-		descriptorWrite.dstBinding = 0;
-		descriptorWrite.dstArrayElement = 0;
-
-		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrite.descriptorCount = 1;
-
-		descriptorWrite.pBufferInfo = &bufferInfo;
-		descriptorWrite.pImageInfo = nullptr; // Optional
-		descriptorWrite.pTexelBufferView = nullptr; // Optional
-		
-		renderer->device.updateDescriptorSets({ descriptorWrite }, {});
-	}
 }
 
 void TerrainSystem::update()
@@ -72,6 +28,7 @@ void TerrainSystem::update()
 	PROFILE_FUNCTION
 
 	processTree();
+	writePendingDrawOobjects();
 }
 
 vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass)
@@ -96,18 +53,18 @@ vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass)
 
 	buffer->bindPipeline(vk::PipelineBindPoint::eGraphics, renderer->window.pipelineCreator->vkItem);
 
-
 	// setup descriptor and buffer bindings
 	
-	buffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, renderer->window.pipelineCreator->pipelineLayout, 0, { descriptorSets[renderer->window.currentSurfaceIndex] }, {});
+	buffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, renderer->window.pipelineCreator->pipelineLayout, 0, { renderer->descriptorSets[renderer->window.currentSurfaceIndex] }, {});
 	
-	renderer->globalMeshStaging->bindVerticiesIntoCommandBuffer(*buffer, 0);
-	renderer->globalMeshStaging->bindIndiciesIntoCommandBuffer(*buffer);
+	renderer->globalMeshStagingBuffer->bindVerticiesIntoCommandBuffer(*buffer, 0);
+	renderer->globalMeshStagingBuffer->bindIndiciesIntoCommandBuffer(*buffer);
 
 	// encode draws
 
 	for (TreeNodeDrawData& data : drawObjects)
 	{
+		buffer->pushConstants(renderer->window.pipelineCreator->pipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(DrawPushData), &data.drawData);
 		buffer->drawIndexed(data.indexCount,1,data.indIndex,data.vertIndex,0);
 	}
 
@@ -165,6 +122,8 @@ void TerrainSystem::drawChunk(TerrainQuadTreeNode* node)
 {
 	PROFILE_FUNCTION
 
+		//TODO - probablty more efficiant if all buffer writes were done after the draw objects were cxreatted all at once (in the write draw commands function) to allow single mapping and unmaopping and so on
+		// this would mean that this funciton would have to crateda nother object with temporary object eg mesh and model trans to be writien at the end of the system update
 	if (node->hasdraw) return;
 
 	auto mesh = meshLoader.createChunkMesh(*node);
@@ -173,11 +132,18 @@ void TerrainSystem::drawChunk(TerrainQuadTreeNode* node)
 	auto vertIndex = renderer->gloablVertAllocator->alloc(mesh->verts.size());
 	auto indIndex = renderer->gloablIndAllocator->alloc(mesh->indicies.size());
 
-	renderer->globalMeshStaging->writeMeshToBuffer(vertIndex,indIndex, mesh, true);
+	renderer->globalMeshStagingBuffer->writeMeshToBuffer(vertIndex,indIndex, mesh, true);
 
 	//renderer->globalMeshStaging->vertBuffer->gpuCopyToOther(renderer->globalMesh->vertBuffer)
 
-	node->hasdraw = true;
+	// model 
+
+	ModelUniforms trans;
+	trans.model = glm::identity<glm::mat4>();
+
+	auto modelIndex = renderer->globalModelBufferAllocator->alloc();
+
+	renderer->globalModelBufferStaging->tempMapAndWrite(&trans,modelIndex,sizeof(ModelUniforms));
 
 	TreeNodeDrawData drawData;
 	drawData.indIndex = indIndex;
@@ -185,6 +151,9 @@ void TerrainSystem::drawChunk(TerrainQuadTreeNode* node)
 	drawData.vertcount = mesh->verts.size();
 	drawData.indexCount = mesh->indicies.size();
 
+	drawData.drawData.modelIndex = static_cast<glm::uint32>(modelIndex);
+	
+	node->hasdraw = true;
 	drawObjects.push_back(drawData);
 
 }
@@ -211,4 +180,26 @@ bool TerrainSystem::determinActive(const TerrainQuadTreeNode* node)
 void TerrainSystem::setActiveState(TerrainQuadTreeNode* node)
 {
 	//TODO: fix this
+}
+
+void TerrainSystem::writePendingDrawOobjects()
+{
+
+	// write model transform descriptors
+
+	//VkWriteDescriptorSet modelUniformsDescriptorWrite{};
+	//modelUniformsDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	//modelUniformsDescriptorWrite.dstSet = renderer->descriptorSets[i];
+	//modelUniformsDescriptorWrite.dstBinding = 1;
+	//modelUniformsDescriptorWrite.dstArrayElement = 0;
+
+	//modelUniformsDescriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	//modelUniformsDescriptorWrite.descriptorCount = 1;
+
+	//modelUniformsDescriptorWrite.pBufferInfo = &globalUniformBufferInfo;
+	//modelUniformsDescriptorWrite.pImageInfo = nullptr; // Optional
+	//modelUniformsDescriptorWrite.pTexelBufferView = nullptr; // Optional
+
+
+	pendingDrawObjects.clear();
 }
