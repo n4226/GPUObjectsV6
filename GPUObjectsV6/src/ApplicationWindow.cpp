@@ -80,12 +80,11 @@ void WindowManager::createDevice()
 
     queueFamilyIndices = GPUSelector::gpuQueueFamilies(physicalDevice, surface);
 
-    vk::DeviceQueueCreateInfo queueCreateInfo({}, queueFamilyIndices.graphicsFamily.value(), 1);
+    vk::DeviceQueueCreateInfo gfxQueueCreateInfo({}, queueFamilyIndices.graphicsFamily.value(), {1.0f});
+    vk::DeviceQueueCreateInfo transferQueueCreateInfo({}, queueFamilyIndices.resourceTransferFamily.value(), {1.0f});
 
-    float queuePriority = 1.0f;
-    queueCreateInfo.pQueuePriorities = &queuePriority;
 
-    VkDeviceQueueCreateInfo queueCreateInfo2(queueCreateInfo);
+    std::array<VkDeviceQueueCreateInfo, 2> queueCreateInfos = { VkDeviceQueueCreateInfo(gfxQueueCreateInfo),  };
 
 
     //vk::PhysicalDeviceFeatures deviceFeatures();
@@ -109,8 +108,8 @@ void WindowManager::createDevice()
 
     VkDeviceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    createInfo.pQueueCreateInfos = &queueCreateInfo2;
-    createInfo.queueCreateInfoCount = 1;
+    createInfo.queueCreateInfoCount = queueCreateInfos.size();
+    createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
     createInfo.pEnabledFeatures = &deviceFeatures;
 
@@ -444,7 +443,7 @@ void WindowManager::presentDrawable()
 
     presentInfo.pResults = nullptr; // Optional
 
-    auto result = deviceQueues.presentation.presentKHR(presentInfo);
+    auto result = deviceQueues.presentation.presentKHR(&presentInfo);
 
     if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR || framebufferResized)
     {

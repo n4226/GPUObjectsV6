@@ -124,16 +124,16 @@ void TerrainSystem::processTree()
 		removeDrawChunk(node);
 
 		node->split();
-
-		for (TerrainQuadTreeNode& child : node->children) {
-			drawChunk(&child);
+		std::cout << "nodes created with level: " << node->lodLevel + 1 << std::endl;
+		for (TerrainQuadTreeNode* child : node->children) {
+			drawChunk(child);
 		}
 	}
 
 	for (TerrainQuadTreeNode* node : toCombine) {
 
-		for (TerrainQuadTreeNode& child : node->children) {
-			removeDrawChunk(&child);
+		for (TerrainQuadTreeNode* child : node->children) {
+			removeDrawChunk(child);
 		}
 		node->combine();
 

@@ -13,7 +13,7 @@ class TerrainQuadTreeNode
 public:
 
 	TerrainQuadTreeNode(Box frame,TerrainQuadTreeNode* parent,TerrainQuadTree* tree, uint16_t lodLevel = 0);
-
+	~TerrainQuadTreeNode();
 	Box frame;
 	glm::dvec3 center_geo;
 	glm::dvec3 start_geo;
@@ -21,7 +21,8 @@ public:
 
 	TerrainQuadTreeNode* parent;
 	bool isSplit = false;
-	std::vector<TerrainQuadTreeNode> children;
+	//TODO: it might be better to not use pointers for all children but i'm doing this since set is acting weird with deleting node objects - definitly user error though
+	std::vector<TerrainQuadTreeNode*> children;
 
 	// stored properties 
 

@@ -11,7 +11,7 @@ void CameraSystem::update()
 	world->playerTrans.position =
 		//glm::vec3(0, 0.3, -1.8) * (cos(world->timef * 0.5f) * 10100.f + 1.f);
 	//glm::vec3(rot * glm::vec4(0,0,-2,1));
-		glm::vec3( 0, 0, -15000 + cos(world->timef * 1.f) * 10000 * 0 ) - glm::vec3(world->origin);
+		glm::vec3( 0, 0, -15010 - cos(world->timef * 1.f) * 5000 ) - glm::vec3(world->origin);
 
 	auto newPos = world->playerTrans.position;
 

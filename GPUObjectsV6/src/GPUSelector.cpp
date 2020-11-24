@@ -78,7 +78,9 @@ QueueFamilyIndices GPUSelector::gpuQueueFamilies(vk::PhysicalDevice device, vk::
 
 			indices.presentFamily = i;
 		}
-
+		else if (queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT) {
+			indices.resourceTransferFamily = i;
+		}
 
 		if (presentSupport) {
 		}

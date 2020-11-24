@@ -13,6 +13,15 @@ TerrainQuadTreeNode::TerrainQuadTreeNode(Box frame, TerrainQuadTreeNode* parent,
 	
 }
 
+TerrainQuadTreeNode::~TerrainQuadTreeNode()
+{
+	for (TerrainQuadTreeNode* node : children)
+	{
+		delete node;
+	}
+
+}
+
 void TerrainQuadTreeNode::split()
 {
 	if (isSplit) return;
@@ -22,17 +31,17 @@ void TerrainQuadTreeNode::split()
 
 	children.reserve(4);
 
-	children.emplace_back(Box(frame.start, chldSize),                                                  this, tree, lodLevel + 1);
-	children.emplace_back(Box(frame.start + glm::dvec2(0, frame.size.y / 2), chldSize),                this, tree, lodLevel + 1);
-	children.emplace_back(Box(frame.start + glm::dvec2(frame.size.x / 2, frame.size.y / 2), chldSize), this, tree, lodLevel + 1);
-	children.emplace_back(Box(frame.start + glm::dvec2(frame.size.x / 2, 0), chldSize),                this, tree, lodLevel + 1);
+	children.push_back(new TerrainQuadTreeNode(Box(frame.start, chldSize),                                                  this, tree, lodLevel + 1));
+	children.push_back(new TerrainQuadTreeNode(Box(frame.start + glm::dvec2(0, frame.size.y / 2), chldSize),                this, tree, lodLevel + 1));
+	children.push_back(new TerrainQuadTreeNode(Box(frame.start + glm::dvec2(frame.size.x / 2, frame.size.y / 2), chldSize), this, tree, lodLevel + 1));
+	children.push_back(new TerrainQuadTreeNode(Box(frame.start + glm::dvec2(frame.size.x / 2, 0), chldSize),                this, tree, lodLevel + 1));
 
 	if (tree->leafNodes.count(this) > 0) {
 		tree->leafNodes.erase(this);
-		tree->leafNodes.insert(&children[0]);
-		tree->leafNodes.insert(&children[1]);
-		tree->leafNodes.insert(&children[2]);
-		tree->leafNodes.insert(&children[3]);
+		tree->leafNodes.insert(children[0]);
+		tree->leafNodes.insert(children[1]);
+		tree->leafNodes.insert(children[2]);
+		tree->leafNodes.insert(children[3]);
 	}
 }
 
@@ -41,10 +50,11 @@ void TerrainQuadTreeNode::combine()
 	if (!isSplit) return;
 	isSplit = false;
 
-	for (TerrainQuadTreeNode& child : children)
+	for (TerrainQuadTreeNode* child : children)
 	{
-		child.willBeCombined();
-		tree->leafNodes.erase(&child);
+		child->willBeCombined();
+		tree->leafNodes.erase(child);
+		delete child;
 	}
 	children.clear();
 

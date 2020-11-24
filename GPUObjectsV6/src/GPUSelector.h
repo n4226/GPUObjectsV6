@@ -16,11 +16,12 @@ struct SwapChainSupportDetails {
 struct QueueFamilyIndices {
 	std::optional<uint32_t> graphicsFamily;
 	std::optional<uint32_t> presentFamily;
+	std::optional<uint32_t> resourceTransferFamily;
 
 	bool isComplete() {
-		return graphicsFamily.has_value() && presentFamily.has_value();
+		// resource transfer faqmily is not currently optional
+		return graphicsFamily.has_value() && presentFamily.has_value() && resourceTransferFamily.has_value();
 	}
-
 
 };
 

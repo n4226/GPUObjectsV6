@@ -14,7 +14,26 @@
 #include "WorldScene.h"
 #include "environment.h"
 
+#include "marl/scheduler.h"
+
+
+
+void jobTest() {
+    marl::Scheduler scheduler(marl::Scheduler::Config::allCores());
+
+
+}
+
+
+
+
+
+
+
 int main() {
+
+    jobTest();
+    return;
 
     Instrumentor::Get().BeginSession("Launch", "instruments_Launch.json");
 
