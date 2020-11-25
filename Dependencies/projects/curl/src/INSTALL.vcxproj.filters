@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Mike\source\repos\GPUObjectsV6\Dependencies\projects\curl\CMakeFiles\00393c02562c1262c8570cc0458da0e3\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{151100E8-65C9-37C4-858B-0EF770F3DF53}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

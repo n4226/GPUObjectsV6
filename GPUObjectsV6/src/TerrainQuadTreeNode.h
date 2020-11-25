@@ -1,8 +1,7 @@
 #pragma once
 
-#include "Math.h"
+#include "pch.h"
 #include "TerrainQuadTree.h"
-#include "Box.h"
 #include "glm/glm.hpp"
 #include <vector>
 

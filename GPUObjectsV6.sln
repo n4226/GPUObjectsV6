@@ -7,6 +7,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GPUObjectsV6", "GPUObjectsV
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "marl", "Dependencies\projects\marl-main\marl.vcxproj", "{2281A08B-848B-3A31-9085-658FCC9635A4}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SharedCode", "SharedCode\SharedCode.vcxproj", "{9E82EF6E-A201-48CA-9124-6E166B86B05E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MeshGenerator", "MeshGenerator\MeshGenerator.vcxproj", "{13E868CB-E20B-4492-8EFA-1F20F04A6108}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +35,22 @@ Global
 		{2281A08B-848B-3A31-9085-658FCC9635A4}.Release|x64.Build.0 = Release|x64
 		{2281A08B-848B-3A31-9085-658FCC9635A4}.RelWithDebInfo|x64.ActiveCfg = RelWithDebInfo|x64
 		{2281A08B-848B-3A31-9085-658FCC9635A4}.RelWithDebInfo|x64.Build.0 = RelWithDebInfo|x64
+		{9E82EF6E-A201-48CA-9124-6E166B86B05E}.Debug|x64.ActiveCfg = Debug|x64
+		{9E82EF6E-A201-48CA-9124-6E166B86B05E}.Debug|x64.Build.0 = Debug|x64
+		{9E82EF6E-A201-48CA-9124-6E166B86B05E}.MinSizeRel|x64.ActiveCfg = Debug|x64
+		{9E82EF6E-A201-48CA-9124-6E166B86B05E}.MinSizeRel|x64.Build.0 = Debug|x64
+		{9E82EF6E-A201-48CA-9124-6E166B86B05E}.Release|x64.ActiveCfg = Release|x64
+		{9E82EF6E-A201-48CA-9124-6E166B86B05E}.Release|x64.Build.0 = Release|x64
+		{9E82EF6E-A201-48CA-9124-6E166B86B05E}.RelWithDebInfo|x64.ActiveCfg = Release|x64
+		{9E82EF6E-A201-48CA-9124-6E166B86B05E}.RelWithDebInfo|x64.Build.0 = Release|x64
+		{13E868CB-E20B-4492-8EFA-1F20F04A6108}.Debug|x64.ActiveCfg = Debug|x64
+		{13E868CB-E20B-4492-8EFA-1F20F04A6108}.Debug|x64.Build.0 = Debug|x64
+		{13E868CB-E20B-4492-8EFA-1F20F04A6108}.MinSizeRel|x64.ActiveCfg = Debug|x64
+		{13E868CB-E20B-4492-8EFA-1F20F04A6108}.MinSizeRel|x64.Build.0 = Debug|x64
+		{13E868CB-E20B-4492-8EFA-1F20F04A6108}.Release|x64.ActiveCfg = Release|x64
+		{13E868CB-E20B-4492-8EFA-1F20F04A6108}.Release|x64.Build.0 = Release|x64
+		{13E868CB-E20B-4492-8EFA-1F20F04A6108}.RelWithDebInfo|x64.ActiveCfg = Release|x64
+		{13E868CB-E20B-4492-8EFA-1F20F04A6108}.RelWithDebInfo|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

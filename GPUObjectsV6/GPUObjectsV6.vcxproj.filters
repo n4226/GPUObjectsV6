@@ -75,9 +75,6 @@
     <ClCompile Include="src\AttributeHelpers.cpp">
       <Filter>Source Files\helping objects</Filter>
     </ClCompile>
-    <ClCompile Include="src\Box.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
     <ClCompile Include="src\Buffer.cpp">
       <Filter>Source Files\helping objects</Filter>
     </ClCompile>
@@ -95,12 +92,6 @@
     </ClCompile>
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Math.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Mesh.cpp">
-      <Filter>Source Files\helping objects\high level</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp">
       <Filter>Header Files\pch</Filter>
@@ -171,15 +162,18 @@
     <ClCompile Include="src\ResourceTransferTask.cpp">
       <Filter>Source Files\renderer\resource managment systems</Filter>
     </ClCompile>
+    <ClCompile Include="src\Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshBuffers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ApplicationWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\AttributeHelpers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Box.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Buffer.h">
@@ -196,12 +190,6 @@
     </ClInclude>
     <ClInclude Include="src\Instrumentor.h">
       <Filter>Source Files\tools</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Math.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Mesh.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h">
       <Filter>Header Files\pch</Filter>
@@ -294,6 +282,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="libGuarded\cs_shared_guarded.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshBuffers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

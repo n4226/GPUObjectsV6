@@ -1,0 +1,8 @@
+C:/Users/Mike/source/repos/GPUObjectsV6/Dependencies/projects/curl/CMakeFiles/uninstall.dir
+C:/Users/Mike/source/repos/GPUObjectsV6/Dependencies/projects/curl/CMakeFiles/INSTALL.dir
+C:/Users/Mike/source/repos/GPUObjectsV6/Dependencies/projects/curl/CMakeFiles/ALL_BUILD.dir
+C:/Users/Mike/source/repos/GPUObjectsV6/Dependencies/projects/curl/CMakeFiles/ZERO_CHECK.dir
+C:/Users/Mike/source/repos/GPUObjectsV6/Dependencies/projects/curl/lib/CMakeFiles/libcurl.dir
+C:/Users/Mike/source/repos/GPUObjectsV6/Dependencies/projects/curl/lib/CMakeFiles/INSTALL.dir
+C:/Users/Mike/source/repos/GPUObjectsV6/Dependencies/projects/curl/src/CMakeFiles/curl.dir
+C:/Users/Mike/source/repos/GPUObjectsV6/Dependencies/projects/curl/src/CMakeFiles/INSTALL.dir

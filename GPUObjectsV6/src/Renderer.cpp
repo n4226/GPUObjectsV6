@@ -48,14 +48,14 @@ void Renderer::createRenderResources()
 	
 #pragma region Create Global vert and in
 
-	VkDeviceSize vertexCount = 10'000'000;
+	VkDeviceSize vCount = 10'000'000;
 	VkDeviceSize indexCount =  10'000'000;
 
 	BufferCreationOptions options = 
 		{ ResourceStorageType::cpu,{vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferSrc}, vk::SharingMode::eConcurrent,
 		{window.queueFamilyIndices.graphicsFamily.value(), window.queueFamilyIndices.resourceTransferFamily.value() } };
 
-	globalMeshStagingBuffer = new BindlessMeshBuffer(device, allocator, options, vertexCount, indexCount);
+	globalMeshStagingBuffer = new BindlessMeshBuffer(device, allocator, options, vCount, indexCount);
 
 	options.usage = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc;
 	globalModelBufferStaging = new Buffer(device, allocator, sizeof(ModelUniforms) * maxModelUniformDescriptorArrayCount, options);
@@ -69,9 +69,9 @@ void Renderer::createRenderResources()
 	};
 
 	options.usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
-	globalMeshBuffer = new BindlessMeshBuffer(device, allocator, options, vertexCount, indexCount);
+	globalMeshBuffer = new BindlessMeshBuffer(device, allocator, options, vCount, indexCount);
 
-	gloablVertAllocator = new VaribleIndexAllocator(globalMeshBuffer->vertexCount);
+	gloablVertAllocator = new VaribleIndexAllocator(globalMeshBuffer->vCount);
 	gloablIndAllocator =  new VaribleIndexAllocator(globalMeshBuffer->indexCount);
 
 	globalModelBufferAllocator = new IndexAllocator(maxModelUniformDescriptorArrayCount, sizeof(ModelUniforms));

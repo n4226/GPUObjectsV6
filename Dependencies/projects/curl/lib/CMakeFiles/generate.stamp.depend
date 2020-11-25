@@ -1,0 +1,5 @@
+# CMake generation dependency list for this directory.
+C:/Users/Mike/source/repos/GPUObjectsV6/Dependencies/curl-7.73.0/curl-7.73.0/lib/CMakeLists.txt
+C:/Users/Mike/source/repos/GPUObjectsV6/Dependencies/curl-7.73.0/curl-7.73.0/lib/Makefile.inc
+C:/Users/Mike/source/repos/GPUObjectsV6/Dependencies/curl-7.73.0/curl-7.73.0/lib/curl_config.h.cmake
+C:/Users/Mike/source/repos/GPUObjectsV6/Dependencies/projects/curl/lib/Makefile.inc.cmake

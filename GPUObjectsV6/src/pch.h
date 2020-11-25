@@ -30,19 +30,24 @@
 #include "../libGuarded/cs_rcu_guarded.h"
 
 
+// shared code static lib
+
+#include "shared.h"
 
 // internal 
 
 #include "VkHelpers.h"
 #include "ApplicationWindow.h"
-#include "Math.h"
-#include "Box.h"
+#include "math/Math.h"
+#include "math/Box.h"
 #include "Mesh.h"
 #include "environment.h"
 #include "Buffer.h"
 #include "Image.h"
 #include "uniforms.h"
 #include "RenderSystem.h"
+
+
 
 // stl
 #include <functional>

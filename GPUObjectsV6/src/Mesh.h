@@ -46,6 +46,7 @@ struct Mesh
 
 };
 
+
 /// <summary>
 /// with the current implimentation, all vertex attributes and indicies are stored in a single buffer.
 /// </summary>
@@ -84,7 +85,7 @@ public:
 		WriteLocation indexLocation;
 	};
 
-	BindlessMeshBuffer(vk::Device device, VmaAllocator allocator, BufferCreationOptions options,VkDeviceSize vertexCount, VkDeviceSize indexCount);
+	BindlessMeshBuffer(vk::Device device, VmaAllocator allocator, BufferCreationOptions options,VkDeviceSize vCount, VkDeviceSize indexCount);
 	~BindlessMeshBuffer();
 
 	/// <summary>
@@ -96,7 +97,7 @@ public:
 	void bindVerticiesIntoCommandBuffer(vk::CommandBuffer commandBuffer, uint32_t baseBinding);
 	void bindIndiciesIntoCommandBuffer (vk::CommandBuffer commandBuffer);
 
-	const VkDeviceSize vertexCount;
+	const VkDeviceSize vCount;
 	const VkDeviceSize indexCount;
 
 	Buffer* vertBuffer;

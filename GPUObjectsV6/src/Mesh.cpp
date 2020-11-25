@@ -217,12 +217,12 @@ void MeshBuffer::bindIndiciesIntoCommandBuffer(vk::CommandBuffer commandBuffer)
 
 
 
-BindlessMeshBuffer::BindlessMeshBuffer(vk::Device device, VmaAllocator allocator, BufferCreationOptions options, VkDeviceSize vertexCount, VkDeviceSize indexCount)
-	: vertexCount(vertexCount), indexCount(indexCount)
+BindlessMeshBuffer::BindlessMeshBuffer(vk::Device device, VmaAllocator allocator, BufferCreationOptions options, VkDeviceSize vCount, VkDeviceSize indexCount)
+	: vCount(vCount), indexCount(indexCount)
 {
 	auto originalUsage = options.usage;
 
-	auto vertbufferSize = (4 * sizeof(glm::vec3) + sizeof(glm::vec2)) * vertexCount;
+	auto vertbufferSize = (4 * sizeof(glm::vec3) + sizeof(glm::vec2)) * vCount;
 
 	options.usage = originalUsage | vk::BufferUsageFlagBits::eVertexBuffer;
 
@@ -309,27 +309,27 @@ void BindlessMeshBuffer::bindIndiciesIntoCommandBuffer(vk::CommandBuffer command
 
 VkDeviceSize BindlessMeshBuffer::vertsSize()
 {
-	return vertexCount * sizeof(glm::vec3);
+	return vCount * sizeof(glm::vec3);
 }
 
 VkDeviceSize BindlessMeshBuffer::uvsSize()
 {
-	return vertexCount * sizeof(glm::vec2);
+	return vCount * sizeof(glm::vec2);
 }
 
 VkDeviceSize BindlessMeshBuffer::normalsSize()
 {
-	return vertexCount * sizeof(glm::vec3);
+	return vCount * sizeof(glm::vec3);
 }
 
 VkDeviceSize BindlessMeshBuffer::tangentsSize()
 {
-	return vertexCount * sizeof(glm::vec3);
+	return vCount * sizeof(glm::vec3);
 }
 
 VkDeviceSize BindlessMeshBuffer::bitangentsSize()
 {
-	return vertexCount * sizeof(glm::vec3);
+	return vCount * sizeof(glm::vec3);
 }
 
 VkDeviceSize BindlessMeshBuffer::indiciesSize()
