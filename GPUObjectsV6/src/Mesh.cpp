@@ -220,13 +220,15 @@ void MeshBuffer::bindIndiciesIntoCommandBuffer(vk::CommandBuffer commandBuffer)
 BindlessMeshBuffer::BindlessMeshBuffer(vk::Device device, VmaAllocator allocator, BufferCreationOptions options, VkDeviceSize vertexCount, VkDeviceSize indexCount)
 	: vertexCount(vertexCount), indexCount(indexCount)
 {
+	auto originalUsage = options.usage;
+
 	auto vertbufferSize = (4 * sizeof(glm::vec3) + sizeof(glm::vec2)) * vertexCount;
 
-	options.usage = vk::BufferUsageFlagBits::eVertexBuffer;
+	options.usage = originalUsage | vk::BufferUsageFlagBits::eVertexBuffer;
 
 	vertBuffer = new Buffer(device, allocator, vertbufferSize, options);
 
-	options.usage = vk::BufferUsageFlagBits::eIndexBuffer;
+	options.usage = originalUsage | vk::BufferUsageFlagBits::eIndexBuffer;
 
 	indexBuffer = new Buffer(device, allocator, indexCount * sizeof(glm::uint32_t), options);
 
@@ -260,6 +262,27 @@ void BindlessMeshBuffer::writeMeshToBuffer(VkDeviceAddress vertIndex, VkDeviceAd
 		vertBuffer->unmapMemory();
 		indexBuffer->unmapMemory();
 	}
+}
+
+BindlessMeshBuffer::WriteTransactionReceipt BindlessMeshBuffer::genrateWriteReceipt(VkDeviceAddress vertIndex, VkDeviceAddress indIndex, Mesh* mesh)
+{
+	BindlessMeshBuffer::WriteTransactionReceipt report;
+
+	BindlessMeshBuffer::WriteLocation location0 = { vertsOffset() + vertIndex * sizeof(glm::vec3), mesh->vertsSize()           };
+	BindlessMeshBuffer::WriteLocation location1 = { uvsOffset() + vertIndex * sizeof(glm::vec2), mesh->uvsSize()               };
+	BindlessMeshBuffer::WriteLocation location2 = { normalsOffset() + vertIndex * sizeof(glm::vec3), mesh->normalsSize()       };
+	BindlessMeshBuffer::WriteLocation location3 = { tangentsOffset() + vertIndex * sizeof(glm::vec3), mesh->tangentsSize()     };
+	BindlessMeshBuffer::WriteLocation location4 = { bitangentsOffset() + vertIndex * sizeof(glm::vec3), mesh->bitangentsSize() };
+																												  
+	report.vartexLocations = {
+		location0,
+		location1,
+		location2,
+		location3,
+		location4,
+	};
+	report.indexLocation = { indIndex * sizeof(glm::uint32), mesh->indiciesSize() };
+	return report;
 }
 
 void BindlessMeshBuffer::bindVerticiesIntoCommandBuffer(vk::CommandBuffer commandBuffer, uint32_t baseBinding)

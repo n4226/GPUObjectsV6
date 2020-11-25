@@ -38,8 +38,7 @@ void TerrainSystem::update()
 {
 	PROFILE_FUNCTION
 
-	processTree();
-	writePendingDrawOobjects();
+		processTree();
 }
 
 vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass)
@@ -89,6 +88,12 @@ void TerrainSystem::processTree()
 {
 	PROFILE_FUNCTION
 
+	{
+		// his is temporary to prevent multiple sets of staging buffer coppies to rech deadlock currently
+		auto shouldRunLoop = safeToModifyChunks.try_lock_shared().get();
+		if (shouldRunLoop != nullptr && *shouldRunLoop == false) return;
+	}
+
 	auto adjustedOriginTrackedPos = static_cast<glm::dvec3>(trackedTransform->position) + *origin;
 
 	for (TerrainQuadTreeNode* node: tree.leafNodes) {
@@ -113,7 +118,7 @@ void TerrainSystem::processTree()
 			if (nextDistance > nextThreshold * 1.1)
 			{
 				//combine node
-				if (toCombine.count(node->parent) == 0)
+				//if (toCombine.count(node->parent) == 0)
 					toCombine.insert(node->parent);
 			}
 		}
@@ -121,10 +126,11 @@ void TerrainSystem::processTree()
 	}
 
 	for (TerrainQuadTreeNode* node : toSplit) {
+		//toDestroyDraw.insert(node);
 		removeDrawChunk(node);
 
 		node->split();
-		std::cout << "nodes created with level: " << node->lodLevel + 1 << std::endl;
+		//std::cout << "nodes created with level: " << node->lodLevel + 1 << std::endl;
 		for (TerrainQuadTreeNode* child : node->children) {
 			drawChunk(child);
 		}
@@ -133,6 +139,7 @@ void TerrainSystem::processTree()
 	for (TerrainQuadTreeNode* node : toCombine) {
 
 		for (TerrainQuadTreeNode* child : node->children) {
+			//toDestroyDraw.insert(child);
 			removeDrawChunk(child);
 		}
 		node->combine();
@@ -142,6 +149,15 @@ void TerrainSystem::processTree()
 
 	toSplit.clear();
 	toCombine.clear();
+
+	//if (destroyAwaitingNodes) {
+	//	for (TerrainQuadTreeNode* node : toDestroyDraw) {
+	//		removeDrawChunk(node);
+	//	}
+	//	destroyAwaitingNodes = false;
+	//}
+
+	writePendingDrawOobjects();
 }
 
 void TerrainSystem::drawChunk(TerrainQuadTreeNode* node)
@@ -159,6 +175,7 @@ void TerrainSystem::drawChunk(TerrainQuadTreeNode* node)
 	auto indIndex = renderer->gloablIndAllocator->alloc(mesh->indicies.size());
 
 	renderer->globalMeshStagingBuffer->writeMeshToBuffer(vertIndex,indIndex, mesh, true);
+
 
 	//renderer->globalMeshStaging->vertBuffer->gpuCopyToOther(renderer->globalMesh->vertBuffer)
 
@@ -179,11 +196,16 @@ void TerrainSystem::drawChunk(TerrainQuadTreeNode* node)
 
 	renderer->globalModelBufferStaging->tempMapAndWrite(&mtrans,modelIndex,modelAllocSize);
 
+	auto meshReceipt = renderer->globalMeshStagingBuffer->genrateWriteReceipt(vertIndex, indIndex, mesh);
+
+
 	TreeNodeDrawData drawData;
 	drawData.indIndex = indIndex;
 	drawData.vertIndex = vertIndex;
 	drawData.vertcount = mesh->verts.size();
 	drawData.indexCount = mesh->indicies.size();
+	drawData.meshRecipt = meshReceipt;
+	drawData.modelRecipt = { modelIndex,modelAllocSize };
 
 	drawData.drawData.modelIndex = static_cast<glm::uint32>(modelIndex / modelAllocSize);
 	
@@ -223,22 +245,62 @@ void TerrainSystem::setActiveState(TerrainQuadTreeNode* node)
 
 void TerrainSystem::writePendingDrawOobjects()
 {
+	if (pendingDrawObjects.size() == 0) return;
+	// copy from staging buffers to gpu ones - asynchronously
 
-	// write model transform descriptors
+	ResourceTransferer::Task vertexTask;
 
-	//VkWriteDescriptorSet modelUniformsDescriptorWrite{};
-	//modelUniformsDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	//modelUniformsDescriptorWrite.dstSet = renderer->descriptorSets[i];
-	//modelUniformsDescriptorWrite.dstBinding = 1;
-	//modelUniformsDescriptorWrite.dstArrayElement = 0;
+	vertexTask.srcBuffer = renderer->globalMeshStagingBuffer->vertBuffer->vkItem;
+	vertexTask.dstBuffer = renderer->globalMeshBuffer->vertBuffer->vkItem;
 
-	//modelUniformsDescriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	//modelUniformsDescriptorWrite.descriptorCount = 1;
 
-	//modelUniformsDescriptorWrite.pBufferInfo = &globalUniformBufferInfo;
-	//modelUniformsDescriptorWrite.pImageInfo = nullptr; // Optional
-	//modelUniformsDescriptorWrite.pTexelBufferView = nullptr; // Optional
+	ResourceTransferer::Task indexTask;
 
-	drawObjects.insert(pendingDrawObjects.begin(), pendingDrawObjects.end());
-	pendingDrawObjects.clear();
+	indexTask.srcBuffer = renderer->globalMeshStagingBuffer->indexBuffer->vkItem;
+	indexTask.dstBuffer = renderer->globalMeshBuffer->indexBuffer->vkItem;
+
+
+
+	ResourceTransferer::Task modelTask;
+
+	modelTask.srcBuffer = renderer->globalModelBufferStaging->vkItem;
+	modelTask.dstBuffer = renderer->globalModelBuffers[renderer->gpuActiveGlobalModelBuffer]->vkItem;
+
+
+	for (std::pair<TerrainQuadTreeNode*,TreeNodeDrawData> objectData : pendingDrawObjects) {
+
+		for (size_t i = 0; i < objectData.second.meshRecipt.vartexLocations.size(); i++)
+		{
+			BindlessMeshBuffer::WriteLocation& vertRecpt = objectData.second.meshRecipt.vartexLocations[i];
+			vertexTask.regions.emplace_back(vertRecpt.offset, vertRecpt.offset, vertRecpt.size);
+		}
+
+		BindlessMeshBuffer::WriteLocation& meshRecpt = objectData.second.meshRecipt.indexLocation;
+		indexTask.regions.emplace_back(meshRecpt.offset, meshRecpt.offset, meshRecpt.size);
+
+		BindlessMeshBuffer::WriteLocation& modelRecpt = objectData.second.modelRecipt;
+		modelTask.regions.emplace_back(modelRecpt.offset, modelRecpt.offset, modelRecpt.size);
+	}
+
+	{
+		auto shouldRunLoop = safeToModifyChunks.lock().get();
+		*shouldRunLoop = false;
+	}
+	
+
+	std::vector<ResourceTransferer::Task> tasks = { vertexTask,indexTask,modelTask };
+
+	ResourceTransferer::shared->newTask(tasks, [&]() {
+		{
+			PROFILE_SCOPE("terrain system ResourceTransferer::shared->newTask completion callback")
+			drawObjects.insert(pendingDrawObjects.begin(), pendingDrawObjects.end());
+			pendingDrawObjects.clear();
+			{
+				auto shouldRunLoop = safeToModifyChunks.lock().get();
+				*shouldRunLoop = true;
+				destroyAwaitingNodes = true;
+			}
+		}
+	},true);
+
 }

@@ -13,8 +13,9 @@ Buffer::Buffer(vk::Device device, VmaAllocator allocator, VkDeviceSize size, Buf
 	createInfo.setSize(size);
 	createInfo.usage = options.usage;
 	createInfo.sharingMode = options.sharingMode;
-
-	//TODO: switch to use only c struct from the begginign to save perfromance 
+	createInfo.setQueueFamilyIndices(options.queueFamilieIndicies);
+		
+	//TODO: switch to use only c struct from the beginning to save perfromance 
 	VkBufferCreateInfo cCreateInfo = createInfo;
 
 	//vkItem = device.createBuffer(createInfo);

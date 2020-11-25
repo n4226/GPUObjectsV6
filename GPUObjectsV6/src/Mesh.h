@@ -71,6 +71,19 @@ private:
 
 class BindlessMeshBuffer {
 public:
+
+	struct WriteLocation
+	{
+		VkDeviceSize offset;
+		VkDeviceSize size;
+	};
+
+	struct WriteTransactionReceipt
+	{
+		std::array<WriteLocation,5> vartexLocations;
+		WriteLocation indexLocation;
+	};
+
 	BindlessMeshBuffer(vk::Device device, VmaAllocator allocator, BufferCreationOptions options,VkDeviceSize vertexCount, VkDeviceSize indexCount);
 	~BindlessMeshBuffer();
 
@@ -79,6 +92,7 @@ public:
 	/// </summary>
 	/// <param name="mapandUnmap">if true will call map and unmap before and after writing</param>
 	void writeMeshToBuffer(VkDeviceAddress vertIndex, VkDeviceAddress indIndex, Mesh* mesh,bool mapandUnmap);
+	WriteTransactionReceipt genrateWriteReceipt(VkDeviceAddress vertIndex, VkDeviceAddress indIndex, Mesh* mesh);
 	void bindVerticiesIntoCommandBuffer(vk::CommandBuffer commandBuffer, uint32_t baseBinding);
 	void bindIndiciesIntoCommandBuffer (vk::CommandBuffer commandBuffer);
 

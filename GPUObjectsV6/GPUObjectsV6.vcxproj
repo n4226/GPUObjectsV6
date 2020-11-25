@@ -100,6 +100,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ResourceTransferTask.cpp" />
     <ClCompile Include="src\CameraSystem.cpp" />
     <ClCompile Include="src\FloatingOriginSystem.cpp" />
     <ClCompile Include="src\Image.cpp" />
@@ -139,6 +140,15 @@
     <ClCompile Include="src\WorldScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="libGuarded\cs_cow_guarded.h" />
+    <ClInclude Include="libGuarded\cs_deferred_guarded.h" />
+    <ClInclude Include="libGuarded\cs_lr_guarded.h" />
+    <ClInclude Include="libGuarded\cs_ordered_guarded.h" />
+    <ClInclude Include="libGuarded\cs_plain_guarded.h" />
+    <ClInclude Include="libGuarded\cs_rcu_guarded.h" />
+    <ClInclude Include="libGuarded\cs_rcu_list.h" />
+    <ClInclude Include="libGuarded\cs_shared_guarded.h" />
+    <ClInclude Include="src\ResourceTransferTask.h" />
     <ClInclude Include="src\CameraSystem.h" />
     <ClInclude Include="src\FloatingOriginSystem.h" />
     <ClInclude Include="src\Image.h" />

@@ -16,7 +16,7 @@ public:
 	void free(VkDeviceAddress address,VkDeviceSize size);
 
 	const VkDeviceSize totalSize;
-	VkDeviceSize usedSize = 0;
+	VkDeviceSize allocatedSize = 0;
 
 private:
 

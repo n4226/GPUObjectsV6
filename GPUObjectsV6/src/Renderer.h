@@ -14,6 +14,7 @@
 #include "TerrainSystem.h"
 #include "VaribleIndexAllocator.h"
 #include "IndexAllocator.h"
+#include "ResourceTransferTask.h"
 
 class Renderer
 {
@@ -48,7 +49,8 @@ public:
 
 
 	IndexAllocator* globalModelBufferAllocator;
-	Buffer* globalModelBuffer;
+	std::array<Buffer*,2> globalModelBuffers;
+	size_t gpuActiveGlobalModelBuffer = 0;
 	Buffer* globalModelBufferStaging;
 private:
 

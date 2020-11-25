@@ -1,5 +1,6 @@
 #include "ApplicationWindow.h"
 #include "pch.h"
+#include "ResourceTransferTask.h"
 
 
 using namespace std;
@@ -80,11 +81,14 @@ void WindowManager::createDevice()
 
     queueFamilyIndices = GPUSelector::gpuQueueFamilies(physicalDevice, surface);
 
-    vk::DeviceQueueCreateInfo gfxQueueCreateInfo({}, queueFamilyIndices.graphicsFamily.value(), {1.0f});
-    vk::DeviceQueueCreateInfo transferQueueCreateInfo({}, queueFamilyIndices.resourceTransferFamily.value(), {1.0f});
+    const float queuePriority1 = 1.0f;
+    vk::DeviceQueueCreateInfo gfxQueueCreateInfo({}, queueFamilyIndices.graphicsFamily.value(), 1);
+    gfxQueueCreateInfo.pQueuePriorities = &queuePriority1;
+    vk::DeviceQueueCreateInfo transferQueueCreateInfo({}, queueFamilyIndices.resourceTransferFamily.value(), 1);
+    transferQueueCreateInfo.pQueuePriorities = &queuePriority1;
 
 
-    std::array<VkDeviceQueueCreateInfo, 2> queueCreateInfos = { VkDeviceQueueCreateInfo(gfxQueueCreateInfo),  };
+    std::array<VkDeviceQueueCreateInfo, 2> queueCreateInfos = { VkDeviceQueueCreateInfo(gfxQueueCreateInfo), VkDeviceQueueCreateInfo(transferQueueCreateInfo) };
 
 
     //vk::PhysicalDeviceFeatures deviceFeatures();
@@ -127,6 +131,10 @@ void WindowManager::createDevice()
 
     device.getQueue(queueFamilyIndices.graphicsFamily.value(),0,&deviceQueues.graphics);
     device.getQueue(queueFamilyIndices.presentFamily.value(), 0,&deviceQueues.presentation);
+    device.getQueue(queueFamilyIndices.resourceTransferFamily.value(), 0,&deviceQueues.resourceTransfer);
+
+    //TODO put this in a better place
+    ResourceTransferer::shared = new ResourceTransferer(device, deviceQueues.resourceTransfer, queueFamilyIndices.resourceTransferFamily.value());
 }
 
 void WindowManager::createSwapchain()
@@ -363,6 +371,7 @@ WindowManager::~WindowManager()
 {
     PROFILE_FUNCTION
 
+    delete ResourceTransferer::shared;
     delete depthImage;
 
     vmaDestroyAllocator(allocator);

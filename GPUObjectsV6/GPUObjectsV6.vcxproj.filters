@@ -58,6 +58,15 @@
     <Filter Include="Source Files\application\scene systems">
       <UniqueIdentifier>{01c2a18f-7363-4e47-b25f-ed5066ea02da}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\renderer\resource managment systems">
+      <UniqueIdentifier>{701b8318-1aca-4bf1-a833-168571a93edd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header only Dependencies">
+      <UniqueIdentifier>{a061ea74-0e7a-4cfb-934e-54cd1ff5b5d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header only Dependencies\libGuarded">
+      <UniqueIdentifier>{55839401-3741-489f-ae32-e1f7b8bea1ec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ApplicationWindow.cpp">
@@ -159,6 +168,9 @@
     <ClCompile Include="src\FloatingOriginSystem.cpp">
       <Filter>Source Files\application\scene systems</Filter>
     </ClCompile>
+    <ClCompile Include="src\ResourceTransferTask.cpp">
+      <Filter>Source Files\renderer\resource managment systems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ApplicationWindow.h">
@@ -255,6 +267,33 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\CameraSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ResourceTransferTask.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libGuarded\cs_cow_guarded.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libGuarded\cs_deferred_guarded.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libGuarded\cs_lr_guarded.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libGuarded\cs_ordered_guarded.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libGuarded\cs_plain_guarded.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libGuarded\cs_rcu_guarded.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libGuarded\cs_rcu_list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libGuarded\cs_shared_guarded.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

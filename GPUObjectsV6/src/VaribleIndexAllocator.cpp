@@ -13,8 +13,9 @@ VaribleIndexAllocator::~VaribleIndexAllocator()
 
 VkDeviceAddress VaribleIndexAllocator::alloc(VkDeviceSize size)
 {
-	usedSize += size;
-	assert(usedSize <= totalSize);
+	allocatedSize += size;
+	std::cout << "allocated: " << allocatedSize << "/" << totalSize << " = " << static_cast<float>(allocatedSize) / (totalSize / 100) << "%" << std::endl;
+	assert(allocatedSize <= totalSize);
 
 	auto out = currentAdress;
 	currentAdress += size;

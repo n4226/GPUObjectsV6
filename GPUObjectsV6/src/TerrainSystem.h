@@ -9,6 +9,7 @@
 #include "VkHelpers.h"
 
 class Renderer;
+class FloatingOriginSystem;
 
 struct TreeNodeDrawData
 {
@@ -18,6 +19,11 @@ struct TreeNodeDrawData
 	size_t indexCount;
 
 	DrawPushData drawData;
+
+	//buffer recipts
+	BindlessMeshBuffer::WriteTransactionReceipt meshRecipt;
+	BindlessMeshBuffer::WriteLocation modelRecipt;
+
 };
 
 class TerrainSystem: public RenderSystem
@@ -45,6 +51,11 @@ private:
 
 	std::set<TerrainQuadTreeNode*> toSplit = {};
 	std::set<TerrainQuadTreeNode*> toCombine = {};
+	std::set<TerrainQuadTreeNode*> toDestroyDraw = {};
+
+	bool destroyAwaitingNodes = false;
+	libguarded::shared_guarded<bool> safeToModifyChunks = libguarded::shared_guarded<bool>(true);
+
 	std::map<TerrainQuadTreeNode*, TreeNodeDrawData> pendingDrawObjects;
 
 	TerrainQuadTree tree;
@@ -80,5 +91,6 @@ private:
 
 	std::map<TerrainQuadTreeNode*,TreeNodeDrawData> drawObjects;
 
+	friend FloatingOriginSystem;
 };
 

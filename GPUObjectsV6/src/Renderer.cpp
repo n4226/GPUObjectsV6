@@ -26,8 +26,10 @@ Renderer::~Renderer()
 
 	delete globalMeshStagingBuffer;
 	delete globalMeshBuffer;
-
-	delete globalModelBuffer;
+	for (auto buffer : globalModelBuffers)
+	{
+		delete buffer;
+	}
 	delete globalModelBufferStaging;
 
 	delete gloablIndAllocator;
@@ -46,21 +48,28 @@ void Renderer::createRenderResources()
 	
 #pragma region Create Global vert and in
 
-	BufferCreationOptions options = { ResourceStorageType::cpu,{vk::BufferUsageFlagBits::eVertexBuffer}, vk::SharingMode::eExclusive };
+	VkDeviceSize vertexCount = 1000000;
+	VkDeviceSize indexCount =  1000000;
 
-	//TODO temp 
-	options.storage = ResourceStorageType::cpuToGpu;
+	BufferCreationOptions options = 
+		{ ResourceStorageType::cpu,{vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferSrc}, vk::SharingMode::eConcurrent,
+		{window.queueFamilyIndices.graphicsFamily.value(), window.queueFamilyIndices.resourceTransferFamily.value() } };
 
-	globalMeshStagingBuffer = new BindlessMeshBuffer(device, allocator, options, 1000000, 1000000);
+	globalMeshStagingBuffer = new BindlessMeshBuffer(device, allocator, options, vertexCount, indexCount);
 
-	options.usage = vk::BufferUsageFlagBits::eStorageBuffer;
+	options.usage = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc;
 	globalModelBufferStaging = new Buffer(device, allocator, sizeof(ModelUniforms) * maxModelUniformDescriptorArrayCount, options);
-	options.usage = vk::BufferUsageFlagBits::eVertexBuffer;
-
 
 	options.storage = ResourceStorageType::gpu;
 
-	globalMeshBuffer = new BindlessMeshBuffer(device, allocator, options, 1000000, 1000000);
+	options.usage = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst;
+	globalModelBuffers = {
+		new Buffer(device, allocator, sizeof(ModelUniforms) * maxModelUniformDescriptorArrayCount, options),
+		new Buffer(device, allocator, sizeof(ModelUniforms) * maxModelUniformDescriptorArrayCount, options),
+	};
+
+	options.usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
+	globalMeshBuffer = new BindlessMeshBuffer(device, allocator, options, vertexCount, indexCount);
 
 	gloablVertAllocator = new VaribleIndexAllocator(globalMeshBuffer->vertexCount);
 	gloablIndAllocator =  new VaribleIndexAllocator(globalMeshBuffer->indexCount);

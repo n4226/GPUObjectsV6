@@ -21,6 +21,7 @@ struct BufferCreationOptions {
 	ResourceStorageType storage;
 	vk::BufferUsageFlags usage;
 	vk::SharingMode sharingMode;
+	std::vector<uint32_t> queueFamilieIndicies;
 };
 
 class Buffer

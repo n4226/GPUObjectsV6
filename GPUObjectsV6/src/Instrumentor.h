@@ -26,6 +26,7 @@ struct ProfileResult
     std::string Name;
     long long Start, End;
     uint32_t ThreadID;
+    std::thread::id ThreadIDID;
 };
 
 struct InstrumentationSession
@@ -37,16 +38,22 @@ class Instrumentor
 {
 private:
     InstrumentationSession* m_CurrentSession;
+    //libguarded::plain_guarded<std::ofstream> m_OutputStream;
     std::ofstream m_OutputStream;
+    
+    libguarded::plain_guarded<std::vector<ProfileResult>> pendingResults;
+
     int m_ProfileCount;
+    std::thread::id main_thread_id;
 public:
     Instrumentor()
-        : m_CurrentSession(nullptr), m_ProfileCount(0)
+        : m_CurrentSession(nullptr), m_ProfileCount(0), main_thread_id(std::this_thread::get_id())
     {
     }
 
     void BeginSession(const std::string& name, const std::string& filepath = "results.json")
     {
+        //auto m_OutputStream = this->m_OutputStream.lock();
         m_OutputStream.open(filepath);
         WriteHeader();
         m_CurrentSession = new InstrumentationSession{ name };
@@ -54,6 +61,14 @@ public:
 
     void EndSession()
     {
+        {
+            auto queue = pendingResults.lock();
+            for (ProfileResult& result : *queue) {
+                WriteProfile(result);
+            }
+            queue->clear();
+        }
+        //auto m_OutputStream = this->m_OutputStream.lock();
         WriteFooter();
         m_OutputStream.close();
         delete m_CurrentSession;
@@ -61,13 +76,28 @@ public:
         m_ProfileCount = 0;
     }
 
+    void pendWriteProfile(const ProfileResult& result) {
+        auto queue = pendingResults.lock();
+        queue->push_back(result);
+    }
+
     void WriteProfile(const ProfileResult& result)
     {
+        //auto m_OutputStream = this->m_OutputStream.lock();
+        
+
         if (m_ProfileCount++ > 0)
             m_OutputStream << ",";
 
+        
+
         std::string name = result.Name;
         std::replace(name.begin(), name.end(), '"', '\'');
+        
+        auto mainThread = false;
+
+        if (result.ThreadIDID == main_thread_id)
+            mainThread = true;
 
         m_OutputStream << "{";
         m_OutputStream << "\"cat\":\"function\",";
@@ -75,7 +105,7 @@ public:
         m_OutputStream << "\"name\":\"" << name << "\",";
         m_OutputStream << "\"ph\":\"X\",";
         m_OutputStream << "\"pid\":0,";
-        m_OutputStream << "\"tid\":" << result.ThreadID << ",";
+        m_OutputStream << "\"tid\":" << (mainThread ? 0 : result.ThreadID) << ",";
         m_OutputStream << "\"ts\":" << result.Start;
         m_OutputStream << "}";
 
@@ -84,12 +114,15 @@ public:
 
     void WriteHeader()
     {
+        //auto m_OutputStream = this->m_OutputStream.lock();
+
         m_OutputStream << "{\"otherData\": {},\"traceEvents\":[";
         m_OutputStream.flush();
     }
 
     void WriteFooter()
     {
+        //auto m_OutputStream = this->m_OutputStream.lock();
         m_OutputStream << "]}";
         m_OutputStream.flush();
     }
@@ -124,7 +157,8 @@ public:
         long long end = std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch().count();
 
         uint32_t threadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
-        Instrumentor::Get().WriteProfile({ m_Name, start, end, threadID });
+        //Instrumentor::Get().WriteProfile({ m_Name, start, end, threadID });
+        Instrumentor::Get().pendWriteProfile({ m_Name, start, end, threadID, std::this_thread::get_id() });
 
         m_Stopped = true;
     }
