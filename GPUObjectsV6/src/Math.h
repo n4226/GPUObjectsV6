@@ -51,5 +51,6 @@ namespace Math {
 
 	double llaDistance(glm::dvec2 from,glm::dvec2 to,double radius = dEarthRad);
 
+	glm::quat fromToRotation(glm::vec3 startingDirection, glm::vec3 endingDirection);
 }
 

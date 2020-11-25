@@ -6,7 +6,7 @@
 
 void FloatingOriginSystem::update()
 {
-    //return;
+    
     auto position = glm::dvec3(world->playerTrans.position);
     auto distance = glm::length(position);
     if (distance > FLOATING_ORIGIN_SNAP_DISTANCE) {

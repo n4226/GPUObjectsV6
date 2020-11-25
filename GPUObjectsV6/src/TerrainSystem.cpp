@@ -3,7 +3,7 @@
 #include "Renderer.h"
 
 TerrainSystem::TerrainSystem(Renderer* renderer, glm::dvec3* origin)
-	: tree(10000), renderer(renderer), meshLoader(), origin(origin)
+	: tree(Math::dEarthRad), renderer(renderer), meshLoader(), origin(origin)
 {
 	PROFILE_FUNCTION
 
@@ -123,7 +123,17 @@ void TerrainSystem::processTree()
 			if (nextDistance > nextThreshold * 1.1)
 			{
 				//combine node
-				//if (toCombine.count(node->parent) == 0)
+
+				auto split = true;
+
+				for (TerrainQuadTreeNode* child : node->parent->children) {
+					if (toSplit.count(child) > 0 || child->isSplit)
+					{
+						split = false;
+						break;
+					}
+				}
+				if (split)
 					toCombine.insert(node->parent);
 			}
 		}
@@ -146,6 +156,7 @@ void TerrainSystem::processTree()
 		for (TerrainQuadTreeNode* child : node->children) {
 			//toDestroyDraw.insert(child);
 			removeDrawChunk(child);
+			assert(child->children.size() == 0);
 		}
 		node->combine();
 

@@ -24,6 +24,7 @@ TerrainQuadTreeNode::~TerrainQuadTreeNode()
 
 void TerrainQuadTreeNode::split()
 {
+	PROFILE_FUNCTION
 	if (isSplit) return;
 	isSplit = true;
 
@@ -47,6 +48,7 @@ void TerrainQuadTreeNode::split()
 
 void TerrainQuadTreeNode::combine()
 {
+	PROFILE_FUNCTION
 	if (!isSplit) return;
 	isSplit = false;
 
@@ -54,6 +56,7 @@ void TerrainQuadTreeNode::combine()
 	{
 		child->willBeCombined();
 		tree->leafNodes.erase(child);
+		assert(child->children.size() == 0);
 		delete child;
 	}
 	children.clear();

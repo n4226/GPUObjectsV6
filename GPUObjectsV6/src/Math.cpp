@@ -84,3 +84,15 @@ double Math::llaDistance(glm::dvec2 from, glm::dvec2 to, double radius)
     auto d = radius  * c; // Distance in |km|(maybe)
     return d;
 }
+
+glm::quat Math::fromToRotation(glm::vec3 startingDirection, glm::vec3 endingDirection) {
+    if (glm::length2(endingDirection + startingDirection) == 0)
+    {
+        endingDirection += glm::vec3(.0000001f, 0, 0);
+    }
+    auto xyz = glm::cross(endingDirection, startingDirection);
+    auto w = glm::sqrt(glm::pow(glm::length(endingDirection), 2) * glm::pow(glm::length(startingDirection), 2)) + glm::dot(endingDirection, startingDirection);
+    
+    
+    return glm::normalize(glm::quat(w, xyz.x, xyz.y, xyz.z));
+}
