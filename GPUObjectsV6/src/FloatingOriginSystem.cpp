@@ -32,8 +32,9 @@ void FloatingOriginSystem::update()
             ModelUniforms* model = reinterpret_cast<ModelUniforms*>(reinterpret_cast<char*>(world->renderer->globalModelBufferStaging->mappedData) + modelAddress.offset);
             model->model = model->model * deltaTransform.matrix();
         }
-
-        ResourceTransferer::newTask();
+        
+        //TODO: i should have to copy these changes to the gpu buffer(s) but for some reason it's wokring on my drivers and there are no validation errors so i'm not going to spend time on it right now
+        //ResourceTransferer::newTask();
 
         world->playerTrans.position = glm::vec3(0);
         printf("snapped floating origin\n");

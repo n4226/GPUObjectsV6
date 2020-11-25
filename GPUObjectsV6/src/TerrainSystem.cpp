@@ -84,6 +84,11 @@ vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass)
 	return buffer;
 }
 
+double TerrainSystem::getRadius()
+{
+	return tree.radius;
+}
+
 void TerrainSystem::processTree()
 {
 	PROFILE_FUNCTION

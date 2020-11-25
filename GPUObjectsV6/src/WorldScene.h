@@ -31,7 +31,7 @@ public:
 
 	// player
 
-	glm::dvec3 playerLLA = glm::dvec3(0,0,10);
+	glm::dvec3 playerLLA = glm::dvec3(40.610319941413, -74.039182662964, 100);
 	Transform playerTrans;
 
 	double time = 0;

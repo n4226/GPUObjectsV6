@@ -45,6 +45,8 @@ public:
 
 	const uint16_t lodLevels = 13;
 
+	double getRadius();
+
 private:
 
 	// temp resources
