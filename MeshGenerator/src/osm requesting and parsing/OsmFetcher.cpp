@@ -5,9 +5,12 @@
 #include <string>
 #include <locale>
 #include <codecvt>
-
+#include <fstream>
 
 #include "../dependencies/httplib.h"
+
+
+const std::string cashDir = R"(.\osmCash\)";
 
 OsmFetcher::OsmFetcher()
 {
@@ -15,8 +18,16 @@ OsmFetcher::OsmFetcher()
 
 osm::osm OsmFetcher::fetchChunk(Box frame)
 {
+    auto file = cashDir + frame.toString() + ".osm";
 
     // check if in local cash if so return that
+
+    std::ifstream f(file);
+    if (f.good()) {
+        std::string str((std::istreambuf_iterator<char>(f)),
+            std::istreambuf_iterator<char>());
+        return osm::makeOSM(str);
+    }
 
     //get from server 
 
@@ -29,11 +40,20 @@ osm::osm OsmFetcher::fetchChunk(Box frame)
     
     //std::cout << response->body << "\n";
 
+    //update cash - raw osm
+
+    {
+        std::ofstream out;
+        out.open(file, std::fstream::out);
+        //out.open(file, std::fstream::out);
+        out << response->body;
+        out.close();
+    }
+
     // pars to osm
 
     osm::osm parsedOsm = osm::makeOSM(response->body);
 
-    //update cash
 
 
     return osm::osm();

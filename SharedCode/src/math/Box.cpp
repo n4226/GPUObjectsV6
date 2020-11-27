@@ -1,5 +1,5 @@
 #include "Box.h"
-
+#include <string>
 
 Box::Box()
     : start(0), size(0)
@@ -38,7 +38,12 @@ bool Box::contains(glm::dvec2 point) const
 //    return false;
 //}
 
+std::string Box::toString() const
+{
+    return "(" + std::to_string(start.x) + "," + std::to_string(start.y) + ")" + "_origin--" + "(" + std::to_string(size.x) + "," + std::to_string(size.y) + ")" + "_size";
+}
+
 std::ostream& operator<<(std::ostream& strm, const Box& a)
 {
-    return strm << "(" << a.start.x << a.start.y << ")" << "_origin--" << "(" << a.size.x << a.size.y << ")" << "_size";
+    return strm << a.toString();
 }

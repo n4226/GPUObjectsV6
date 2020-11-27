@@ -18,7 +18,7 @@ struct Box
 	bool contains(glm::dvec2 point) const;
 	//bool contains(Box other);
 
-
+	std::string toString() const;
 };
 
 std::ostream& operator<<(std::ostream& strm, const Box& a);

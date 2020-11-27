@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <map>
 
 namespace osm {
 
@@ -16,16 +17,11 @@ namespace osm {
         role role;
     };
 
-    struct tag {
-        std::string key;
-        std::string value;
-    };
-
     struct element {
         type type;
         int64_t id;
-        std::shared_ptr<std::vector<int64_t>> nodes;
-        std::vector<tag> tags;
+        std::vector<int64_t> nodes;
+        std::map<std::string,std::string> tags;
         std::shared_ptr<std::vector<member>> members;
         std::shared_ptr<double> lat;
         std::shared_ptr<double> lon;
