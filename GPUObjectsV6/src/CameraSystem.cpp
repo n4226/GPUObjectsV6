@@ -4,7 +4,7 @@
 
 void CameraSystem::update()
 {
-	world->playerLLA = glm::dvec3(45 + sin(world->timef * 0.1f), 0, 100);
+	world->playerLLA = glm::dvec3(45 + sin(world->timef * 0.1f), 0, 10100 + -cos(world->timef * 0.5f) * 10'000);
 
 	// the camera looks at -> +z
 	

@@ -21,12 +21,21 @@
     <ClCompile Include="src\osm requesting and parsing\OsmFetcher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\osm requesting and parsing\osm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\osm requesting and parsing\OsmFetcher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\osm requesting and parsing\osm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dependencies\httplib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

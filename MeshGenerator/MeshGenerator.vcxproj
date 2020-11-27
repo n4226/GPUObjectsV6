@@ -59,7 +59,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)SharedCode\src;C:\Users\Mike\libraries\glm-stable;$(SolutionDir)Dependencies\HTTPRequest-master\HTTPRequest-master\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\src\dependencies;C:\Program Files\OpenSSL-Win64\include;$(SolutionDir)SharedCode\src;C:\Users\Mike\libraries\glm-stable;$(SolutionDir)Dependencies\HTTPRequest-master\HTTPRequest-master\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -74,7 +74,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)SharedCode\src;C:\Users\Mike\libraries\glm-stable;$(SolutionDir)Dependencies\HTTPRequest-master\HTTPRequest-master\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\src\dependencies;C:\Program Files\OpenSSL-Win64\include;$(SolutionDir)SharedCode\src;C:\Users\Mike\libraries\glm-stable;$(SolutionDir)Dependencies\HTTPRequest-master\HTTPRequest-master\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -84,6 +84,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\osm requesting and parsing\osm.cpp" />
     <ClCompile Include="src\osm requesting and parsing\OsmFetcher.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
@@ -93,6 +94,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\dependencies\httplib.h" />
+    <ClInclude Include="src\osm requesting and parsing\osm.h" />
     <ClInclude Include="src\osm requesting and parsing\OsmFetcher.h" />
     <ClInclude Include="src\constants.h" />
   </ItemGroup>

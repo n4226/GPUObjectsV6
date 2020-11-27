@@ -76,7 +76,7 @@ int main() {
     
     windowCreator->camera.fov = 60;
     windowCreator->camera.zNear = 0.1;
-    windowCreator->camera.zFar = 100000;
+    windowCreator->camera.zFar = 1'000'000;
 
     WorldScene* scene = new WorldScene(*windowCreator);
     
