@@ -4,7 +4,7 @@
 #include <filesystem>
 
 TerrainSystem::TerrainSystem(Renderer* renderer, glm::dvec3* origin)
-	: tree(Math::dEarthRad * 0 + 1'000), renderer(renderer), meshLoader(), origin(origin)
+	: tree(Math::dEarthRad), renderer(renderer), meshLoader(), origin(origin)
 {
 	PROFILE_FUNCTION
 

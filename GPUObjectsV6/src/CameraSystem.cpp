@@ -7,7 +7,7 @@ void CameraSystem::update()
 	// move around the world fast
 	//world->playerLLA = glm::dvec3(45 + sin(world->timef * 0.1f), 0, 10100 + -cos(world->timef * 0.5f) * 10'000);
 
-	world->playerLLA = glm::dvec3(sin(world->timef * 0.8f) * 60, sin(world->timef * 1.f) * 90, 1'000);
+	world->playerLLA = glm::dvec3(sin(world->timef * 0.8f) * 6, sin(world->timef * 1.f) * 9, 1'000);
 	//world->playerLLA = glm::dvec3(sin(world->timef * 0.8f) * 60, 0, 1'000);
 	//world->playerLLA = glm::dvec3(0, sin(world->timef * 1.f) * 90, 1'000);
 
@@ -38,7 +38,7 @@ void CameraSystem::update()
 	auto QuatAroundZ = glm::angleAxis(0.f, glm::vec3(0.0, 0.0, 1.0));
 	auto finalOrientation = QuatAroundZ * QuatAroundY * QuatAroundX;
 
-	world->playerTrans.rotation = finalOrientation;
+	world->playerTrans.rotation = finalOrientation * glm::angleAxis(glm::radians(90.f), glm::vec3(-1, 0, 0));
 
 		//glm::
 		//static_cast<glm::quat>(glm::lookAt(glm::vec3(0), glm::cross(N,glm::vec3(0,0,1)),-N));
