@@ -13,8 +13,8 @@ namespace Math {
 
 	// constants
 
-	constexpr auto dEarthRad = 6378137.0;
-	constexpr auto fEarthRad = 6378137.f;
+	constexpr auto dEarthRad = 6'378'137.0;
+	constexpr auto fEarthRad = 6'378'137.f;
 
 	/// <summary>
 	/// 
