@@ -60,6 +60,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)\src\dependencies;C:\Program Files\OpenSSL-Win64\include;$(SolutionDir)SharedCode\src;C:\Users\Mike\libraries\glm-stable;$(SolutionDir)Dependencies\HTTPRequest-master\HTTPRequest-master\include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -75,6 +76,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)\src\dependencies;C:\Program Files\OpenSSL-Win64\include;$(SolutionDir)SharedCode\src;C:\Users\Mike\libraries\glm-stable;$(SolutionDir)Dependencies\HTTPRequest-master\HTTPRequest-master\include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -84,6 +86,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\generation\creator.cpp" />
+    <ClCompile Include="src\generation\creators\buildingCreator.cpp" />
+    <ClCompile Include="src\generation\creators\groundCreator.cpp" />
+    <ClCompile Include="src\generation\base\GenerationSystem.cpp" />
     <ClCompile Include="src\osm requesting and parsing\osm.cpp" />
     <ClCompile Include="src\osm requesting and parsing\OsmFetcher.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -94,6 +100,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\generation\creator.h" />
+    <ClInclude Include="src\generation\creators\buildingCreator.h" />
+    <ClInclude Include="src\generation\creators\groundCreator.h" />
+    <ClInclude Include="src\generation\base\GenerationSystem.h" />
     <ClInclude Include="src\dependencies\httplib.h" />
     <ClInclude Include="src\osm requesting and parsing\osm.h" />
     <ClInclude Include="src\osm requesting and parsing\OsmFetcher.h" />

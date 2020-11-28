@@ -6,6 +6,7 @@
 #include <vector>
 #include "glm/glm.hpp"
 #include "Buffer.h"
+#include "rendering structures/BinaryMesh.h"
 
 
 struct Mesh
@@ -81,7 +82,7 @@ public:
 
 	struct WriteTransactionReceipt
 	{
-		std::array<WriteLocation,5> vartexLocations;
+		std::array<WriteLocation,5> vertexLocations;
 		WriteLocation indexLocation;
 	};
 
@@ -94,6 +95,10 @@ public:
 	/// <param name="mapandUnmap">if true will call map and unmap before and after writing</param>
 	void writeMeshToBuffer(VkDeviceAddress vertIndex, VkDeviceAddress indIndex, Mesh* mesh,bool mapandUnmap);
 	WriteTransactionReceipt genrateWriteReceipt(VkDeviceAddress vertIndex, VkDeviceAddress indIndex, Mesh* mesh);
+
+	void writeMeshToBuffer(VkDeviceAddress vertIndex, VkDeviceAddress indIndex, BinaryMeshSeirilizer* mesh, bool mapandUnmap);
+	WriteTransactionReceipt genrateWriteReceipt(VkDeviceAddress vertIndex, VkDeviceAddress indIndex, BinaryMeshSeirilizer* mesh);
+
 	void bindVerticiesIntoCommandBuffer(vk::CommandBuffer commandBuffer, uint32_t baseBinding);
 	void bindIndiciesIntoCommandBuffer (vk::CommandBuffer commandBuffer);
 

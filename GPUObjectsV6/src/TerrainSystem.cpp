@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "TerrainSystem.h"
 #include "Renderer.h"
+#include <filesystem>
 
 TerrainSystem::TerrainSystem(Renderer* renderer, glm::dvec3* origin)
 	: tree(Math::dEarthRad), renderer(renderer), meshLoader(), origin(origin)
@@ -184,16 +185,38 @@ void TerrainSystem::drawChunk(TerrainQuadTreeNode* node)
 		// this would mean that this funciton would have to crateda nother object with temporary object eg mesh and model trans to be writien at the end of the system update
 	if (node->hasdraw) return;
 
-	auto mesh = meshLoader.createChunkMesh(*node);
+	BindlessMeshBuffer::WriteTransactionReceipt meshReceipt;
 
-	// these indicies are in vert count space - meaning 1 = 1 vert not 1 byte
-	auto vertIndex = renderer->gloablVertAllocator->alloc(mesh->verts.size());
-	auto indIndex = renderer->gloablIndAllocator->alloc(mesh->indicies.size());
+	VkDeviceAddress vertIndex;
+	VkDeviceAddress indIndex;
+	size_t vertCount;
+	size_t indCount;
 
-	renderer->globalMeshStagingBuffer->writeMeshToBuffer(vertIndex,indIndex, mesh, true);
+	// get  and encode mesh
+	//TODO store this in a better place
+	const char* Terrain_Chunk_Mesh_Dir = R"(terrain/chunkMeshes/)";
+
+	auto file = Terrain_Chunk_Mesh_Dir + node->frame.toString() + ".bmesh";
+	if (std::filesystem::exists(file)) {
+		printf("");
+	}
+	else 
+	{
+		auto mesh = meshLoader.createChunkMesh(*node);
+
+		vertCount = mesh->verts.size();
+		indCount  = mesh->indicies.size();
+
+		// these indicies are in vert count space - meaning 1 = 1 vert not 1 byte
+		vertIndex = renderer->gloablVertAllocator->alloc(mesh->verts.size());
+		indIndex = renderer->gloablIndAllocator->alloc(mesh->indicies.size());
+
+		renderer->globalMeshStagingBuffer->writeMeshToBuffer(vertIndex, indIndex, mesh, true);
 
 
-	//renderer->globalMeshStaging->vertBuffer->gpuCopyToOther(renderer->globalMesh->vertBuffer)
+		//renderer->globalMeshStaging->vertBuffer->gpuCopyToOther(renderer->globalMesh->vertBuffer)
+		meshReceipt = renderer->globalMeshStagingBuffer->genrateWriteReceipt(vertIndex, indIndex, mesh);
+	}
 
 	// model 
 
@@ -212,14 +235,13 @@ void TerrainSystem::drawChunk(TerrainQuadTreeNode* node)
 
 	renderer->globalModelBufferStaging->tempMapAndWrite(&mtrans,modelIndex,modelAllocSize);
 
-	auto meshReceipt = renderer->globalMeshStagingBuffer->genrateWriteReceipt(vertIndex, indIndex, mesh);
 
 
 	TreeNodeDrawData drawData;
 	drawData.indIndex = indIndex;
 	drawData.vertIndex = vertIndex;
-	drawData.vertcount = mesh->verts.size();
-	drawData.indexCount = mesh->indicies.size();
+	drawData.vertcount = vertCount;
+	drawData.indexCount = indCount;
 	drawData.meshRecipt = meshReceipt;
 	drawData.modelRecipt = { modelIndex,modelAllocSize };
 
@@ -285,9 +307,9 @@ void TerrainSystem::writePendingDrawOobjects()
 
 	for (std::pair<TerrainQuadTreeNode*,TreeNodeDrawData> objectData : pendingDrawObjects) {
 
-		for (size_t i = 0; i < objectData.second.meshRecipt.vartexLocations.size(); i++)
+		for (size_t i = 0; i < objectData.second.meshRecipt.vertexLocations.size(); i++)
 		{
-			BindlessMeshBuffer::WriteLocation& vertRecpt = objectData.second.meshRecipt.vartexLocations[i];
+			BindlessMeshBuffer::WriteLocation& vertRecpt = objectData.second.meshRecipt.vertexLocations[i];
 			vertexTask.regions.emplace_back(vertRecpt.offset, vertRecpt.offset, vertRecpt.size);
 		}
 

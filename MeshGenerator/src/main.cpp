@@ -5,13 +5,15 @@
 #include "glm/glm.hpp"
 #include "osm requesting and parsing/OsmFetcher.h"
 
+#include "generation/base/GenerationSystem.h"
+
 int main() {
 
-	auto fetcher = new OsmFetcher();
+	glm::dvec2 desired(40.610319941413, -74.039182662964);
 
-	Box testChunk = { glm::dvec2(40.6056,-74.0713), glm::dvec3(0.0000001) };
+	GenerationSystem genSys(GenerationSystem::genreateChunksAround(desired,12, glm::ivec2(3,3)));
 
-	fetcher->fetchChunk(testChunk);
+	genSys.generate();
 
 	return 0;
 }

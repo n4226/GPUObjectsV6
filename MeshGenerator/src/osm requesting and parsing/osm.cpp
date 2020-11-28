@@ -2,6 +2,10 @@
 
 #include "nlohmann/json.hpp"
 
+#include <execution>
+#include <ranges>
+#include <algorithm>
+
 namespace osm {
 	using namespace nlohmann;
 	osm makeOSM(std::string& str)
@@ -19,10 +23,10 @@ namespace osm {
 
 		// parse elements
 		
-		for (size_t ei = 0; ei < j["elements"].size(); ei++)
-		{
-			auto je = j["elements"][ei];
 
+		auto jElements = j["elements"];
+		osm.elements.resize(jElements.size());
+		std::transform(std::execution::par, jElements.begin(), jElements.end(), osm.elements.begin(), [](nlohmann::json je) {
 			element e;
 
 			e.id = je["id"];
@@ -95,17 +99,24 @@ namespace osm {
 			auto lon = je["lon"];
 
 			if (!lat.is_null()) {
-				//e.lat = std::make_shared<double>();
-				//*e.lat = lat.get<double>();
+				e.lat = std::make_shared<double>();
+				*e.lat = lat.get<double>();
 			}
 			if (!lon.is_null()) {
-				//e.lon = std::make_shared<double>();
-				//*e.lon = lon.get<double>();
+				e.lon = std::make_shared<double>();
+				*e.lon = lon.get<double>();
 			}
-			osm.elements.push_back(e);
-		}
+			return e;
+		});
 
+		/*for (size_t ei = 0; ei < j["elements"].size(); ei++)
+		{
+			auto je = j["elements"][ei];
 
+			
+		}*/
+
+		printf("osm parsed");
 
 		return osm;
 	}

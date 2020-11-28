@@ -1,6 +1,7 @@
 #include "BinaryMesh.h"
 #include <assert.h>
 #include <numeric>
+#include <fstream>
 
 size_t BinaryMeshSeirilizer::Mesh::vertsSize()
 {
@@ -69,17 +70,20 @@ size_t BinaryMeshSeirilizer::Mesh::fullSize()
 
 BinaryMeshSeirilizer::BinaryMeshSeirilizer(Mesh& originalMesh)
 {
-	assert(originalMesh.verts.size() == originalMesh.uvs.size() == originalMesh.normals.size() == originalMesh.tangents.size() == originalMesh.bitangents.size());
+	assert(originalMesh.verts.size() == originalMesh.uvs.size() && originalMesh.normals.size() == originalMesh.tangents.size() && originalMesh.bitangents.size());
 
 	auto headerLength = sizeof(uint32_t) * (2 + originalMesh.indicies.size());
+	// vert size * 56
 	auto verticiesLength = originalMesh.indiciesOffset();
 	auto indiciesLength = 0;
 
 	for (std::vector<uint32_t>& subMesh : originalMesh.indicies) {
-		indiciesLength += subMesh.size();
+		indiciesLength += (subMesh.size() * sizeof(uint32_t));
 	}
 
 	size_t meshLength = headerLength + verticiesLength + indiciesLength;
+
+	this->headerLength = headerLength;
 
 	this->meshLength = meshLength;
 	mesh = malloc(meshLength);
@@ -130,7 +134,7 @@ BinaryMeshSeirilizer::BinaryMeshSeirilizer(Mesh& originalMesh)
 			memcpy(indiciesStart + offset, subMesh.data(),size);
 			offset += size;
 		}
-		assert((indiciesStart - mesh) + offset == meshLength);
+		assert((reinterpret_cast<char*>(indiciesStart) - reinterpret_cast<char*>(mesh)) + offset == meshLength);
 	}
 }
 
@@ -138,7 +142,108 @@ BinaryMeshSeirilizer::BinaryMeshSeirilizer(void* encodedMesh, size_t encodedMesh
 	: mesh(encodedMesh), meshLength(encodedMeshLength),
 	vertCount((reinterpret_cast<uint32_t*>(encodedMesh))),
 	subMeshCount((reinterpret_cast<uint32_t*>(encodedMesh) + 1)),
-	subMeshIndexCounts((reinterpret_cast<uint32_t*>(encodedMesh) + 2))
+	subMeshIndexCounts((reinterpret_cast<uint32_t*>(encodedMesh) + 2)),
+	headerLength(sizeof(uint32_t) * (2 + (*subMeshCount)))
 {
 
+}
+
+BinaryMeshSeirilizer::BinaryMeshSeirilizer(const char* filePath)
+{
+	std::ifstream file(filePath, std::ios::ate | std::ios::binary);
+
+	if (!file.is_open()) {
+		assert(false);
+		//throw std::runtime_error("failed to open file!");
+	}
+
+	meshLength = (size_t)file.tellg();
+
+	mesh = malloc(meshLength);
+
+	file.seekg(0);
+	file.read(reinterpret_cast<char*>(mesh), meshLength);
+
+	file.close();
+
+	vertCount = (reinterpret_cast<uint32_t*>(mesh));
+	subMeshCount = (reinterpret_cast<uint32_t*>(mesh) + 1);
+	subMeshIndexCounts = (reinterpret_cast<uint32_t*>(mesh) + 2);
+	headerLength = sizeof(uint32_t) * (2 + (*subMeshCount));
+}
+
+BinaryMeshSeirilizer::~BinaryMeshSeirilizer()
+{
+	free(mesh);
+}
+
+
+
+size_t BinaryMeshSeirilizer::vertsSize()
+{
+	return (*vertCount) * sizeof(glm::vec3);
+}
+
+size_t BinaryMeshSeirilizer::uvsSize()
+{
+	return (*vertCount) * sizeof(glm::vec2);
+}
+
+size_t BinaryMeshSeirilizer::normalsSize()
+{
+	return (*vertCount) * sizeof(glm::vec3);
+}
+
+size_t BinaryMeshSeirilizer::tangentsSize()
+{
+	return (*vertCount) * sizeof(glm::vec3);
+}
+
+size_t BinaryMeshSeirilizer::bitangentsSize()
+{
+	return (*vertCount) * sizeof(glm::vec3);
+}
+
+size_t BinaryMeshSeirilizer::indiciesSize(size_t subMesh)
+{
+	return (subMeshIndexCounts[subMesh]) * sizeof(glm::uint32);
+}
+
+
+
+
+
+
+
+
+void* BinaryMeshSeirilizer::vertsPtr()
+{
+	return reinterpret_cast<void*>(reinterpret_cast<char*>(mesh) + headerLength);
+}
+
+void* BinaryMeshSeirilizer::uvsPtr()
+{
+	return reinterpret_cast<void*>(reinterpret_cast<char*>(vertsPtr()) + vertsSize());
+}
+
+void* BinaryMeshSeirilizer::normalsPtr()
+{
+	return reinterpret_cast<void*>(reinterpret_cast<char*>(uvsPtr()) + uvsSize());
+}
+
+void* BinaryMeshSeirilizer::tangentsPtr()
+{
+	return reinterpret_cast<void*>(reinterpret_cast<char*>(normalsPtr()) + normalsSize());
+}
+
+void* BinaryMeshSeirilizer::bitangentsPtr()
+{
+	return reinterpret_cast<void*>(reinterpret_cast<char*>(tangentsPtr()) + tangentsSize());
+}
+
+void* BinaryMeshSeirilizer::indiciesPtr(size_t subMesh)
+{
+	//TODO allow multiple submeshes 
+	assert(subMesh == 0);
+	return reinterpret_cast<void*>(reinterpret_cast<char*>(bitangentsPtr()) + bitangentsSize());
 }

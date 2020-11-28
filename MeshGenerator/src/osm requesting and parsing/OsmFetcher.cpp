@@ -21,14 +21,15 @@ osm::osm OsmFetcher::fetchChunk(Box frame)
     auto file = cashDir + frame.toString() + ".osm";
 
     // check if in local cash if so return that
-
+    printf("attempting to open osm cash file\n");
     std::ifstream f(file);
     if (f.good()) {
+        printf("using osm cash to load osm\n");
         std::string str((std::istreambuf_iterator<char>(f)),
             std::istreambuf_iterator<char>());
         return osm::makeOSM(str);
     }
-
+    printf("fetching osm from server\n");
     //get from server 
 
     const char* server = "http://overpass-api.de";;
@@ -51,12 +52,15 @@ osm::osm OsmFetcher::fetchChunk(Box frame)
     }
 
     // pars to osm
+    printf("parsing osm from json\n");
 
     osm::osm parsedOsm = osm::makeOSM(response->body);
 
+    printf("sleeping with json data\n");
 
+    Sleep(8000);
 
-    return osm::osm();
+    return parsedOsm;
 }
 
 

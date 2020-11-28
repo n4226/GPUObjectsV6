@@ -65,16 +65,35 @@ public:
 
 	BinaryMeshSeirilizer(Mesh& originalMesh);
 	BinaryMeshSeirilizer(void* encodedMesh, size_t encodedMeshLength);
+	BinaryMeshSeirilizer(const char* filePath);
+	~BinaryMeshSeirilizer();
 
 	glm::uint32_t* vertCount;
 	glm::uint32_t* subMeshCount;
 	// this is an array
 	glm::uint32_t* subMeshIndexCounts;
+	size_t headerLength;
 
 	/// <summary>
 	/// the actuall full binary mesh
 	/// </summary>
 	void* mesh;
 	size_t meshLength;
+
+	size_t         vertsSize();
+	size_t           uvsSize();
+	size_t       normalsSize();
+	size_t      tangentsSize();
+	size_t    bitangentsSize();
+	size_t      indiciesSize(size_t subMesh);
+
+	void*         vertsPtr();
+	void*           uvsPtr();
+	void*       normalsPtr();
+	void*      tangentsPtr();
+	void*    bitangentsPtr();
+
+	void*      indiciesPtr(size_t subMesh);
+
 };
 

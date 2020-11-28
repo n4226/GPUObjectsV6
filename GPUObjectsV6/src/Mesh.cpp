@@ -274,7 +274,7 @@ BindlessMeshBuffer::WriteTransactionReceipt BindlessMeshBuffer::genrateWriteRece
 	BindlessMeshBuffer::WriteLocation location3 = { tangentsOffset() + vertIndex * sizeof(glm::vec3), mesh->tangentsSize()     };
 	BindlessMeshBuffer::WriteLocation location4 = { bitangentsOffset() + vertIndex * sizeof(glm::vec3), mesh->bitangentsSize() };
 																												  
-	report.vartexLocations = {
+	report.vertexLocations = {
 		location0,
 		location1,
 		location2,
@@ -282,6 +282,53 @@ BindlessMeshBuffer::WriteTransactionReceipt BindlessMeshBuffer::genrateWriteRece
 		location4,
 	};
 	report.indexLocation = { indIndex * sizeof(glm::uint32), mesh->indiciesSize() };
+	return report;
+}
+
+void BindlessMeshBuffer::writeMeshToBuffer(VkDeviceAddress vertIndex, VkDeviceAddress indIndex, BinaryMeshSeirilizer* mesh, bool mapandUnmap)
+{
+	PROFILE_FUNCTION
+
+	//TODO: right now this just loads the first submesh	
+	if (mapandUnmap)
+	{
+		vertBuffer->mapMemory();
+		indexBuffer->mapMemory();
+	}
+
+	memcpy(static_cast<char*>(vertBuffer->mappedData) + vertsOffset() + vertIndex * sizeof(glm::vec3)     , mesh->vertsPtr()      , mesh->vertsSize());
+	memcpy(static_cast<char*>(vertBuffer->mappedData) + uvsOffset() + vertIndex * sizeof(glm::vec2)       , mesh->uvsPtr()        , mesh->uvsSize());
+	memcpy(static_cast<char*>(vertBuffer->mappedData) + normalsOffset() + vertIndex * sizeof(glm::vec3)   , mesh->normalsPtr()    , mesh->normalsSize());
+	memcpy(static_cast<char*>(vertBuffer->mappedData) + tangentsOffset() + vertIndex * sizeof(glm::vec3)  , mesh->tangentsPtr()   , mesh->tangentsSize());
+	memcpy(static_cast<char*>(vertBuffer->mappedData) + bitangentsOffset() + vertIndex * sizeof(glm::vec3), mesh->bitangentsPtr() , mesh->bitangentsSize());
+
+	memcpy(static_cast<char*>(indexBuffer->mappedData) + indIndex * sizeof(glm::uint32), mesh->indiciesPtr(0), mesh->indiciesSize(0));
+
+	if (mapandUnmap)
+	{
+		vertBuffer->unmapMemory();
+		indexBuffer->unmapMemory();
+	}
+}
+
+BindlessMeshBuffer::WriteTransactionReceipt BindlessMeshBuffer::genrateWriteReceipt(VkDeviceAddress vertIndex, VkDeviceAddress indIndex, BinaryMeshSeirilizer* mesh)
+{
+	BindlessMeshBuffer::WriteTransactionReceipt report;
+
+	BindlessMeshBuffer::WriteLocation location0 = { vertsOffset() + vertIndex * sizeof(glm::vec3), mesh->vertsSize() };
+	BindlessMeshBuffer::WriteLocation location1 = { uvsOffset() + vertIndex * sizeof(glm::vec2), mesh->uvsSize() };
+	BindlessMeshBuffer::WriteLocation location2 = { normalsOffset() + vertIndex * sizeof(glm::vec3), mesh->normalsSize() };
+	BindlessMeshBuffer::WriteLocation location3 = { tangentsOffset() + vertIndex * sizeof(glm::vec3), mesh->tangentsSize() };
+	BindlessMeshBuffer::WriteLocation location4 = { bitangentsOffset() + vertIndex * sizeof(glm::vec3), mesh->bitangentsSize() };
+
+	report.vertexLocations = {
+		location0,
+		location1,
+		location2,
+		location3,
+		location4,
+	};
+	report.indexLocation = { indIndex * sizeof(glm::uint32), mesh->indiciesSize(0) };
 	return report;
 }
 
