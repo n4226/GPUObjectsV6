@@ -198,7 +198,20 @@ void TerrainSystem::drawChunk(TerrainQuadTreeNode* node)
 
 	auto file = Terrain_Chunk_Mesh_Dir + node->frame.toString() + ".bmesh";
 	if (std::filesystem::exists(file)) {
-		printf("");
+		auto mesh = BinaryMeshSeirilizer(file.c_str());
+
+		vertCount = *mesh.vertCount;
+		indCount = mesh.subMeshIndexCounts[0];
+
+		// these indicies are in vert count space - meaning 1 = 1 vert not 1 byte
+		vertIndex = renderer->gloablVertAllocator->alloc(vertCount);
+		indIndex = renderer->gloablIndAllocator->alloc(indCount);
+
+		renderer->globalMeshStagingBuffer->writeMeshToBuffer(vertIndex, indIndex, &mesh, true);
+
+
+		//renderer->globalMeshStaging->vertBuffer->gpuCopyToOther(renderer->globalMesh->vertBuffer)
+		meshReceipt = renderer->globalMeshStagingBuffer->genrateWriteReceipt(vertIndex, indIndex, &mesh);
 	}
 	else 
 	{
