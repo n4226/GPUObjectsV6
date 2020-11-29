@@ -34,9 +34,19 @@ Buffer::Buffer(vk::Device device, VmaAllocator allocator, VkDeviceSize size, Buf
 	allocInfo.pUserData = nullptr;
 	allocInfo.usage = VmaMemoryUsage(options.storage);
 
+	//TODO: THIS IS ONLY FOR MY GRAPHICS CARD FIX THIS IN THE FUTURE
+	if (options.storage == ResourceStorageType::gpu) {
+		uint32_t memoryTypeIndex = 7;
+		allocInfo.memoryTypeBits = 1u << memoryTypeIndex;
+	}
 
-	vmaCreateBuffer(allocator, &cCreateInfo, &allocInfo, &vkItem, &allocation, nullptr);
+	if (options.storage == ResourceStorageType::cpu) {
+		uint32_t memoryTypeIndex = 9;
+		allocInfo.memoryTypeBits = 1u << memoryTypeIndex;
+	}
 
+	auto result = vmaCreateBuffer(allocator, &cCreateInfo, &allocInfo, &vkItem, &allocation, nullptr);
+	assert(result == VK_SUCCESS);
 }
 
 void Buffer::mapMemory()

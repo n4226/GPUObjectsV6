@@ -48,8 +48,8 @@ void Renderer::createRenderResources()
 	
 #pragma region Create Global vert and in
 
-	VkDeviceSize vCount = 10'000'000;
-	VkDeviceSize indexCount =  10'000'000;
+	VkDeviceSize vCount =      50'000'000;
+	VkDeviceSize indexCount =  50'000'000;
 
 	BufferCreationOptions options = 
 		{ ResourceStorageType::cpu,{vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferSrc}, vk::SharingMode::eConcurrent,

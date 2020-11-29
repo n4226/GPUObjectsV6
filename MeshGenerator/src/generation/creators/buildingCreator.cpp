@@ -30,6 +30,7 @@ void buildingCreator::addBuilding(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& os
 		}
 		catch (...) { height = 4; }
 	}
+	else height = 4;
 
 	auto startVertOfset = mesh.verts.size();
 
@@ -66,6 +67,15 @@ void buildingCreator::addBuilding(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& os
 		mesh.normals.push_back(glm::vec3(normal));
 		mesh.normals.push_back(glm::vec3(normal));
 		mesh.normals.push_back(glm::vec3(normal));
+
+		mesh.tangents.push_back(glm::vec3(0));
+		mesh.tangents.push_back(glm::vec3(0));
+		mesh.tangents.push_back(glm::vec3(0));
+		mesh.tangents.push_back(glm::vec3(0));
+		mesh.bitangents.push_back(glm::vec3(0));
+		mesh.bitangents.push_back(glm::vec3(0));
+		mesh.bitangents.push_back(glm::vec3(0));
+		mesh.bitangents.push_back(glm::vec3(0));
 
 		mesh.uvs.push_back(glm::vec2(0,0));
 		mesh.uvs.push_back(glm::vec2(1,0));
