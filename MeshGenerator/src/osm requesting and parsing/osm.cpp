@@ -125,21 +125,22 @@ namespace osm {
 	void osm::createCacheStructure()
 	{
 		for (element& e : elements) {
-			elementMap[e.id] = e;
+			elementMap[e.id] = &e;
 		}
 	}
 
-	std::vector<element&> osm::nodesIn(element e)
+	std::vector<element*> osm::nodesIn(element e)
 	{
 		if (e.nodes.size() == 0) return {};
 
-		std::vector<element&> result;
-		result.resize(e.nodes.size());
+		std::vector<element*> results;
+		results.resize(e.nodes.size());
 
-		std::transform(e.nodes.begin(), e.nodes.end(), result.begin(), [&](int64_t id) {
+		std::transform(e.nodes.begin(), e.nodes.end(), results.begin(), [&](int64_t id) {
 			auto result = elementMap.find(id)->second;
 			return result;
 		});
+		return results;
 	}
 
 }

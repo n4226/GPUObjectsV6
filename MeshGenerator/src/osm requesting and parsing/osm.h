@@ -41,9 +41,9 @@ namespace osm {
 
         void createCacheStructure();
 
-        std::vector<element&> nodesIn(element e);
+        std::vector<element*> nodesIn(element e);
 
-        std::unordered_map<uint64_t, element> elementMap;
+        std::unordered_map<uint64_t, element*> elementMap;
     };
 
     osm makeOSM(std::string& str);

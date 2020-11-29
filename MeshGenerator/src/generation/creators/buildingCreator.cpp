@@ -37,8 +37,8 @@ void buildingCreator::addBuilding(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& os
 
 	std::vector<glm::dvec2> basePath(nodes.size());
 
-	std::transform(nodes.begin(), nodes.end(), basePath.begin(), [&](osm::element& element) {
-		return glm::dvec2(element.lat, element.lon);
+	std::transform(nodes.begin(), nodes.end(), basePath.begin(), [&](osm::element* element) {
+		return glm::dvec2(*element->lat, *element->lon);
 	});
 
 	for (size_t i = 0; i < (basePath.size() - 1); i++)
@@ -52,7 +52,7 @@ void buildingCreator::addBuilding(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& os
 		auto pos3 = Math::LlatoGeo(glm::dvec3(basePath[i], height), glm::dvec3(0), radius) - center_geo;
 		auto pos4 = Math::LlatoGeo(glm::dvec3(basePath[i + 1], height), glm::dvec3(0), radius) - center_geo;
 
-		//normal next
+		
 
 		auto normal = glm::normalize(glm::cross(pos2 - pos3, pos2 - pos1));
 	
