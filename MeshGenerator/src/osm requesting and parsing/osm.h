@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <map>
+#include <unordered_map>
 
 namespace osm {
 
@@ -37,6 +38,12 @@ namespace osm {
         std::string generator;
         osm3S osm3S;
         std::vector<element> elements;
+
+        void createCacheStructure();
+
+        std::vector<element&> nodesIn(element e);
+
+        std::unordered_map<uint64_t, element> elementMap;
     };
 
     osm makeOSM(std::string& str);

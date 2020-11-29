@@ -1,1 +1,1 @@
-{"otherData": {},"traceEvents":[{"cat":"function","dur":151266,"name":"__cdecl Renderer::~Renderer(void)","ph":"X","pid":0,"tid":0,"ts":37298530861},{"cat":"function","dur":151700,"name":"__cdecl WorldScene::~WorldScene(void)","ph":"X","pid":0,"tid":0,"ts":37298530447},{"cat":"function","dur":9130,"name":"void __cdecl WindowManager::destroyWindow(void)","ph":"X","pid":0,"tid":0,"ts":37298745535},{"cat":"function","dur":72539,"name":"__cdecl WindowManager::~WindowManager(void)","ph":"X","pid":0,"tid":0,"ts":37298682153}]}
+{"otherData": {},"traceEvents":[

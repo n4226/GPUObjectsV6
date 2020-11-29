@@ -7,7 +7,7 @@ void CameraSystem::update()
 	// move around the world fast
 	//world->playerLLA = glm::dvec3(45 + sin(world->timef * 0.1f), 0, 10100 + -cos(world->timef * 0.5f) * 10'000);
 
-	world->playerLLA = glm::dvec3(sin(world->timef * 0.8f) * 6, sin(world->timef * 1.f) * 9, 1'000);
+	//world->playerLLA = glm::dvec3(sin(world->timef * 0.8f) * 6, sin(world->timef * 1.f) * 9, 1'000);
 	//world->playerLLA = glm::dvec3(sin(world->timef * 0.8f) * 60, 0, 1'000);
 	//world->playerLLA = glm::dvec3(0, sin(world->timef * 1.f) * 90, 1'000);
 
