@@ -24,6 +24,9 @@ struct TreeNodeDrawData
 	BindlessMeshBuffer::WriteTransactionReceipt meshRecipt;
 	BindlessMeshBuffer::WriteLocation modelRecipt;
 
+	//CullInfo
+	glm::vec3 aabbMin;
+	glm::vec3 aabbMax;
 };
 
 class TerrainSystem: public RenderSystem

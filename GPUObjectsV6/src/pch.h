@@ -33,7 +33,7 @@
 // shared code static lib
 
 #include "shared.h"
-
+#include "math/FrustrumMath.h"
 // internal 
 
 #include "VkHelpers.h"

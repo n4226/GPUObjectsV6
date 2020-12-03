@@ -38,7 +38,11 @@ void CameraSystem::update()
 	auto QuatAroundZ = glm::angleAxis(0.f, glm::vec3(0.0, 0.0, 1.0));
 	auto finalOrientation = QuatAroundZ * QuatAroundY * QuatAroundX;
 
-	world->playerTrans.rotation = finalOrientation * glm::angleAxis(glm::radians(90.f), glm::vec3(-1, 0, 0));
+	world->playerTrans.rotation = finalOrientation *
+		glm::angleAxis(glm::radians(90.f), glm::vec3(-1, 0, 0))
+		// this is temporarry to rotate around to look
+		//*glm::angleAxis(glm::radians(world->timef * 20.f), glm::vec3(0, 1, 0))
+		;
 
 		//glm::
 		//static_cast<glm::quat>(glm::lookAt(glm::vec3(0), glm::cross(N,glm::vec3(0,0,1)),-N));

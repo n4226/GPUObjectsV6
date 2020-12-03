@@ -61,7 +61,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)DEBUG;</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)SharedCode\src;$(SolutionDir)Dependencies\marl-main\marl-main\include;C:\VulkanSDK\1.2.154.1\Include;C:\Users\Mike\libraries\glm-stable;C:\Users\Mike\libraries\GLFW\glfw-3.3.2.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)SharedCode\src;$(SolutionDir)Dependencies\marl-main\marl-main\include;C:\VulkanSDK\1.2.154.1\Include;C:\code\binary libraries\glm-master;C:\code\binary libraries\glfw-3.3.2.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -69,8 +69,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\Mike\libraries\GLFW\glfw-3.3.2.bin.WIN64\lib-vc2019;C:\VulkanSDK\1.2.154.1\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\code\binary libraries\glfw-3.3.2.bin.WIN64\lib-vc2019;C:\VulkanSDK\1.2.154.1\Lib;C:\code\visual studio\GPUObjectsV6\Dependencies\projects\marl main 2\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;marl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>XCOPY "$(ProjectDir)shaders" "$(TargetDir)\shaders\" /S /Y
@@ -194,9 +194,6 @@ XCOPY "$(SolutionDir)MeshGenerator\terrain" "$(ProjectDir)\terrain\" /S /Y</Comm
     <ResourceCompile Include="src\GPUObjectsV6.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Dependencies\projects\marl-main\marl.vcxproj">
-      <Project>{2281a08b-848b-3a31-9085-658fcc9635a4}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\SharedCode\SharedCode.vcxproj">
       <Project>{9e82ef6e-a201-48ca-9124-6e166b86b05e}</Project>
     </ProjectReference>

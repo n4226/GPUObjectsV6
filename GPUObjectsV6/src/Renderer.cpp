@@ -214,6 +214,7 @@ void Renderer::renderFrame()
 	uniforms.viewProjection = window.camera.viewProjection(window.swapchainExtent.width, window.swapchainExtent.height);
 	uniformBuffers[window.currentSurfaceIndex]->tempMapAndWrite(&uniforms, 0, sizeof(uniforms));
 
+	camFrustrom = new Frustum(uniforms.viewProjection);
 
 #pragma region CreateRootCMDBuffer
 

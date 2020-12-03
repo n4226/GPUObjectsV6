@@ -1,7 +1,7 @@
 #include "Instrumentor.h"
 #include "pch.h"
 
-#define RDK_PROFILING 1
+#define RDK_PROFILING 0
 
 #if RDK_PROFILING
 #define PROFILE_SCOPE(name) InstrumentationTimer timer##__line__(name);

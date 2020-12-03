@@ -76,6 +76,12 @@ vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass)
 
 	for (auto it = drawObjects.begin(); it != drawObjects.end(); it++)
 	{
+
+		// frustrom cull
+		if (!renderer->camFrustrom->IsBoxVisible(it->second.aabbMin, it->second.aabbMax)) {
+			continue;
+		}
+
 		buffer->pushConstants(renderer->window.pipelineCreator->pipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(DrawPushData), &it->second.drawData);
 		buffer->drawIndexed(it->second.indexCount,1, it->second.indIndex, it->second.vertIndex,0);
 	}
@@ -260,6 +266,18 @@ void TerrainSystem::drawChunk(TerrainQuadTreeNode* node)
 
 	drawData.drawData.modelIndex = static_cast<glm::uint32>(modelIndex / modelAllocSize);
 	
+
+	//TODO fix this to be precomputed 
+
+	drawData.aabbMin = transform.position + glm::vec3(-1000);
+	drawData.aabbMax = transform.position + glm::vec3(1000);
+
+	/*for (size_t i = 0; i < length; i++)
+	{
+
+	}*/
+
+
 	node->hasdraw = true;
 	pendingDrawObjects[node] = drawData;
 

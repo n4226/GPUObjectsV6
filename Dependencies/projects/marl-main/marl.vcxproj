@@ -78,7 +78,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\Mike\source\repos\GPUObjectsV6\Dependencies\marl-main\marl-main\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\marl-main\marl-main\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -274,14 +274,6 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\Mike\source\repos\GPUObjectsV6\Dependencies\marl-main\marl-main\src\scheduler.cpp" />
     <ClCompile Include="C:\Users\Mike\source\repos\GPUObjectsV6\Dependencies\marl-main\marl-main\src\thread.cpp" />
     <ClCompile Include="C:\Users\Mike\source\repos\GPUObjectsV6\Dependencies\marl-main\marl-main\src\trace.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="C:\Users\Mike\source\repos\GPUObjectsV6\Dependencies\projects\marl-main\ZERO_CHECK.vcxproj">
-      <Project>{3152F268-CD6B-3929-8CDE-4FE3A4E6FF8F}</Project>
-      <Name>ZERO_CHECK</Name>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

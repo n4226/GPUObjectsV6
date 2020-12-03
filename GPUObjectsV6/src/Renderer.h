@@ -16,6 +16,7 @@
 #include "IndexAllocator.h"
 #include "ResourceTransferTask.h"
 
+
 class Renderer
 {
 public:
@@ -80,6 +81,8 @@ private:
 
 
 	friend TerrainSystem;
+
+	Frustum* camFrustrom;
 
 };
 

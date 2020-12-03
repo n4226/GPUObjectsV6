@@ -59,7 +59,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Mike\libraries\glm-stable</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\code\binary libraries\glm-master</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -84,12 +84,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\math\FrustrumMath.h" />
     <ClInclude Include="src\rendering structures\BinaryMesh.h" />
     <ClInclude Include="src\math\Box.h" />
     <ClInclude Include="src\math\Math.h" />
     <ClInclude Include="src\shared.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\math\FrustrumMath.cpp" />
     <ClCompile Include="src\rendering structures\BinaryMesh.cpp" />
     <ClCompile Include="src\math\Box.cpp" />
     <ClCompile Include="src\math\Math.cpp" />
