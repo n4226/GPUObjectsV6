@@ -41,7 +41,7 @@ void CameraSystem::update()
 	world->playerTrans.rotation = finalOrientation *
 		glm::angleAxis(glm::radians(90.f), glm::vec3(-1, 0, 0))
 		// this is temporarry to rotate around to look
-		//*glm::angleAxis(glm::radians(world->timef * 20.f), glm::vec3(0, 1, 0))
+		*glm::angleAxis(glm::radians(world->timef * 20.f), glm::vec3(0, 1, 0))
 		;
 
 		//glm::

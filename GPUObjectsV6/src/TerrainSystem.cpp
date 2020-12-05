@@ -15,7 +15,7 @@ TerrainSystem::TerrainSystem(Renderer* renderer, glm::dvec3* origin)
 		drawChunk(child);
 	}
 
-	writePendingDrawOobjects();
+	//writePendingDrawOobjects();
 }
 
 TerrainSystem::~TerrainSystem()
@@ -39,7 +39,7 @@ void TerrainSystem::update()
 {
 	PROFILE_FUNCTION
 
-		processTree();
+	processTree();
 }
 
 vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass)
@@ -72,20 +72,22 @@ vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass)
 	renderer->globalMeshStagingBuffer->bindIndiciesIntoCommandBuffer(*buffer);
 
 	// encode draws
-
-
-	for (auto it = drawObjects.begin(); it != drawObjects.end(); it++)
 	{
 
-		// frustrom cull
-		if (!renderer->camFrustrom->IsBoxVisible(it->second.aabbMin, it->second.aabbMax)) {
-			continue;
+		auto drawObjects = this->drawObjects.lock();
+
+		for (auto it = drawObjects->begin(); it != drawObjects->end(); it++)
+		{
+
+			// frustrom cull
+			if (!renderer->camFrustrom->IsBoxVisible(it->second.aabbMin, it->second.aabbMax)) {
+				continue;
+			}
+
+			buffer->pushConstants(renderer->window.pipelineCreator->pipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(DrawPushData), &it->second.drawData);
+			buffer->drawIndexed(it->second.indexCount, 1, it->second.indIndex, it->second.vertIndex, 0);
 		}
-
-		buffer->pushConstants(renderer->window.pipelineCreator->pipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(DrawPushData), &it->second.drawData);
-		buffer->drawIndexed(it->second.indexCount,1, it->second.indIndex, it->second.vertIndex,0);
 	}
-
 	buffer->end();
 
 	return buffer;
@@ -102,8 +104,8 @@ void TerrainSystem::processTree()
 
 	{
 		// his is temporary to prevent multiple sets of staging buffer coppies to rech deadlock currently
-		auto shouldRunLoop = safeToModifyChunks.try_lock_shared().get();
-		if (shouldRunLoop != nullptr && *shouldRunLoop == false) return;
+		auto shouldRunLoop = safeToModifyChunks.try_lock_shared();
+		if (shouldRunLoop == nullptr || (*shouldRunLoop) == false) return;
 	}
 
 	auto adjustedOriginTrackedPos = static_cast<glm::dvec3>(trackedTransform->position) + *origin;
@@ -154,7 +156,8 @@ void TerrainSystem::processTree()
 		node->split();
 		//std::cout << "nodes created with level: " << node->lodLevel + 1 << std::endl;
 		for (TerrainQuadTreeNode* child : node->children) {
-			drawChunk(child);
+			toDrawDraw.insert(child);
+			//drawChunk(child);
 		}
 	}
 
@@ -167,8 +170,37 @@ void TerrainSystem::processTree()
 		}
 		node->combine();
 
-		drawChunk(node);
+		toDrawDraw.insert(node);
+		//drawChunk(node);
 	}
+
+	// draw in jobs
+
+	if (toDrawDraw.size() > 0)
+	{
+		{
+			auto shouldRunLoop = safeToModifyChunks.lock();
+			*shouldRunLoop = false;
+		}
+
+			//auto ticket = ticketQueue.take();
+
+			marl::schedule([this]() {
+				PROFILE_SCOPE("create draw draw job")
+					//MarlSafeTicketLock lock(ticket);
+				for (TerrainQuadTreeNode* chunk : toDrawDraw) {
+					drawChunk(chunk);
+				}
+
+				writePendingDrawOobjects();
+
+				toDrawDraw.clear();
+			});
+
+	}
+
+
+
 
 	toSplit.clear();
 	toCombine.clear();
@@ -180,7 +212,7 @@ void TerrainSystem::processTree()
 	//	destroyAwaitingNodes = false;
 	//}
 
-	writePendingDrawOobjects();
+	//writePendingDrawOobjects();
 }
 
 void TerrainSystem::drawChunk(TerrainQuadTreeNode* node)
@@ -204,6 +236,7 @@ void TerrainSystem::drawChunk(TerrainQuadTreeNode* node)
 
 	auto file = Terrain_Chunk_Mesh_Dir + node->frame.toString() + ".bmesh";
 	if (std::filesystem::exists(file)) {
+		PROFILE_SCOPE("loading mesh from file")
 		auto mesh = BinaryMeshSeirilizer(file.c_str());
 
 		vertCount = *mesh.vertCount;
@@ -221,6 +254,7 @@ void TerrainSystem::drawChunk(TerrainQuadTreeNode* node)
 	}
 	else 
 	{
+		PROFILE_SCOPE("creating empty mesh")
 		auto mesh = meshLoader.createChunkMesh(*node);
 
 		vertCount = mesh->verts.size();
@@ -279,7 +313,9 @@ void TerrainSystem::drawChunk(TerrainQuadTreeNode* node)
 
 
 	node->hasdraw = true;
-	pendingDrawObjects[node] = drawData;
+	
+	auto drawQueue = pendingDrawObjects.lock();
+	(*drawQueue)[node] = drawData;
 
 }
 
@@ -287,9 +323,12 @@ void TerrainSystem::removeDrawChunk(TerrainQuadTreeNode* node)
 {
 	PROFILE_FUNCTION
 
-		node->hasdraw = false;
-	auto draw = drawObjects[node];
-	drawObjects.erase(node);
+	auto drawObjects = this->drawObjects.lock();
+	printf("%d before \n", drawObjects->size());
+	node->hasdraw = false;
+	auto draw = (*drawObjects)[node];
+	drawObjects->erase(node);
+	printf("%d after \n",drawObjects->size());
 
 	//TODO: deallocate buffers here 
 
@@ -314,7 +353,6 @@ void TerrainSystem::setActiveState(TerrainQuadTreeNode* node)
 
 void TerrainSystem::writePendingDrawOobjects()
 {
-	if (pendingDrawObjects.size() == 0) return;
 	// copy from staging buffers to gpu ones - asynchronously
 
 	ResourceTransferer::Task vertexTask;
@@ -335,26 +373,26 @@ void TerrainSystem::writePendingDrawOobjects()
 	modelTask.srcBuffer = renderer->globalModelBufferStaging->vkItem;
 	modelTask.dstBuffer = renderer->globalModelBuffers[renderer->gpuActiveGlobalModelBuffer]->vkItem;
 
-
-	for (std::pair<TerrainQuadTreeNode*,TreeNodeDrawData> objectData : pendingDrawObjects) {
-
-		for (size_t i = 0; i < objectData.second.meshRecipt.vertexLocations.size(); i++)
-		{
-			BindlessMeshBuffer::WriteLocation& vertRecpt = objectData.second.meshRecipt.vertexLocations[i];
-			vertexTask.regions.emplace_back(vertRecpt.offset, vertRecpt.offset, vertRecpt.size);
-		}
-
-		BindlessMeshBuffer::WriteLocation& meshRecpt = objectData.second.meshRecipt.indexLocation;
-		indexTask.regions.emplace_back(meshRecpt.offset, meshRecpt.offset, meshRecpt.size);
-
-		BindlessMeshBuffer::WriteLocation& modelRecpt = objectData.second.modelRecipt;
-		modelTask.regions.emplace_back(modelRecpt.offset, modelRecpt.offset, modelRecpt.size);
-	}
-
 	{
-		auto shouldRunLoop = safeToModifyChunks.lock().get();
-		*shouldRunLoop = false;
+		auto drawQueue = pendingDrawObjects.lock_shared();
+		if (drawQueue->size() == 0) return;
+
+		for (std::pair<TerrainQuadTreeNode*, TreeNodeDrawData> objectData : *drawQueue) {
+
+			for (size_t i = 0; i < objectData.second.meshRecipt.vertexLocations.size(); i++)
+			{
+				BindlessMeshBuffer::WriteLocation& vertRecpt = objectData.second.meshRecipt.vertexLocations[i];
+				vertexTask.regions.emplace_back(vertRecpt.offset, vertRecpt.offset, vertRecpt.size);
+			}
+
+			BindlessMeshBuffer::WriteLocation& meshRecpt = objectData.second.meshRecipt.indexLocation;
+			indexTask.regions.emplace_back(meshRecpt.offset, meshRecpt.offset, meshRecpt.size);
+
+			BindlessMeshBuffer::WriteLocation& modelRecpt = objectData.second.modelRecipt;
+			modelTask.regions.emplace_back(modelRecpt.offset, modelRecpt.offset, modelRecpt.size);
+		}
 	}
+	
 	
 
 	std::vector<ResourceTransferer::Task> tasks = { vertexTask,indexTask,modelTask };
@@ -362,10 +400,16 @@ void TerrainSystem::writePendingDrawOobjects()
 	ResourceTransferer::shared->newTask(tasks, [&]() {
 		{
 			PROFILE_SCOPE("terrain system ResourceTransferer::shared->newTask completion callback")
-			drawObjects.insert(pendingDrawObjects.begin(), pendingDrawObjects.end());
-			pendingDrawObjects.clear();
 			{
-				auto shouldRunLoop = safeToModifyChunks.lock().get();
+				auto drawQueue = pendingDrawObjects.lock();
+				auto drawObjects = this->drawObjects.lock();
+				drawObjects->insert(drawQueue->begin(), drawQueue->end());
+				drawQueue->clear();
+				//using namespace std::chrono_literals;
+				//std::this_thread::sleep_for(1s);
+			}
+			{
+				auto shouldRunLoop = safeToModifyChunks.lock();
 				*shouldRunLoop = true;
 				destroyAwaitingNodes = true;
 			}

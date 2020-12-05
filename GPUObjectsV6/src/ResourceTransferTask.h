@@ -6,7 +6,7 @@ struct MarlSafeTicketLock {
 	/// waits on the ticket
 	/// </summary>
 	/// <param name="ticket"></param>
-	MarlSafeTicketLock(marl::Ticket& ticket);
+	MarlSafeTicketLock(marl::Ticket ticket);
 	
 	/// marks the ticket as done
 	~MarlSafeTicketLock();

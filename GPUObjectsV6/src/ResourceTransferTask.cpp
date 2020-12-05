@@ -5,7 +5,7 @@
 
 
 
-MarlSafeTicketLock::MarlSafeTicketLock(marl::Ticket& ticket)
+MarlSafeTicketLock::MarlSafeTicketLock(marl::Ticket ticket)
 	: ticket(ticket)
 {
 	ticket.wait();
@@ -42,14 +42,16 @@ ResourceTransferer::~ResourceTransferer()
 void ResourceTransferer::newTask(std::vector<Task>& tasks, std::function<void()> completionHandler,bool synchronus)
 {
 	PROFILE_FUNCTION
-	auto ticket = ticketQueue.take();
 
 	//marl::schedule([]() {printf("transfer job"); });
+	auto ticket = ticketQueue.take();
 	
 	if (synchronus)
 		performTask(tasks, ticket, completionHandler);
-	else
-		marl::schedule([tasks, ticket, completionHandler, this]() { performTask(tasks, ticket, completionHandler); });
+	else {
+		//marl::schedule([tasks, ticket, completionHandler, this]() { performTask(tasks, ticket, completionHandler); });
+
+	}
 }
 
 
@@ -58,7 +60,8 @@ void ResourceTransferer::performTask(std::vector<Task> tasks, marl::Ticket ticke
 	PROFILE_FUNCTION
 	{
 		//// will lock the ticket until the lock goes out of scope
-		MarlSafeTicketLock lock(ticket);
+		//TODO: fix this
+		//MarlSafeTicketLock lock(ticket);
 
 		PROFILE_SCOPE("performTask Marl blocking")
 

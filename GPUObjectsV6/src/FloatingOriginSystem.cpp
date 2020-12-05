@@ -26,7 +26,8 @@ void FloatingOriginSystem::update()
         deltaTransform.rotation = glm::identity<glm::quat>();
         deltaTransform.position = -position;
 
-        for (std::pair<TerrainQuadTreeNode*, TreeNodeDrawData> drawData : world->terrainSystem->drawObjects) {
+        auto objects = world->terrainSystem->drawObjects.lock();
+        for (std::pair<TerrainQuadTreeNode*, TreeNodeDrawData> drawData : *objects) {
             auto modelAddress = drawData.second.modelRecipt;
 
             ModelUniforms* model = reinterpret_cast<ModelUniforms*>(reinterpret_cast<char*>(world->renderer->globalModelBufferStaging->mappedData) + modelAddress.offset);

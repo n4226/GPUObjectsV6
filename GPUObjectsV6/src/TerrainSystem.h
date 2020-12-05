@@ -57,11 +57,12 @@ private:
 	std::set<TerrainQuadTreeNode*> toSplit = {};
 	std::set<TerrainQuadTreeNode*> toCombine = {};
 	std::set<TerrainQuadTreeNode*> toDestroyDraw = {};
+	std::set<TerrainQuadTreeNode*> toDrawDraw = {};
 
 	bool destroyAwaitingNodes = false;
 	libguarded::shared_guarded<bool> safeToModifyChunks = libguarded::shared_guarded<bool>(true);
 
-	std::map<TerrainQuadTreeNode*, TreeNodeDrawData> pendingDrawObjects;
+	libguarded::shared_guarded<std::map<TerrainQuadTreeNode*, TreeNodeDrawData>> pendingDrawObjects;
 
 	TerrainQuadTree tree;
 
@@ -82,6 +83,8 @@ private:
 
 	void writePendingDrawOobjects();
 
+	//async resources
+	marl::Ticket::Queue ticketQueue;
 
 	// Render Resources
 
@@ -94,8 +97,9 @@ private:
 	/*vk::DescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;*/
 
-	std::map<TerrainQuadTreeNode*,TreeNodeDrawData> drawObjects;
+	libguarded::plain_guarded<std::map<TerrainQuadTreeNode*,TreeNodeDrawData>> drawObjects;
 
 	friend FloatingOriginSystem;
+	friend TerrainMeshLoader;
 };
 
