@@ -25,11 +25,24 @@ Renderer::~Renderer()
 	}
 
 	delete globalMeshStagingBuffer;
+	
+	for (auto buff : threadLocalGlobalMeshStagingBuffers) {
+		buff->vertBuffer->unmapMemory();
+		buff->indexBuffer->unmapMemory();
+		delete buff;
+	}
+
 	delete globalMeshBuffer;
 	for (auto buffer : globalModelBuffers)
 	{
 		delete buffer;
 	}
+	
+	for (auto buff : threadLocalGlobalModelStagingBuffers) {
+		buff->unmapMemory();
+		delete buff;
+	}
+
 	delete globalModelBufferStaging;
 
 	delete gloablIndAllocator;
@@ -49,16 +62,56 @@ void Renderer::createRenderResources()
 #pragma region Create Global vert and in
 
 	VkDeviceSize vCount =      50'000'000;
-	VkDeviceSize indexCount =  50'000'000;
+	VkDeviceSize indexCount =  100'000'000;
 
-	BufferCreationOptions options = 
-		{ ResourceStorageType::cpu,{vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferSrc}, vk::SharingMode::eConcurrent,
-		{window.queueFamilyIndices.graphicsFamily.value(), window.queueFamilyIndices.resourceTransferFamily.value() } };
+	makeGlobalMeshBuffers(vCount, indexCount);
+	 
+#pragma endregion
+
+	createDescriptorPoolAndSets();
+
+	// create depth attatchment(s)
+	createDepthAttatchments();
+
+}
+
+void Renderer::makeGlobalMeshBuffers(const VkDeviceSize& vCount, const VkDeviceSize& indexCount)
+{
+	BufferCreationOptions options =
+	{ ResourceStorageType::cpu,{ vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferSrc }, vk::SharingMode::eConcurrent,
+		{ window.queueFamilyIndices.graphicsFamily.value(), window.queueFamilyIndices.resourceTransferFamily.value() } };
 
 	globalMeshStagingBuffer = new BindlessMeshBuffer(device, allocator, options, vCount, indexCount);
 
+
+	//TODO Extract this comman code somewhere
+
+	auto workerThreads = std::thread::hardware_concurrency() * 0 + 1;
+
+	threadLocalGlobalMeshStagingBuffers.resize(workerThreads);
+
+	auto threadMeshModelInd = freeThreadLocalGlobalMeshandModelStagingBufferIndicies.lock();
+
+	for (size_t thread = 0; thread < workerThreads; thread++)
+	{
+		threadMeshModelInd->push_back(thread);
+		threadLocalGlobalMeshStagingBuffers[thread] = new BindlessMeshBuffer(device, allocator, options, vCount, indexCount);
+		threadLocalGlobalMeshStagingBuffers[thread]->indexBuffer->mapMemory();
+		threadLocalGlobalMeshStagingBuffers[thread]->vertBuffer->mapMemory();
+	}
+
+
 	options.usage = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc;
+
+
 	globalModelBufferStaging = new Buffer(device, allocator, sizeof(ModelUniforms) * maxModelUniformDescriptorArrayCount, options);
+
+	threadLocalGlobalModelStagingBuffers.resize(workerThreads);
+	for (size_t thread = 0; thread < workerThreads; thread++)
+	{
+		threadLocalGlobalModelStagingBuffers[thread] = new Buffer(device, allocator, sizeof(ModelUniforms) * maxModelUniformDescriptorArrayCount, options);
+		threadLocalGlobalModelStagingBuffers[thread]->mapMemory();
+	}
 
 	options.storage = ResourceStorageType::gpu;
 
@@ -72,17 +125,9 @@ void Renderer::createRenderResources()
 	globalMeshBuffer = new BindlessMeshBuffer(device, allocator, options, vCount, indexCount);
 
 	gloablVertAllocator = new VaribleIndexAllocator(globalMeshBuffer->vCount);
-	gloablIndAllocator =  new VaribleIndexAllocator(globalMeshBuffer->indexCount);
+	gloablIndAllocator = new VaribleIndexAllocator(globalMeshBuffer->indexCount);
 
 	globalModelBufferAllocator = new IndexAllocator(maxModelUniformDescriptorArrayCount, sizeof(ModelUniforms));
-	 
-#pragma endregion
-
-	createDescriptorPoolAndSets();
-
-	// create depth attatchment(s)
-	createDepthAttatchments();
-
 }
 
 void Renderer::createDepthAttatchments()

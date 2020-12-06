@@ -8,11 +8,14 @@ TerrainSystem::TerrainSystem(Renderer* renderer, glm::dvec3* origin)
 {
 	PROFILE_FUNCTION
 
+	meshLoader.renderer = renderer;
+	meshLoader.terrainSystem = this;
+
 	CreateRenderResources();
 
 
 	for (TerrainQuadTreeNode* child : tree.leafNodes) {
-		drawChunk(child);
+		meshLoader.drawChunk(child, meshLoader.loadMeshPreDrawChunk(child), false);
 	}
 
 	//writePendingDrawOobjects();
@@ -68,14 +71,14 @@ vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass)
 	
 	buffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, renderer->window.pipelineCreator->pipelineLayout, 0, { renderer->descriptorSets[renderer->window.currentSurfaceIndex] }, {});
 	
-	renderer->globalMeshStagingBuffer->bindVerticiesIntoCommandBuffer(*buffer, 0);
-	renderer->globalMeshStagingBuffer->bindIndiciesIntoCommandBuffer(*buffer);
+	renderer->globalMeshBuffer->bindVerticiesIntoCommandBuffer(*buffer, 0);
+	renderer->globalMeshBuffer->bindIndiciesIntoCommandBuffer(*buffer);
 
 	// encode draws
 	{
 
 		auto drawObjects = this->drawObjects.lock();
-
+		//printf("number of draws = %d \n", drawObjects->size());
 		for (auto it = drawObjects->begin(); it != drawObjects->end(); it++)
 		{
 
@@ -150,8 +153,8 @@ void TerrainSystem::processTree()
 	}
 
 	for (TerrainQuadTreeNode* node : toSplit) {
-		//toDestroyDraw.insert(node);
-		removeDrawChunk(node);
+		toDestroyDraw.insert(node);
+		//meshLoader.removeDrawChunk(node);
 
 		node->split();
 		//std::cout << "nodes created with level: " << node->lodLevel + 1 << std::endl;
@@ -164,11 +167,12 @@ void TerrainSystem::processTree()
 	for (TerrainQuadTreeNode* node : toCombine) {
 
 		for (TerrainQuadTreeNode* child : node->children) {
-			//toDestroyDraw.insert(child);
-			removeDrawChunk(child);
+			toDestroyDraw.insert(child);
+			//meshLoader.removeDrawChunk(child);
 			assert(child->children.size() == 0);
 		}
-		node->combine();
+		// will have to be combined after the draw is removed 
+		//node->combine();
 
 		toDrawDraw.insert(node);
 		//drawChunk(node);
@@ -188,22 +192,63 @@ void TerrainSystem::processTree()
 			marl::schedule([this]() {
 				PROFILE_SCOPE("create draw draw job")
 					//MarlSafeTicketLock lock(ticket);
+
+				marl::WaitGroup preLoadingWaitGroup(toDrawDraw.size());
+
 				for (TerrainQuadTreeNode* chunk : toDrawDraw) {
-					drawChunk(chunk);
+					marl::schedule([this,chunk,preLoadingWaitGroup]() {
+						defer(preLoadingWaitGroup.done());
+						meshLoader.loadMeshPreDrawChunk(chunk, true);
+					});
+				}
+				
+				preLoadingWaitGroup.wait();
+
+				for (TerrainQuadTreeNode* chunk : toDrawDraw) {
+					meshLoader.drawChunk(chunk, {}, true);
 				}
 
 				writePendingDrawOobjects();
 
+				for (TerrainQuadTreeNode* chunk : toDestroyDraw) {
+					meshLoader.removeDrawChunk(chunk);
+				}
+
+				for (TerrainQuadTreeNode* chunk : toCombine) {
+					chunk->combine();
+				}
+
+				toCombine.clear();
+				toDestroyDraw.clear();
 				toDrawDraw.clear();
+
+
+				{
+					auto shouldRunLoop = safeToModifyChunks.lock();
+					*shouldRunLoop = true;
+					destroyAwaitingNodes = true;
+				}
 			});
 
+	}
+	else {
+		//for (TerrainQuadTreeNode* chunk : toDestroyDraw) {
+		//	meshLoader.removeDrawChunk(chunk);
+		//}
+
+		//for (TerrainQuadTreeNode* chunk : toCombine) {
+		//	chunk->combine();
+		//}
+
+		//toCombine.clear();
+		//toDestroyDraw.clear();
 	}
 
 
 
 
 	toSplit.clear();
-	toCombine.clear();
+	//toCombine.clear();
 
 	//if (destroyAwaitingNodes) {
 	//	for (TerrainQuadTreeNode* node : toDestroyDraw) {
@@ -215,130 +260,12 @@ void TerrainSystem::processTree()
 	//writePendingDrawOobjects();
 }
 
-void TerrainSystem::drawChunk(TerrainQuadTreeNode* node)
-{
-	PROFILE_FUNCTION
-
-		//TODO - probablty more efficiant if all buffer writes were done after the draw objects were cxreatted all at once (in the write draw commands function) to allow single mapping and unmaopping and so on
-		// this would mean that this funciton would have to crateda nother object with temporary object eg mesh and model trans to be writien at the end of the system update
-	if (node->hasdraw) return;
-
-	BindlessMeshBuffer::WriteTransactionReceipt meshReceipt;
-
-	VkDeviceAddress vertIndex;
-	VkDeviceAddress indIndex;
-	size_t vertCount;
-	size_t indCount;
-
-	// get  and encode mesh
-	//TODO store this in a better place
-	const char* Terrain_Chunk_Mesh_Dir = R"(terrain/chunkMeshes/)";
-
-	auto file = Terrain_Chunk_Mesh_Dir + node->frame.toString() + ".bmesh";
-	if (std::filesystem::exists(file)) {
-		PROFILE_SCOPE("loading mesh from file")
-		auto mesh = BinaryMeshSeirilizer(file.c_str());
-
-		vertCount = *mesh.vertCount;
-		indCount = mesh.subMeshIndexCounts[0];
-
-		// these indicies are in vert count space - meaning 1 = 1 vert not 1 byte
-		vertIndex = renderer->gloablVertAllocator->alloc(vertCount);
-		indIndex = renderer->gloablIndAllocator->alloc(indCount);
-
-		renderer->globalMeshStagingBuffer->writeMeshToBuffer(vertIndex, indIndex, &mesh, true);
-
-
-		//renderer->globalMeshStaging->vertBuffer->gpuCopyToOther(renderer->globalMesh->vertBuffer)
-		meshReceipt = renderer->globalMeshStagingBuffer->genrateWriteReceipt(vertIndex, indIndex, &mesh);
-	}
-	else 
-	{
-		PROFILE_SCOPE("creating empty mesh")
-		auto mesh = meshLoader.createChunkMesh(*node);
-
-		vertCount = mesh->verts.size();
-		indCount  = mesh->indicies.size();
-
-		// these indicies are in vert count space - meaning 1 = 1 vert not 1 byte
-		vertIndex = renderer->gloablVertAllocator->alloc(mesh->verts.size());
-		indIndex = renderer->gloablIndAllocator->alloc(mesh->indicies.size());
-
-		renderer->globalMeshStagingBuffer->writeMeshToBuffer(vertIndex, indIndex, mesh, true);
-
-
-		//renderer->globalMeshStaging->vertBuffer->gpuCopyToOther(renderer->globalMesh->vertBuffer)
-		meshReceipt = renderer->globalMeshStagingBuffer->genrateWriteReceipt(vertIndex, indIndex, mesh);
-	}
-
-	// model 
-
-	Transform transform;
-	transform.position = node->center_geo - *origin;
-	transform.scale = glm::vec3{ 1,1,1 };
-	transform.rotation = glm::identity<glm::quat>();
-
-	ModelUniforms mtrans;
-	mtrans.model = transform.matrix();
-
-
-
-	auto modelIndex = renderer->globalModelBufferAllocator->alloc();
-	auto modelAllocSize = renderer->globalModelBufferAllocator->allocSize;
-
-	renderer->globalModelBufferStaging->tempMapAndWrite(&mtrans,modelIndex,modelAllocSize);
-
-
-
-	TreeNodeDrawData drawData;
-	drawData.indIndex = indIndex;
-	drawData.vertIndex = vertIndex;
-	drawData.vertcount = vertCount;
-	drawData.indexCount = indCount;
-	drawData.meshRecipt = meshReceipt;
-	drawData.modelRecipt = { modelIndex,modelAllocSize };
-
-	drawData.drawData.modelIndex = static_cast<glm::uint32>(modelIndex / modelAllocSize);
-	
-
-	//TODO fix this to be precomputed 
-
-	drawData.aabbMin = transform.position + glm::vec3(-1000);
-	drawData.aabbMax = transform.position + glm::vec3(1000);
-
-	/*for (size_t i = 0; i < length; i++)
-	{
-
-	}*/
-
-
-	node->hasdraw = true;
-	
-	auto drawQueue = pendingDrawObjects.lock();
-	(*drawQueue)[node] = drawData;
-
-}
-
-void TerrainSystem::removeDrawChunk(TerrainQuadTreeNode* node)
-{
-	PROFILE_FUNCTION
-
-	auto drawObjects = this->drawObjects.lock();
-	printf("%d before \n", drawObjects->size());
-	node->hasdraw = false;
-	auto draw = (*drawObjects)[node];
-	drawObjects->erase(node);
-	printf("%d after \n",drawObjects->size());
-
-	//TODO: deallocate buffers here 
-
-}
 
 double TerrainSystem::threshold(const TerrainQuadTreeNode* node)
 {
 	auto nodeRad = Math::llaDistance(node->frame.start, node->frame.getEnd(), tree.radius);
 	//      return  radius / (node.lodLevel + 1).double * 1;
-	return nodeRad * 0.9;
+	return nodeRad * 1.2;
 }
 
 bool TerrainSystem::determinActive(const TerrainQuadTreeNode* node)
@@ -407,11 +334,6 @@ void TerrainSystem::writePendingDrawOobjects()
 				drawQueue->clear();
 				//using namespace std::chrono_literals;
 				//std::this_thread::sleep_for(1s);
-			}
-			{
-				auto shouldRunLoop = safeToModifyChunks.lock();
-				*shouldRunLoop = true;
-				destroyAwaitingNodes = true;
 			}
 		}
 	},true);

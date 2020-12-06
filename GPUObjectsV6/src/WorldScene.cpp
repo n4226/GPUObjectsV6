@@ -3,7 +3,8 @@
 #include "CameraSystem.h"
 #include "FloatingOriginSystem.h"
 
-WorldScene::WorldScene(WindowManager& window) : window(window)
+WorldScene::WorldScene(WindowManager& window) : 
+	window(window)
 {
 	PROFILE_FUNCTION
 	renderer = new Renderer(window.device, window.physicalDevice, window);
@@ -16,6 +17,10 @@ WorldScene::WorldScene(WindowManager& window) : window(window)
 	for (System* sys : generalSystems) {
 		sys->world = this;
 	}
+
+	time = 0;
+	timef = 0;
+
 	generalSystems[0]->update();
 }
 
@@ -67,9 +72,9 @@ void WorldScene::runFullUpdateLoop()
 
 void WorldScene::updateScene()
 {
+	static auto startTime = std::chrono::high_resolution_clock::now();
 	PROFILE_FUNCTION
 
-	static auto startTime = std::chrono::high_resolution_clock::now();
 
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	time = std::chrono::duration<double, std::chrono::seconds::period>(currentTime - startTime).count();

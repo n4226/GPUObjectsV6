@@ -84,6 +84,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\math\path\Bezier.h" />
+    <ClInclude Include="src\math\path\Path.h" />
     <ClInclude Include="src\math\FrustrumMath.h" />
     <ClInclude Include="src\rendering structures\BinaryMesh.h" />
     <ClInclude Include="src\math\Box.h" />
@@ -91,6 +93,8 @@
     <ClInclude Include="src\shared.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\math\path\Bezier.cpp" />
+    <ClCompile Include="src\math\path\Path.cpp" />
     <ClCompile Include="src\math\FrustrumMath.cpp" />
     <ClCompile Include="src\rendering structures\BinaryMesh.cpp" />
     <ClCompile Include="src\math\Box.cpp" />

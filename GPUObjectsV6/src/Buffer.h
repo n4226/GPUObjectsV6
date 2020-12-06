@@ -54,7 +54,7 @@ public:
 	/// <param name="data"></param>
 	/// <param name="internalOffset"></param>
 	/// <param name="size">if left 0 the buffer size will be used</param>
-	void tempMapAndWrite(const void* srcData, size_t internalOffset = 0, size_t size = 0);
+	void tempMapAndWrite(const void* srcData, size_t internalOffset = 0, size_t size = 0, bool mapMemory = true);
 
 	bool getMemoryMapped();
 	bool canMapMemory();

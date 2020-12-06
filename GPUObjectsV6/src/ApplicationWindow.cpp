@@ -54,6 +54,14 @@ void WindowManager::createAllocator()
 
 void WindowManager::recreateSwapchain()
 {
+    int width = 0, height = 0;
+    glfwGetFramebufferSize(window, &width, &height);
+    while (width == 0 || height == 0) {
+        glfwGetFramebufferSize(window, &width, &height);
+        glfwWaitEvents();
+    }
+
+
     device.waitIdle();
 
     cleanupSwapchain();
@@ -306,14 +314,24 @@ void WindowManager::createSurface()
     surface = vk::SurfaceKHR(_surface);
 }
 
+
+static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
+    auto app = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(window));
+    app->framebufferResized = true;
+}
+
 void WindowManager::createWindow()
 {
     PROFILE_FUNCTION
     glfwInit();
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
     window = glfwCreateWindow(1920, 1080, "GPUObjectsV6", nullptr, nullptr);
+    glfwSetWindowUserPointer(window, this);
+    glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 }
+
 
 void WindowManager::createInstance()
 {

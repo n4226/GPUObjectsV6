@@ -11,23 +11,7 @@
 class Renderer;
 class FloatingOriginSystem;
 
-struct TreeNodeDrawData
-{
-	size_t vertIndex;
-	size_t vertcount;
-	size_t indIndex;
-	size_t indexCount;
 
-	DrawPushData drawData;
-
-	//buffer recipts
-	BindlessMeshBuffer::WriteTransactionReceipt meshRecipt;
-	BindlessMeshBuffer::WriteLocation modelRecipt;
-
-	//CullInfo
-	glm::vec3 aabbMin;
-	glm::vec3 aabbMax;
-};
 
 class TerrainSystem: public RenderSystem
 {
@@ -59,6 +43,8 @@ private:
 	std::set<TerrainQuadTreeNode*> toDestroyDraw = {};
 	std::set<TerrainQuadTreeNode*> toDrawDraw = {};
 
+	libguarded::shared_guarded<std::unordered_map<TerrainQuadTreeNode*,TreeNodeDrawResaourceToCoppy>> loadedMeshesToDraw = {};
+
 	bool destroyAwaitingNodes = false;
 	libguarded::shared_guarded<bool> safeToModifyChunks = libguarded::shared_guarded<bool>(true);
 
@@ -70,8 +56,6 @@ private:
 
 	void processTree();
 
-	void drawChunk(TerrainQuadTreeNode* node);
-	void removeDrawChunk(TerrainQuadTreeNode* node);
 
 	double threshold(const TerrainQuadTreeNode* node);
 

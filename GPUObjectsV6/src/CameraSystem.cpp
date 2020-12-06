@@ -2,6 +2,12 @@
 #include "CameraSystem.h"
 #include "WorldScene.h"
 
+CameraSystem::CameraSystem()
+	: cameraPath(cameraPoints, true)
+{
+
+}
+
 void CameraSystem::update()
 {
 	// move around the world fast
@@ -14,7 +20,10 @@ void CameraSystem::update()
 	// move up and down
 	//world->playerLLA.z = -cos(world->timef) * 10000 + 10100;
 	// the camera looks at -> +z
-	
+	//world->playerLLA.z = sin(world->timef * 0.1f) * 400 + 500;
+
+	movePlayerAlongCamPath();
+
 	world->playerTrans.position = Math::LlatoGeo(world->playerLLA, world->origin, world->terrainSystem->getRadius());
 
 	//world->playerTrans.rotation = glm::orientation(glm::vec3(0,0,1), glm::normalize(world->playerTrans.position));
@@ -41,7 +50,7 @@ void CameraSystem::update()
 	world->playerTrans.rotation = finalOrientation *
 		glm::angleAxis(glm::radians(90.f), glm::vec3(-1, 0, 0))
 		// this is temporarry to rotate around to look
-		*glm::angleAxis(glm::radians(world->timef * 20.f), glm::vec3(0, 1, 0))
+		//*glm::angleAxis(glm::radians(world->timef * 20.f), glm::vec3(0, 1, 0))
 		;
 
 		//glm::
@@ -62,4 +71,40 @@ void CameraSystem::update()
 		//* glm::angleAxis(glm::radians(static_cast<float>(world->playerLLA.y)), glm::vec3(0, -1, 0))
 		//* glm::angleAxis(glm::radians(90.f * world->timef), glm::vec3(-1, 0, 0));
 		//;
+}
+
+
+
+
+void CameraSystem::movePlayerAlongCamPath()
+{
+	static size_t currentSegment = 0;
+	static const double loopTime = 20; //seconds
+	static double pathLength = cameraPath.lladirectLength();
+
+	auto segments = cameraPath.getNumSegments();
+
+	auto timePerSegment = loopTime / segments; 
+
+
+	auto t = fmod(world->time, loopTime); //sin(world->time * 0.1) * 0.5 + 0.5;
+
+	//auto currentSegment = static_cast<int>(t / timePerSegment);
+	auto segmentPoints = cameraPath.getPointsInSegment(currentSegment);
+
+	//  * glm::distance(segmentPoints[0],segmentPoints[2])
+	auto segmentTime = (t / timePerSegment) - currentSegment;
+
+	if (segmentTime > 1) {
+		//currentSegment += 1;
+
+		segmentPoints = cameraPath.getPointsInSegment(currentSegment);
+		segmentTime = (t / timePerSegment * glm::distance(segmentPoints[0], segmentPoints[2])) - currentSegment;
+	}
+
+	std::cout << segmentTime << std::endl;
+	world->playerLLA =
+		// Bezier::lerp(segmentPoints[0], segmentPoints[2], t);
+		Bezier::evaluateCubic(segmentPoints[0], segmentPoints[3], segmentPoints[1], segmentPoints[2], glm::clamp(segmentTime,0.0,1.0));
+
 }

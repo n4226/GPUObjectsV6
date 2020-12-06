@@ -46,16 +46,28 @@ public:
 	VaribleIndexAllocator* gloablIndAllocator;
 
 	BindlessMeshBuffer* globalMeshBuffer;
+
+	// thye main thread staging buffer
 	BindlessMeshBuffer* globalMeshStagingBuffer;
+
+	libguarded::shared_guarded < std::vector<size_t>> freeThreadLocalGlobalMeshandModelStagingBufferIndicies;
+	libguarded::shared_guarded < std::unordered_map<std::thread::id,size_t>> ThreadLocalGlobalMeshandModelStagingBufferThreadIndicies;
+
+	std::vector<BindlessMeshBuffer*> threadLocalGlobalMeshStagingBuffers;
 
 
 	IndexAllocator* globalModelBufferAllocator;
 	std::array<Buffer*,2> globalModelBuffers;
 	size_t gpuActiveGlobalModelBuffer = 0;
+
 	Buffer* globalModelBufferStaging;
+
+	std::vector<Buffer*> threadLocalGlobalModelStagingBuffers;
 private:
 
 	void createRenderResources();
+
+	void makeGlobalMeshBuffers(const VkDeviceSize& vCount, const VkDeviceSize& indexCount);
 
 	void createDepthAttatchments();
 

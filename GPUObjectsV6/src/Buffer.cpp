@@ -65,15 +65,17 @@ void Buffer::unmapMemory()
 	}
 }
 
-void Buffer::tempMapAndWrite(const void* srcData, size_t internalOffset, size_t size)
+void Buffer::tempMapAndWrite(const void* srcData, size_t internalOffset, size_t size,bool mapMemory)
 {
 	if (size == 0)
 		size = this->size;
-	mapMemory();
+	if (mapMemory)
+		this->mapMemory();
 	memcpy(static_cast<char*>(mappedData) + internalOffset, srcData, (size_t)size);
 	// not necicary on windows with big 3 drivers see vma docs on cash flushing for info
 	//vmaFlushAllocation(allocator,stageVertBuffer.allocation,);
-	unmapMemory();
+	if (mapMemory)
+		unmapMemory();
 }
 
 bool Buffer::getMemoryMapped()
@@ -138,6 +140,7 @@ void Buffer::gpuCopyToOther(Buffer& destination, vk::CommandBuffer& buffer)
 
 Buffer::~Buffer()
 {
+	//unmapMemory();
 	//evice.destroyBuffer(vkItem);
 	vmaDestroyBuffer(allocator, vkItem, allocation);
 }

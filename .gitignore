@@ -349,4 +349,7 @@ healthchecksdb
 bin/
 bin-intermediate/
 
+# custom filetypes
 
+*.bmesh
+*.osm

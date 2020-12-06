@@ -11,18 +11,24 @@
 #define PROFILE_FUNCTION
 #endif
 
-#define RenderModeCPU1 1
-#define RenderModeCPU2 0
-#define RenderModeGPU  0
-
 #ifdef NDEBUG
 #define RDX_ENABLE_VK_VALIDATION_LAYERS false;
 #else
 #define RDX_ENABLE_VK_VALIDATION_LAYERS true;
 #endif
 
-// constants 
 
+// testing environment
+
+#define RenderModeCPU1 1
+#define RenderModeCPU2 0
+#define RenderModeGPU  0
+
+#define RenderTerainScale 1
+
+
+
+// constants 
 
 /// 100,000
 #define maxModelUniformDescriptorArrayCount 100000

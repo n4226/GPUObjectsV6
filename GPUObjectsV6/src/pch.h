@@ -34,6 +34,9 @@
 
 #include "shared.h"
 #include "math/FrustrumMath.h"
+#include "math/path/Path.h"
+#include "math/path/Bezier.h"
+
 // internal 
 
 #include "VkHelpers.h"
