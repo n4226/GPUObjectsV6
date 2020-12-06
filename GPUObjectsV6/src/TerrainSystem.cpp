@@ -82,10 +82,10 @@ vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass)
 		for (auto it = drawObjects->begin(); it != drawObjects->end(); it++)
 		{
 
-			// frustrom cull
-			if (!renderer->camFrustrom->IsBoxVisible(it->second.aabbMin, it->second.aabbMax)) {
-				continue;
-			}
+			//// frustrom cull
+			//if (!renderer->camFrustrom->IsBoxVisible(it->second.aabbMin, it->second.aabbMax)) {
+			//	continue;
+			//}
 
 			buffer->pushConstants(renderer->window.pipelineCreator->pipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(DrawPushData), &it->second.drawData);
 			buffer->drawIndexed(it->second.indexCount, 1, it->second.indIndex, it->second.vertIndex, 0);
@@ -265,7 +265,7 @@ double TerrainSystem::threshold(const TerrainQuadTreeNode* node)
 {
 	auto nodeRad = Math::llaDistance(node->frame.start, node->frame.getEnd(), tree.radius);
 	//      return  radius / (node.lodLevel + 1).double * 1;
-	return nodeRad * 1.2;
+	return nodeRad * 0.9;
 }
 
 bool TerrainSystem::determinActive(const TerrainQuadTreeNode* node)

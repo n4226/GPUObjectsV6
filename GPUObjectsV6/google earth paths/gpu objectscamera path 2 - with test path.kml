@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document>
+	<name>gpu objectscamera path</name>
+	<gx:CascadingStyle kml:id="__managed_style_2E50B49280176E8D6ACA">
+		<Style>
+			<IconStyle>
+				<scale>1.2</scale>
+				<Icon>
+					<href>https://earth.google.com/earth/rpc/cc/icon?color=1976d2&amp;id=2000&amp;scale=4</href>
+				</Icon>
+				<hotSpot x="64" y="128" xunits="pixels" yunits="insetPixels"/>
+			</IconStyle>
+			<LabelStyle>
+			</LabelStyle>
+			<LineStyle>
+				<color>ff2dc0fb</color>
+				<width>4</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>40ffffff</color>
+			</PolyStyle>
+			<BalloonStyle>
+				<displayMode>hide</displayMode>
+			</BalloonStyle>
+		</Style>
+	</gx:CascadingStyle>
+	<gx:CascadingStyle kml:id="__managed_style_10427E8DA2176E8D6ACA">
+		<Style>
+			<IconStyle>
+				<Icon>
+					<href>https://earth.google.com/earth/rpc/cc/icon?color=1976d2&amp;id=2000&amp;scale=4</href>
+				</Icon>
+				<hotSpot x="64" y="128" xunits="pixels" yunits="insetPixels"/>
+			</IconStyle>
+			<LabelStyle>
+			</LabelStyle>
+			<LineStyle>
+				<color>ff2dc0fb</color>
+				<width>2.66667</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>40ffffff</color>
+			</PolyStyle>
+			<BalloonStyle>
+				<displayMode>hide</displayMode>
+			</BalloonStyle>
+		</Style>
+	</gx:CascadingStyle>
+	<gx:CascadingStyle kml:id="__managed_style_22DF972A0D176E8B9298">
+		<Style>
+			<IconStyle>
+				<scale>1.2</scale>
+				<Icon>
+					<href>https://earth.google.com/earth/rpc/cc/icon?color=fbc02d&amp;id=2000&amp;scale=4</href>
+				</Icon>
+				<hotSpot x="64" y="128" xunits="pixels" yunits="insetPixels"/>
+			</IconStyle>
+			<LabelStyle>
+			</LabelStyle>
+			<LineStyle>
+				<color>ff2dc0fb</color>
+				<width>4</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>40ffffff</color>
+			</PolyStyle>
+			<BalloonStyle>
+				<gx:displayMode>card</gx:displayMode>
+			</BalloonStyle>
+		</Style>
+	</gx:CascadingStyle>
+	<gx:CascadingStyle kml:id="__managed_style_1684EBDD92176E8B9298">
+		<Style>
+			<IconStyle>
+				<Icon>
+					<href>https://earth.google.com/earth/rpc/cc/icon?color=fbc02d&amp;id=2000&amp;scale=4</href>
+				</Icon>
+				<hotSpot x="64" y="128" xunits="pixels" yunits="insetPixels"/>
+			</IconStyle>
+			<LabelStyle>
+			</LabelStyle>
+			<LineStyle>
+				<color>ff2dc0fb</color>
+				<width>2.66667</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>40ffffff</color>
+			</PolyStyle>
+			<BalloonStyle>
+				<gx:displayMode>card</gx:displayMode>
+			</BalloonStyle>
+		</Style>
+	</gx:CascadingStyle>
+	<StyleMap id="__managed_style_009A444BD4176E8D6ACA">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#__managed_style_10427E8DA2176E8D6ACA</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#__managed_style_2E50B49280176E8D6ACA</styleUrl>
+		</Pair>
+	</StyleMap>
+	<StyleMap id="__managed_style_030227A991176E8B9298">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#__managed_style_1684EBDD92176E8B9298</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#__managed_style_22DF972A0D176E8B9298</styleUrl>
+		</Pair>
+	</StyleMap>
+	<Placemark id="0E6584F7DD176E8B9296">
+		<name>40°36&apos;37.2&quot;N 74°02&apos;21.1&quot;W</name>
+		<LookAt>
+			<longitude>-74.0391827</longitude>
+			<latitude>40.6103199</latitude>
+			<altitude>0</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>778.9196851433937</range>
+			<altitudeMode>relativeToGround</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_030227A991176E8B9298</styleUrl>
+		<Point>
+			<altitudeMode>relativeToGround</altitudeMode>
+			<coordinates>-74.0391827,40.6103199,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark id="06D605BDE4176E8D6AC9">
+		<name>camera path 1</name>
+		<LookAt>
+			<longitude>-73.89034627656959</longitude>
+			<latitude>40.61255136096379</latitude>
+			<altitude>5.673592884318435</altitude>
+			<heading>-6.31542051602555</heading>
+			<tilt>6.414522769163534</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>40851.23014576267</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_009A444BD4176E8D6ACA</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						-73.96928018695641,40.51994075985466,5.922721755862184 -73.98451039585544,40.54709068849014,5.518679976650105 -74.02412689599031,40.60603999938215,5.911473985471707 -74.03331417746679,40.68617096089564,-2.992681619281354 -74.01813813429706,40.73199901859223,-2.981374776003056 -74.01368629698507,40.76734669031339,-3.00707697669973 -73.98463708020655,40.79415639586417,-2.974389055478053 -73.96389654744658,40.78492880489573,36.63387768623075 -73.97452691880592,40.76711927501298,10.35177355260132 -73.98185517766292,40.73273944708617,6.982828948310871 -73.99861573311571,40.71398903798578,5.618235204121593 -74.05752673164039,40.63009052816579,5.547066905565197 -74.04207906535621,40.59898784065786,5.839894380722765 -74.01884552005585,40.5273511630884,5.627199007697035 -73.96928018695641,40.51994075985466,5.922721755862184 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+	<Placemark id="0ACCCD7315176F9269F6">
+		<name>test cam path 2</name>
+		<LookAt>
+			<longitude>-73.9438724352558</longitude>
+			<latitude>40.57518094871532</latitude>
+			<altitude>-2.992189573446118</altitude>
+			<heading>3.699000931812172</heading>
+			<tilt>38.97230017906203</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>25535.20548288245</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_009A444BD4176E8D6ACA</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						-74.03006951604831,40.58247271163678,-2.895225500860086 -74.02970854633186,40.61167467092515,13.53304702139101 -74.03581033962581,40.6298066902089,5.521085375469013 -74.07056592763701,40.63660028914893,5.542286336134358 -74.07515546810707,40.61839198197045,14.82427595094355 -74.03006951604831,40.58247271163678,-2.895225500860086 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+</Document>
+</kml>

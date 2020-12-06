@@ -77,12 +77,14 @@ void WorldScene::updateScene()
 
 
 	auto currentTime = std::chrono::high_resolution_clock::now();
-	time = std::chrono::duration<double, std::chrono::seconds::period>(currentTime - startTime).count();
-	timef = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+	auto newtime = std::chrono::duration<double, std::chrono::seconds::period>(currentTime - startTime).count();
+	auto newtimef = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
+	deltaTime = newtime - time;
+	deltaTimef = newtimef - timef;
 
-
-
+	time = newtime;
+	timef = newtimef;
 
 	for (System* sys : generalSystems) {
 		sys->update();

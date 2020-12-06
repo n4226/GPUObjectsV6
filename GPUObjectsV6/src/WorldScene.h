@@ -39,6 +39,9 @@ public:
 	double time = 0;
 	float timef = 0;
 
+	double deltaTime = 0;
+	float  deltaTimef = 0;
+
 private:
 
 	void loadScene();

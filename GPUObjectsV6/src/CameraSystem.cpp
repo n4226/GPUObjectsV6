@@ -78,33 +78,63 @@ void CameraSystem::update()
 
 void CameraSystem::movePlayerAlongCamPath()
 {
+	static const double speed = 500; // in meters / second
 	static size_t currentSegment = 0;
-	static const double loopTime = 20; //seconds
-	static double pathLength = cameraPath.lladirectLength();
-
-	auto segments = cameraPath.getNumSegments();
-
-	auto timePerSegment = loopTime / segments; 
-
-
-	auto t = fmod(world->time, loopTime); //sin(world->time * 0.1) * 0.5 + 0.5;
-
-	//auto currentSegment = static_cast<int>(t / timePerSegment);
+	static double currentSegmentTime = 0;
+	static double totalSegmentTime = 0;
+	
 	auto segmentPoints = cameraPath.getPointsInSegment(currentSegment);
 
-	//  * glm::distance(segmentPoints[0],segmentPoints[2])
-	auto segmentTime = (t / timePerSegment) - currentSegment;
-
-	if (segmentTime > 1) {
-		//currentSegment += 1;
-
-		segmentPoints = cameraPath.getPointsInSegment(currentSegment);
-		segmentTime = (t / timePerSegment * glm::distance(segmentPoints[0], segmentPoints[2])) - currentSegment;
+	if (totalSegmentTime == 0) {
+		auto distance = Math::llaDistance(segmentPoints[0], segmentPoints[2]);
+		totalSegmentTime = distance / speed;
 	}
 
-	std::cout << segmentTime << std::endl;
+
+	currentSegmentTime += world->deltaTime;
+
+	std::cout << currentSegmentTime / totalSegmentTime << std::endl;
+
+	if (currentSegmentTime > totalSegmentTime) {
+		currentSegmentTime -= totalSegmentTime;
+		totalSegmentTime = 0;
+		currentSegment = (currentSegment + 1) % cameraPath.getNumSegments();
+	}
+
+
 	world->playerLLA =
-		// Bezier::lerp(segmentPoints[0], segmentPoints[2], t);
-		Bezier::evaluateCubic(segmentPoints[0], segmentPoints[3], segmentPoints[1], segmentPoints[2], glm::clamp(segmentTime,0.0,1.0));
+		//	// Bezier::lerp(segmentPoints[0], segmentPoints[2], t);
+		Bezier::evaluateCubic(segmentPoints[0], segmentPoints[1], segmentPoints[2], segmentPoints[3], glm::clamp(currentSegmentTime / totalSegmentTime,0.0,1.0));
+
+
+
+	//static size_t currentSegment = 0;
+	//static const double loopTime = 20; //seconds
+	//static double pathLength = cameraPath.lladirectLength();
+
+	//auto segments = cameraPath.getNumSegments();
+
+	//auto timePerSegment = loopTime / segments; 
+
+
+	//auto t = fmod(world->time, loopTime); //sin(world->time * 0.1) * 0.5 + 0.5;
+
+	////auto currentSegment = static_cast<int>(t / timePerSegment);
+	//auto segmentPoints = cameraPath.getPointsInSegment(currentSegment);
+
+	////  * glm::distance(segmentPoints[0],segmentPoints[2])
+	//auto segmentTime = (t / timePerSegment) - currentSegment;
+
+	//if (segmentTime > 1) {
+	//	//currentSegment += 1;
+
+	//	segmentPoints = cameraPath.getPointsInSegment(currentSegment);
+	//	segmentTime = (t / timePerSegment * glm::distance(segmentPoints[0], segmentPoints[2])) - currentSegment;
+	//}
+
+	//std::cout << segmentTime << std::endl;
+	//world->playerLLA =
+	//	// Bezier::lerp(segmentPoints[0], segmentPoints[2], t);
+	//	Bezier::evaluateCubic(segmentPoints[0], segmentPoints[3], segmentPoints[1], segmentPoints[2], glm::clamp(segmentTime,0.0,1.0));
 
 }
