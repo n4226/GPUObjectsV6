@@ -205,7 +205,7 @@ void TerrainSystem::processTree()
 				preLoadingWaitGroup.wait();
 
 				for (TerrainQuadTreeNode* chunk : toDrawDraw) {
-					meshLoader.drawChunk(chunk, {}, true);
+					meshLoader.drawChunk(chunk, {}, false);
 				}
 
 				writePendingDrawOobjects();

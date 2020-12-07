@@ -12,6 +12,13 @@ private:
 
 	void movePlayerAlongCamPath();
 
+
+	const double speed = 500; // in meters / second
+
+	size_t currentSegment = 0;
+	double currentSegmentTime = 0;
+	double totalSegmentTime = 0;
+
 	//std::vector<glm::dvec3> cameraPoints = {
 
 	//	//glm::dvec3(40.610319941413, -74.039182662964, 100);
@@ -38,7 +45,7 @@ private:
 
 	std::vector<glm::dvec3> cameraPoints = {
 
-		glm::dvec3( 40.58247271163678, -74.03006951604831, 400),
+		glm::dvec3(40.58247271163678, -74.03006951604831, 400),
 		glm::dvec3(40.61167467092515, -74.02970854633186,400),
 		glm::dvec3(40.6298066902089 , -74.03581033962581, 400),
 		glm::dvec3(40.63660028914893, -74.07056592763701,400),

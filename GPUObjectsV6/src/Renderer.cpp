@@ -61,8 +61,8 @@ void Renderer::createRenderResources()
 	
 #pragma region Create Global vert and in
 
-	VkDeviceSize vCount =      50'000'000;
-	VkDeviceSize indexCount =  100'000'000;
+	VkDeviceSize vCount =      70'000'000;
+	VkDeviceSize indexCount =  220'000'000;
 
 	makeGlobalMeshBuffers(vCount, indexCount);
 	 
@@ -86,7 +86,7 @@ void Renderer::makeGlobalMeshBuffers(const VkDeviceSize& vCount, const VkDeviceS
 
 	//TODO Extract this comman code somewhere
 
-	auto workerThreads = std::thread::hardware_concurrency() * 0 + 1;
+	auto workerThreads = std::thread::hardware_concurrency() * 0;
 
 	threadLocalGlobalMeshStagingBuffers.resize(workerThreads);
 

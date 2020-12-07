@@ -47,10 +47,39 @@ void CameraSystem::update()
 	auto QuatAroundZ = glm::angleAxis(0.f, glm::vec3(0.0, 0.0, 1.0));
 	auto finalOrientation = QuatAroundZ * QuatAroundY * QuatAroundX;
 
+
+	auto segment = currentSegment;
+	
+	auto segTime = (currentSegmentTime + 0.1);
+	auto segtotalTime = totalSegmentTime;
+
+	if (segTime > totalSegmentTime)
+	{
+		segment++;
+		auto segmentPoints = cameraPath.getPointsInSegment(segment);
+		auto distance = Math::llaDistance(segmentPoints[0], segmentPoints[2]);
+		segTime -= totalSegmentTime;
+		segtotalTime = distance / speed;
+	}
+	auto segmentPoints = cameraPath.getPointsInSegment(segment);
+
+	auto futurePlace = Bezier::evaluateCubic(segmentPoints[0], segmentPoints[1], segmentPoints[2], segmentPoints[3], glm::clamp(segTime / segtotalTime, 0.0, 1.0));
+	//auto futureGeo = Math::LlatoGeo(futurePlace, world->origin, world->terrainSystem->getRadius());
+
+	auto currentToNewLlaDelta = futurePlace - world->playerLLA;
+
+	auto deltaAngle = atan2(currentToNewLlaDelta.x, currentToNewLlaDelta.y);
+
+	std::cout << glm::degrees(deltaAngle) << std::endl;
+
 	world->playerTrans.rotation = finalOrientation *
 		glm::angleAxis(glm::radians(90.f), glm::vec3(-1, 0, 0))
 		// this is temporarry to rotate around to look
 		//*glm::angleAxis(glm::radians(world->timef * 20.f), glm::vec3(0, 1, 0))
+
+
+		// make cmaera look at future path
+		* glm::angleAxis(static_cast<float>(deltaAngle - M_PI_2), glm::vec3(0, -1, 0))
 		;
 
 		//glm::
@@ -78,10 +107,9 @@ void CameraSystem::update()
 
 void CameraSystem::movePlayerAlongCamPath()
 {
-	static const double speed = 500; // in meters / second
-	static size_t currentSegment = 0;
-	static double currentSegmentTime = 0;
-	static double totalSegmentTime = 0;
+	//static const auto points = cameraPath.CalculateEvenlySpacedPoints(1000, 0.0001, true, Math::dEarthRad);
+	
+	
 	
 	auto segmentPoints = cameraPath.getPointsInSegment(currentSegment);
 
@@ -93,7 +121,7 @@ void CameraSystem::movePlayerAlongCamPath()
 
 	currentSegmentTime += world->deltaTime;
 
-	std::cout << currentSegmentTime / totalSegmentTime << std::endl;
+	//std::cout << cameraPath.getNumSegments() << std::endl;
 
 	if (currentSegmentTime > totalSegmentTime) {
 		currentSegmentTime -= totalSegmentTime;

@@ -112,7 +112,7 @@ void TerrainMeshLoader::drawChunk(TerrainQuadTreeNode* node, TreeNodeDrawResaour
 
 	//TreeNodeDrawResaourceToCoppy preLoadedMesh;
 
-	if (inJob) { // sync point
+	if (inJob || (preLoadedMesh.binMesh == nullptr && preLoadedMesh.mesh == nullptr)) { // sync point
 		auto meshStores = terrainSystem->loadedMeshesToDraw.lock();
 		preLoadedMesh = (*meshStores)[node];
 	}
@@ -206,13 +206,16 @@ void TerrainMeshLoader::removeDrawChunk(TerrainQuadTreeNode* node, bool inJob)
 	PROFILE_FUNCTION
 
 		auto drawObjects = terrainSystem->drawObjects.lock();
-	printf("%d before \n", drawObjects->size());
+	//printf("%d before \n", drawObjects->size());
 	node->hasdraw = false;
 	auto draw = (*drawObjects)[node];
 	drawObjects->erase(node);
-	printf("%d after \n", drawObjects->size());
+	//printf("%d after \n", drawObjects->size());
 
 	//TODO: deallocate buffers here 
+
+	renderer->gloablVertAllocator->free(draw.vertIndex, draw.vertcount);
+	renderer->gloablIndAllocator->free(draw.indIndex, draw.indexCount);
 
 }
 

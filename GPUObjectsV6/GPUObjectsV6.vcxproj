@@ -73,9 +73,7 @@
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;marl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>XCOPY "$(ProjectDir)shaders" "$(TargetDir)\shaders\" /S /Y
-XCOPY "$(SolutionDir)MeshGenerator\terrain" "$(TargetDir)\terrain\" /S /Y
-XCOPY "$(SolutionDir)MeshGenerator\terrain" "$(ProjectDir)\terrain\" /S /Y</Command>
+      <Command>XCOPY "$(ProjectDir)shaders" "$(TargetDir)\shaders\" /S /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -98,9 +96,7 @@ XCOPY "$(SolutionDir)MeshGenerator\terrain" "$(ProjectDir)\terrain\" /S /Y</Comm
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;marl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>XCOPY "$(ProjectDir)shaders" "$(TargetDir)\shaders\" /S /Y
-XCOPY "$(SolutionDir)MeshGenerator\terrain" "$(TargetDir)\terrain\" /S /Y
-XCOPY "$(SolutionDir)MeshGenerator\terrain" "$(ProjectDir)\terrain\" /S /Y</Command>
+      <Command>XCOPY "$(ProjectDir)shaders" "$(TargetDir)\shaders\" /S /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -2,6 +2,7 @@
 
 #include "glm/glm.hpp"
 #include "../Math.h"
+#include "Bezier.h"
 
 #include <vector>
 #include <array>
@@ -32,6 +33,58 @@ struct Path
 	void autoSetStartAndEndContorls();
 
 	std::array<p, 4> getPointsInSegment(size_t i);
+
+	
+	std::vector<p>* CalculateEvenlySpacedPoints(float spacing, double resolution = 1, bool isLLAData = false,double llaRad = 0) {
+
+		auto evenlySpacedPoints = new std::vector<p>();
+		evenlySpacedPoints->push_back(points[0]);
+		auto previousPoint = points[0];
+		float dstSinceLastEvenPoint = 0;
+
+		for (int segmentIndex = 0; segmentIndex < getNumSegments(); segmentIndex++)
+		{
+			auto points = getPointsInSegment(segmentIndex);
+			float controlNetLength;
+			
+			if (isLLAData)
+				controlNetLength = Math::llaDistance(points[0], points[1],llaRad) + Math::llaDistance(points[1], points[2],llaRad) + Math::llaDistance(points[2], points[3],llaRad);
+			else
+				controlNetLength = glm::distance(points[0], points[1]) + glm::distance(points[1], points[2]) + glm::distance(points[2], points[3]);
+
+			double estimatedCurveLength;
+			
+			if (isLLAData)
+				estimatedCurveLength = Math::llaDistance(points[0], points[3],llaRad) + controlNetLength / 2.0;
+			else
+				estimatedCurveLength = glm::distance(points[0], points[3]) + controlNetLength / 2.0;
+
+			int divisions = ceil(estimatedCurveLength * resolution * 10);
+			double t = 0;
+			while (t <= 1)
+			{
+				t += 1 / divisions;
+				auto pointOnCurve = Bezier::evaluateCubic(points[0], points[1], points[2], points[3], t);
+				if (isLLAData)
+					dstSinceLastEvenPoint += Math::llaDistance(previousPoint, pointOnCurve,llaRad);
+				else
+					dstSinceLastEvenPoint += glm::distance(previousPoint, pointOnCurve);
+
+				while (dstSinceLastEvenPoint >= spacing)
+				{
+					double overshootDst = dstSinceLastEvenPoint - spacing;
+					auto newEvenlySpacedPoint = pointOnCurve + glm::normalize(previousPoint - pointOnCurve) * overshootDst;
+					evenlySpacedPoints->push_back(newEvenlySpacedPoint);
+					dstSinceLastEvenPoint = overshootDst;
+					previousPoint = newEvenlySpacedPoint;
+				}
+
+				previousPoint = pointOnCurve;
+			}
+		}
+
+		return evenlySpacedPoints;
+	}
 
 	size_t getNumSegments();
 	size_t getNumPoints();
@@ -74,7 +127,7 @@ private:
 template<typename p>
 Path<p>::Path(std::vector<p> anchorPoints, bool closed)
 {
-	closed = false;
+	//closed = false;
 	if (anchorPoints.size() < 2) return;
 
 	points.emplace_back(anchorPoints[0]);
@@ -95,7 +148,7 @@ Path<p>::Path(std::vector<p> anchorPoints, bool closed)
 
 
 	if (closed) {
-		//setClosed(true);
+		setClosed(true);
 	}
 
 	autoSetAllContorlPoints();
@@ -178,9 +231,9 @@ template<typename p>
 std::array<p, 4> Path<p>::getPointsInSegment(size_t i)
 {
 	return {
-		points[(i * 3)],
-		points[(i * 3 + 1)],
-		points[(i * 3 + 2)],
+		points[loopIndex(i * 3)],
+		points[loopIndex(i * 3 + 1)],
+		points[loopIndex(i * 3 + 2)],
 		points[loopIndex(i * 3 + 3)]
 	};
 }
