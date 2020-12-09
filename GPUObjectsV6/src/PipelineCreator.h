@@ -8,6 +8,8 @@
 #include <fstream>
 #include "Mesh.h"
 
+class ComputePipeline;
+
 class PipelineCreator
 {
 public:
@@ -37,4 +39,5 @@ protected:
 
 	vk::Extent2D swapChainExtent;
 
+	friend ComputePipeline;
 };

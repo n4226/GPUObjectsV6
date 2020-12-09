@@ -70,7 +70,7 @@ void CameraSystem::update()
 
 	auto deltaAngle = atan2(currentToNewLlaDelta.x, currentToNewLlaDelta.y);
 
-	std::cout << glm::degrees(deltaAngle) << std::endl;
+	//std::cout << glm::degrees(deltaAngle) << std::endl;
 
 	world->playerTrans.rotation = finalOrientation *
 		glm::angleAxis(glm::radians(90.f), glm::vec3(-1, 0, 0))

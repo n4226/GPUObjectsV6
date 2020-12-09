@@ -100,6 +100,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ComputePipeline.cpp" />
     <ClCompile Include="MeshBuffers.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\ResourceTransferTask.cpp" />
@@ -139,6 +140,7 @@
     <ClCompile Include="src\WorldScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ComputePipeline.h" />
     <ClInclude Include="libGuarded\cs_cow_guarded.h" />
     <ClInclude Include="libGuarded\cs_deferred_guarded.h" />
     <ClInclude Include="libGuarded\cs_lr_guarded.h" />

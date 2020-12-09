@@ -389,6 +389,8 @@ WindowManager::~WindowManager()
 {
     PROFILE_FUNCTION
 
+        device.waitIdle();
+
     delete ResourceTransferer::shared;
     delete depthImage;
 

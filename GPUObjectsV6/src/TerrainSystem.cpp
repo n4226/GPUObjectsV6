@@ -265,7 +265,7 @@ double TerrainSystem::threshold(const TerrainQuadTreeNode* node)
 {
 	auto nodeRad = Math::llaDistance(node->frame.start, node->frame.getEnd(), tree.radius);
 	//      return  radius / (node.lodLevel + 1).double * 1;
-	return nodeRad * 0.9;
+	return nodeRad * 1.2;
 }
 
 bool TerrainSystem::determinActive(const TerrainQuadTreeNode* node)

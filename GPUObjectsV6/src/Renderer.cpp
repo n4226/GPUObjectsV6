@@ -178,7 +178,7 @@ void Renderer::createDescriptorPoolAndSets()
 void Renderer::createDynamicRenderCommands(vk::Device& device, WindowManager& window)
 {
 	VkHelpers::createPoolsAndCommandBufffers
-	(device, dynamicCommandPools, dynamicCommandBuffers, window.swapChainImageViews.size(), window.queueFamilyIndices.graphicsFamily.value(), vk::CommandBufferLevel::ePrimary);
+		(device, dynamicCommandPools, dynamicCommandBuffers, window.swapChainImageViews.size(), window.queueFamilyIndices.graphicsFamily.value(), vk::CommandBufferLevel::ePrimary);
 }
 
 void Renderer::createUniformsAndDescriptors()
@@ -250,6 +250,34 @@ void Renderer::renderFrame()
 {
 	PROFILE_FUNCTION
 
+
+	/* 
+		Render Pass layout -- PBR-Deffered Pipeline
+		
+		if gpu driven: a compute pre pass
+
+		for now i will use render sub passes but this does not allow pixels to acces their neighbors
+
+		gbuffer pass 
+
+			- attatchments
+
+			- output: for now just rgb color buffer
+
+		deffered lighting pass 
+
+			- input: all outputed gbuffer buffers - memory synchronised
+
+			- output: an () formatted color output texture 
+	
+
+		a varible number of post passes 
+			
+			- input: previus output or deffered output
+
+			- output: new texture same format as input
+			
+	*/
 
 
 	// update uniform buffer
