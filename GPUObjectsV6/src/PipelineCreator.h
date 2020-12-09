@@ -10,18 +10,12 @@
 
 class ComputePipeline;
 
-class PipelineCreator
+class GraphicsPipeline
 {
 public:
 
-	PipelineCreator(vk::Device device, vk::Extent2D swapChainExtent, RenderPassManager& renderPassManager);
-	~PipelineCreator();
-
-	static vk::PipelineShaderStageCreateInfo createShaderStageInfo(vk::Device device, const std::vector<char>& code,vk::ShaderStageFlagBits stage);
-
-	static vk::ShaderModule createShaderModule(vk::Device device, const std::vector<char>& code);
-
-	static std::vector<char> readFile(const std::string& filename);
+	GraphicsPipeline(vk::Device device, vk::Extent2D swapChainExtent, RenderPassManager& renderPassManager);
+	~GraphicsPipeline();
 
 	// pipeline properties
 
@@ -32,8 +26,16 @@ public:
 
 	RenderPassManager& renderPassManager;
 
-	virtual void createGraphicsPipeline() = 0;
+	virtual void createPipeline() = 0;
+
+	static vk::PipelineShaderStageCreateInfo createShaderStageInfo(vk::Device device, const std::vector<char>& code,vk::ShaderStageFlagBits stage);
+
+	static vk::ShaderModule createShaderModule(vk::Device device, const std::vector<char>& code);
+
+	static std::vector<char> readFile(const std::string& filename);
+
 protected:
+
 
 	vk::Device device;
 

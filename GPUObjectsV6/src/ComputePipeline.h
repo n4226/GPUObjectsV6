@@ -7,7 +7,7 @@ class ComputePipeline
 {
 	
 public:
-	ComputePipeline(vk::Device device, std::vector<vk::DescriptorSetLayout>& descriptorSetLayouts, const std::vector<char>& shaderFilePath);
+	ComputePipeline(vk::Device device, std::vector<vk::DescriptorSetLayout>& descriptorSetLayouts, const std::string& shaderFilePath);
 
 
 	//std::vector<vk::DescriptorSetLayout> descriptorSetLayouts;

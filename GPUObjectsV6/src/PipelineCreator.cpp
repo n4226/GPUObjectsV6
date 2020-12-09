@@ -1,14 +1,14 @@
 #include "PipelineCreator.h"
 #include "pch.h"
 
-PipelineCreator::PipelineCreator(vk::Device device, vk::Extent2D swapChainExtent, RenderPassManager& renderPassManager)
+GraphicsPipeline::GraphicsPipeline(vk::Device device, vk::Extent2D swapChainExtent, RenderPassManager& renderPassManager)
     : renderPassManager(renderPassManager), swapChainExtent(swapChainExtent)
 {
     this->device = device;
 
 }
 
-PipelineCreator::~PipelineCreator()
+GraphicsPipeline::~GraphicsPipeline()
 {
     device.destroyPipelineLayout(pipelineLayout);
     device.destroyPipeline(vkItem);
@@ -20,7 +20,6 @@ PipelineCreator::~PipelineCreator()
 
 
 
-
 /// <summary>
 /// wrapes a shader binary data into a PipelineShaderStageCreateInfo struct
 /// </summary>
@@ -28,9 +27,9 @@ PipelineCreator::~PipelineCreator()
 /// <param name="code"></param>
 /// <param name="stage"></param>
 /// <returns>WARNING the returned value needs to be deinitilized when it is done being used with device.destroyShaderModule </returns>
-vk::PipelineShaderStageCreateInfo PipelineCreator::createShaderStageInfo(vk::Device device, const std::vector<char>& code, vk::ShaderStageFlagBits stage)
+vk::PipelineShaderStageCreateInfo GraphicsPipeline::createShaderStageInfo(vk::Device device, const std::vector<char>& code, vk::ShaderStageFlagBits stage)
 {
-    auto shaderModule = PipelineCreator::createShaderModule(device, code);
+    auto shaderModule = GraphicsPipeline::createShaderModule(device, code);
 
     vk::PipelineShaderStageCreateInfo shaderStageInfo{};
 
@@ -42,7 +41,7 @@ vk::PipelineShaderStageCreateInfo PipelineCreator::createShaderStageInfo(vk::Dev
     return shaderStageInfo;
 }
 
-vk::ShaderModule PipelineCreator::createShaderModule(vk::Device device, const std::vector<char>& code)
+vk::ShaderModule GraphicsPipeline::createShaderModule(vk::Device device, const std::vector<char>& code)
 {
     vk::ShaderModuleCreateInfo createInfo{};
 
@@ -54,7 +53,7 @@ vk::ShaderModule PipelineCreator::createShaderModule(vk::Device device, const st
     return shaderModule;
 }
 
-std::vector<char> PipelineCreator::readFile(const std::string& filename)
+std::vector<char> GraphicsPipeline::readFile(const std::string& filename)
 {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
 

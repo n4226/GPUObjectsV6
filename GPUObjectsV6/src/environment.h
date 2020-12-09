@@ -20,6 +20,8 @@
 
 // testing environment
 
+#define RenderMode 2
+
 #define RenderModeCPU1 1
 #define RenderModeCPU2 0
 #define RenderModeGPU  0
@@ -27,6 +29,17 @@
 #define RenderTerainScale 1
 
 
+#if RenderMode == 0
+#define VK_SUBPASS_INDEX_GBUFFER 0
+#define VK_SUBPASS_INDEX_LIGHTING 1
+#elif RenderMode == 1
+#define VK_SUBPASS_INDEX_GBUFFER 0
+#define VK_SUBPASS_INDEX_LIGHTING 1
+#else
+#define VK_SUBPASS_INDEX_COMPUTE_PREPASS 0
+#define VK_SUBPASS_INDEX_GBUFFER 1
+#define VK_SUBPASS_INDEX_LIGHTING 2
+#endif
 
 // constants 
 

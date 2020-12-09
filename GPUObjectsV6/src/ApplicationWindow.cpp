@@ -24,14 +24,14 @@ WindowManager::WindowManager()
 
     createSwapchainImageViews();
 
-    createDepthImage();
+    createFrameBufferImages();
 
     // make graphics pipeline 
     
-    renderPassManager = new RenderPassManager(device, swapchainImageFormat, depthBufferFormat);
+    renderPassManager = new RenderPassManager(device, albedoFormat, normalFormat, aoFormat, swapchainImageFormat, depthBufferFormat);
     pipelineCreator = new TerrainPipeline(device, swapchainExtent,*renderPassManager);
 
-    pipelineCreator->createGraphicsPipeline();
+    pipelineCreator->createPipeline();
 
     createFramebuffers();
 
@@ -69,10 +69,10 @@ void WindowManager::recreateSwapchain()
     createSwapchain();
     createSwapchainImageViews();
 
-    renderPassManager = new RenderPassManager(device, swapchainImageFormat,depthBufferFormat);
+    renderPassManager = new RenderPassManager(device, albedoFormat, normalFormat, aoFormat, swapchainImageFormat,depthBufferFormat);
     pipelineCreator = new TerrainPipeline(device, swapchainExtent, *renderPassManager);
 
-    pipelineCreator->createGraphicsPipeline();
+    pipelineCreator->createPipeline();
 
 
     createFramebuffers();
@@ -237,27 +237,65 @@ void WindowManager::createSwapchainImageViews()
 
 }
 
-void WindowManager::createDepthImage()
+void WindowManager::createFrameBufferImages()
 {
-    depthBufferFormat = VkFormat(GPUSelector::findSupportedFormat(physicalDevice, { vk::Format::eD32Sfloat }, vk::ImageTiling::eOptimal, vk::FormatFeatureFlagBits::eDepthStencilAttachment));
+    //GBUffer Images
+
+    albedoFormat = VkFormat(
+        //vk::Format::eR8G8B8A8Unorm);
+        vk::Format::eB8G8R8A8Unorm);
+    //TODO: roughness field will have half the precioins if it uses range [0,1] so consider changing this
+    normalFormat = VkFormat(vk::Format::eB8G8R8A8Unorm);
+    aoFormat = VkFormat(vk::Format::eR8Unorm);
+
+    ImageCreationOptions createOptions;
+
+    createOptions.sharingMode = vk::SharingMode::eExclusive;
+    createOptions.storage = ResourceStorageType::gpu;
+    createOptions.usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eInputAttachment;
+
+    createOptions.type = vk::ImageType::e2D;
+    createOptions.layout = vk::ImageLayout::eUndefined;
+    createOptions.tilling = vk::ImageTiling::eOptimal;
 
 
-    ImageCreationOptions depthOptions;
+    createOptions.format = vk::Format(albedoFormat);
 
-    depthOptions.sharingMode = vk::SharingMode::eExclusive;
-    depthOptions.storage = ResourceStorageType::gpu;
-    depthOptions.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+    gbuffer_albedo_metallic = new Image(device, allocator, { swapchainExtent.width,swapchainExtent.height,1 }, createOptions, vk::ImageAspectFlagBits::eColor);
 
-    depthOptions.type = vk::ImageType::e2D;
-    depthOptions.layout = vk::ImageLayout::eUndefined;
-    depthOptions.tilling = vk::ImageTiling::eOptimal;
+    createOptions.format = vk::Format(normalFormat);
 
+    gbuffer_normal_roughness = new Image(device, allocator, { swapchainExtent.width,swapchainExtent.height,1 }, createOptions, vk::ImageAspectFlagBits::eColor);
 
+    createOptions.format = vk::Format(aoFormat);
 
-    depthOptions.format = vk::Format(depthBufferFormat);
+    gbuffer_ao = new Image(device, allocator, { swapchainExtent.width,swapchainExtent.height,1 }, createOptions, vk::ImageAspectFlagBits::eColor);
 
 
-    depthImage = new Image(device, allocator, { swapchainExtent.width,swapchainExtent.height,1 }, depthOptions, vk::ImageAspectFlagBits::eDepth);
+
+    { // Depth
+        depthBufferFormat = VkFormat(GPUSelector::findSupportedFormat(physicalDevice, { vk::Format::eD32Sfloat }, vk::ImageTiling::eOptimal, vk::FormatFeatureFlagBits::eDepthStencilAttachment));
+
+
+        ImageCreationOptions depthOptions;
+
+        depthOptions.sharingMode = vk::SharingMode::eExclusive;
+        depthOptions.storage = ResourceStorageType::gpu;
+        depthOptions.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+
+        depthOptions.type = vk::ImageType::e2D;
+        depthOptions.layout = vk::ImageLayout::eUndefined;
+        depthOptions.tilling = vk::ImageTiling::eOptimal;
+
+
+
+        depthOptions.format = vk::Format(depthBufferFormat);
+
+
+        depthImage = new Image(device, allocator, { swapchainExtent.width,swapchainExtent.height,1 }, depthOptions, vk::ImageAspectFlagBits::eDepth);
+    }
+
+
 
 }
 
@@ -267,9 +305,15 @@ void WindowManager::createFramebuffers()
     swapChainFramebuffers.resize(swapChainImageViews.size());
 
     for (size_t i = 0; i < swapChainImageViews.size(); i++) {
+        // see renderpass.cpp for info on order of attachments
         std::vector<vk::ImageView> attachments = {
+            //Gbuffer
+            gbuffer_albedo_metallic->view,
+            gbuffer_normal_roughness->view,
+            gbuffer_ao->view,
+            depthImage->view,
+            //Differed
             swapChainImageViews[i],
-            depthImage->view
         };
 
         vk::FramebufferCreateInfo framebufferInfo{};
@@ -282,7 +326,7 @@ void WindowManager::createFramebuffers()
 
         swapChainFramebuffers[i] = device.createFramebuffer(framebufferInfo);
     }
-}
+}   
 
 void WindowManager::createSemaphores()
 {
@@ -392,6 +436,9 @@ WindowManager::~WindowManager()
         device.waitIdle();
 
     delete ResourceTransferer::shared;
+    delete gbuffer_albedo_metallic;
+    delete gbuffer_normal_roughness;
+    delete gbuffer_ao;
     delete depthImage;
 
     vmaDestroyAllocator(allocator);

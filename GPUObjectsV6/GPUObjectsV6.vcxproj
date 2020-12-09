@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -100,6 +100,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\GBufferComputePipeline.cpp" />
     <ClCompile Include="src\ComputePipeline.cpp" />
     <ClCompile Include="MeshBuffers.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
@@ -140,6 +141,7 @@
     <ClCompile Include="src\WorldScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\GBufferComputePipeline.h" />
     <ClInclude Include="src\ComputePipeline.h" />
     <ClInclude Include="libGuarded\cs_cow_guarded.h" />
     <ClInclude Include="libGuarded\cs_deferred_guarded.h" />
@@ -183,6 +185,8 @@
     <ClInclude Include="src\WorldScene.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\GBuffer.frag" />
+    <None Include="shaders\GBuffer.vert" />
     <None Include="shaders\terrain.frag" />
     <None Include="shaders\terrain.vert" />
     <None Include="shaders\triangle.vert" />

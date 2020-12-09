@@ -1,11 +1,11 @@
 #include "pch.h"
 #include "ComputePipeline.h"
 
-ComputePipeline::ComputePipeline(vk::Device device, std::vector<vk::DescriptorSetLayout>& descriptorSetLayouts, const std::vector<char>& shaderFilePath)
+ComputePipeline::ComputePipeline(vk::Device device, std::vector<vk::DescriptorSetLayout>& descriptorSetLayouts, const std::string& shaderFilePath)
 {
 
     VkPipelineShaderStageCreateInfo shaderStage =
-        PipelineCreator::createShaderStageInfo(device, shaderFilePath, vk::ShaderStageFlagBits::eCompute);
+        GraphicsPipeline::createShaderStageInfo(device, GraphicsPipeline::readFile(shaderFilePath), vk::ShaderStageFlagBits::eCompute);
 
 
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
@@ -27,6 +27,6 @@ ComputePipeline::ComputePipeline(vk::Device device, std::vector<vk::DescriptorSe
 
     pipeline = result.value;
 
-
+    device.destroyShaderModule(shaderStage.module);
 
 }

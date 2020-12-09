@@ -4,8 +4,10 @@
 
 layout(location = 0) in vec3 fragColor;
 
-layout(location = 0) out vec4 outColor;
+layout(location = 0) out vec4 outAlbedo_Metallic;
+layout(location = 1) out vec4 outNormal_Roughness;
+layout(location = 2) out vec4 outAO;
 
 void main() {
-    outColor = vec4(fragColor, 1.0);
+    outAlbedo_Metallic = vec4(fragColor, 1.0);
 }

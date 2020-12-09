@@ -31,7 +31,7 @@ public:
 
 	// manager objects
 
-	PipelineCreator* pipelineCreator;
+	GraphicsPipeline* pipelineCreator;
 	RenderPassManager* renderPassManager;
 
 
@@ -52,8 +52,27 @@ public:
 	std::vector<vk::ImageView> swapChainImageViews;
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 
+
 	VkFormat depthBufferFormat;
+
+	VkFormat albedoFormat;
+	VkFormat normalFormat;
+	VkFormat aoFormat;
+	
+
+	/* Manualy created Frame Buffer Images */
+
+
+	//GBuffer
+	Image* gbuffer_albedo_metallic;
+	Image* gbuffer_normal_roughness;
+	Image* gbuffer_ao;
 	Image* depthImage;
+
+	//Differed 
+	//Image* differed_colorAttachment; - right now befoe adding post processing passes the differed writes directly to swap chain
+
+
 
 	GPUQueues deviceQueues;
 	QueueFamilyIndices queueFamilyIndices;
@@ -95,7 +114,7 @@ private:
 	void createSwapchain();
 
 	void createSwapchainImageViews();
-	void createDepthImage();
+	void createFrameBufferImages();
 
 	void createFramebuffers();
 

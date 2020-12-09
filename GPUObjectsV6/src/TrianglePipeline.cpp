@@ -2,7 +2,7 @@
 #include "pch.h"
 
 
-void TrianglePipeline::createGraphicsPipeline()
+void TrianglePipeline::createPipeline()
 {
     // DescriptorSetLayout
 
@@ -29,8 +29,8 @@ void TrianglePipeline::createGraphicsPipeline()
 
 
     std::vector<VkPipelineShaderStageCreateInfo> shaderStages = {
-        PipelineCreator::createShaderStageInfo(device,vertShaderCode,vk::ShaderStageFlagBits::eVertex),
-        PipelineCreator::createShaderStageInfo(device,fragShaderCode,vk::ShaderStageFlagBits::eFragment),
+        GraphicsPipeline::createShaderStageInfo(device,vertShaderCode,vk::ShaderStageFlagBits::eVertex),
+        GraphicsPipeline::createShaderStageInfo(device,fragShaderCode,vk::ShaderStageFlagBits::eFragment),
     };
 
     // vertex input 

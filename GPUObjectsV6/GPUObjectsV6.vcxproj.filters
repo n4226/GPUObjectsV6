@@ -171,6 +171,9 @@
     <ClCompile Include="src\ComputePipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\GBufferComputePipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ApplicationWindow.h">
@@ -296,6 +299,9 @@
     <ClInclude Include="src\ComputePipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\GBufferComputePipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\triangle.frag">
@@ -310,6 +316,8 @@
     <None Include="shaders\terrain.vert">
       <Filter>Source Files\shaders</Filter>
     </None>
+    <None Include="shaders\GBuffer.vert" />
+    <None Include="shaders\GBuffer.frag" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src\GPUObjectsV6.rc">

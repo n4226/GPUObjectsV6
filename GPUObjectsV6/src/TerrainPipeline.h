@@ -2,11 +2,11 @@
 
 #include "PipelineCreator.h"
 
-class TerrainPipeline: public PipelineCreator
+class TerrainPipeline: public GraphicsPipeline
 {
 public:
-	using PipelineCreator::PipelineCreator;
-	void createGraphicsPipeline() override;
+	using GraphicsPipeline::GraphicsPipeline;
+	void createPipeline() override;
 protected:
 };
 

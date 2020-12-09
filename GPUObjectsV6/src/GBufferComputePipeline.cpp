@@ -1,71 +1,79 @@
-#include "TerrainPipeline.h"
 #include "pch.h"
+#include "GBufferComputePipeline.h"
+
+//DifferedPass::DifferedPass(vk::Device device)
+//{
+
+	//std::array<VkDescriptorSetLayoutBinding, 3> setLayoutBindings{};
+
+	//// thses have same indicies as frame buffer and render pass attatchmetns
+
+	//setLayoutBindings[0].binding = 0;
+	//setLayoutBindings[0].descriptorCount = 1;
+	//setLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+	//setLayoutBindings[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	//setLayoutBindings[1].binding = 1;
+	//setLayoutBindings[1].descriptorCount = 1;
+	//setLayoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+	//setLayoutBindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	//setLayoutBindings[1].binding = 2;
+	//setLayoutBindings[1].descriptorCount = 1;
+	//setLayoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+	//setLayoutBindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	//VkDescriptorSetLayoutCreateInfo layoutInfo{};
+	//layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	//layoutInfo.bindingCount = setLayoutBindings.size();
+	//layoutInfo.pBindings = setLayoutBindings.data();
+
+	//std::vector<vk::DescriptorSetLayout> descriptorSetLayouts = { device.createDescriptorSetLayout({ layoutInfo }) };
 
 
-void TerrainPipeline::createPipeline()
+	//pipeline = new ComputePipeline(device, descriptorSetLayouts, "shaders/LightingDiffered.compute.sprv");
+
+//}
+
+//GBufferPass::~GBufferPass()
+//{
+//	//delete pipeline;
+//}
+
+void DifferedPass::createPipeline()
 {
-    // DescriptorSetLayout
 
-    // global uniforms - 
-    // set = 0, binding = 0 -> viewProj
-    // set = 0, binding = 1 -> modelMat - per opbject/instance
+	std::array<VkDescriptorSetLayoutBinding, 3> setLayoutBindings{};
 
-    VkDescriptorSetLayoutBinding uboLayoutBinding{};
-    uboLayoutBinding.binding = 0;
-    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uboLayoutBinding.descriptorCount = 1;
-    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
+	// thses have same indicies as frame buffer and render pass attatchmetns
 
+	setLayoutBindings[0].binding = 0;
+	setLayoutBindings[0].descriptorCount = 1;
+	setLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+	setLayoutBindings[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    // this is now one descripor to a large buffer where shaders will offset into proper model index
+	setLayoutBindings[1].binding = 1;
+	setLayoutBindings[1].descriptorCount = 1;
+	setLayoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+	setLayoutBindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    VkDescriptorSetLayoutBinding modelUniformLayoutBinding{};
-    modelUniformLayoutBinding.binding = 1;
-    modelUniformLayoutBinding.descriptorType = 
-        //VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    // the max number of elements in this varible size array
-    modelUniformLayoutBinding.descriptorCount = 1;//maxModelUniformDescriptorArrayCount;
-    modelUniformLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    modelUniformLayoutBinding.pImmutableSamplers = nullptr; // Optional
+	setLayoutBindings[2].binding = 2;
+	setLayoutBindings[2].descriptorCount = 1;
+	setLayoutBindings[2].descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+	setLayoutBindings[2].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    std::array< VkDescriptorSetLayoutBinding, 2> bindings = {
-        uboLayoutBinding, modelUniformLayoutBinding
-    };
+	VkDescriptorSetLayoutCreateInfo layoutInfo{};
+	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	layoutInfo.bindingCount = setLayoutBindings.size();
+	layoutInfo.pBindings = setLayoutBindings.data();
 
-    // this allows the adding of flags for each binding in the layout
-    VkDescriptorSetLayoutBindingFlagsCreateInfo bindingFlagsInfo;
-    bindingFlagsInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
-    bindingFlagsInfo.pNext = nullptr;
+	descriptorSetLayouts = { device.createDescriptorSetLayout({ layoutInfo }) };
 
-    std::array<VkDescriptorBindingFlags, 2> bindingFlags = { 
-        // global uniform
-        VkDescriptorBindingFlags(),
-        // model uniforms
-        VkDescriptorBindingFlags(
-            //vk::DescriptorBindingFlagBits::eUpdateAfterBind is not availabel on 1080 tifor uniform buffers
-            //vk::DescriptorBindingFlagBits::eVariableDescriptorCount | vk::DescriptorBindingFlagBits::ePartiallyBound | vk::DescriptorBindingFlagBits::eUpdateUnusedWhilePending
-        )
-    };
-
-    bindingFlagsInfo.bindingCount = bindingFlags.size();
-    bindingFlagsInfo.pBindingFlags = bindingFlags.data();
-
-    VkDescriptorSetLayoutCreateInfo layoutInfo{};
-    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = bindings.size();
-    layoutInfo.pBindings = bindings.data();
-    // might not need this
-    //layoutInfo.flags = VkDescriptorSetLayoutCreateFlagBits(vk::DescriptorSetLayoutCreateFlagBits::eUpdateAfterBindPool);
-    layoutInfo.pNext = &bindingFlagsInfo;
-
-    descriptorSetLayouts.push_back(device.createDescriptorSetLayout({ layoutInfo }));
 
     // programmable stages 
 
-    auto vertShaderCode = readFile("shaders/terrain.vert.spv");
-    auto fragShaderCode = readFile("shaders/terrain.frag.spv");
+    auto vertShaderCode = readFile("shaders/GBuffer.vert.spv");
+    auto fragShaderCode = readFile("shaders/GBuffer.frag.spv");
 
 
     std::vector<VkPipelineShaderStageCreateInfo> shaderStages = {
@@ -75,25 +83,24 @@ void TerrainPipeline::createPipeline()
 
     // vertex input 
 
-    auto bindingDescription = Mesh::getBindingDescription();
-    auto attributeDescriptions = Mesh::getAttributeDescriptions();
+    auto bindingDescription = makeVertBinding(0,sizeof(glm::vec2));
+    auto attributeDescription = makeVertAttribute(0,0,VertexAttributeFormat::vec2,0);
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    //TODO: this used to be the size of attributeDescriptions but that looked wrong
-    vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(bindingDescription.size());
-    vertexInputInfo.pVertexBindingDescriptions = bindingDescription.data(); // Optional
-    vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
-    vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data(); // Optional
+    vertexInputInfo.vertexBindingDescriptionCount = 1;
+    vertexInputInfo.pVertexBindingDescriptions = &bindingDescription; // Optional
+    vertexInputInfo.vertexAttributeDescriptionCount = 1;
+    vertexInputInfo.pVertexAttributeDescriptions = &attributeDescription; // Optional
 
     // fixed function stages 
 
         //depth/stencil
-    
+
     VkPipelineDepthStencilStateCreateInfo depthStencil{};
     depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-    depthStencil.depthTestEnable = VK_TRUE;
-    depthStencil.depthWriteEnable = VK_TRUE;
+    depthStencil.depthTestEnable = VK_FALSE;
+    depthStencil.depthWriteEnable = VK_FALSE;
 
     depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
 
@@ -179,14 +186,13 @@ void TerrainPipeline::createPipeline()
     colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
     colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;*/
 
-    std::vector<VkPipelineColorBlendAttachmentState> colorBlends(RenderPassManager::gbufferAttachmentCount,colorBlendAttachment);
 
     VkPipelineColorBlendStateCreateInfo colorBlending{};
     colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     colorBlending.logicOpEnable = VK_FALSE;
     colorBlending.logicOp = VK_LOGIC_OP_COPY; // Optional
-    colorBlending.attachmentCount = colorBlends.size();
-    colorBlending.pAttachments = colorBlends.data();
+    colorBlending.attachmentCount = 1;
+    colorBlending.pAttachments = &colorBlendAttachment;
     colorBlending.blendConstants[0] = 0.0f; // Optional
     colorBlending.blendConstants[1] = 0.0f; // Optional
     colorBlending.blendConstants[2] = 0.0f; // Optional
@@ -212,8 +218,8 @@ void TerrainPipeline::createPipeline()
     //pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = descriptorSetLayouts.size(); // Optional
     pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data(); // Optional
-    pipelineLayoutInfo.pushConstantRangeCount = 1; // Optional
-    pipelineLayoutInfo.pPushConstantRanges = &pushConstRange; // Optional
+    pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
+    pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
     pipelineLayout = device.createPipelineLayout(pipelineLayoutInfo);
 
@@ -228,14 +234,14 @@ void TerrainPipeline::createPipeline()
     pipelineInfo.pViewportState = &viewportState;
     pipelineInfo.pRasterizationState = &rasterizer;
     pipelineInfo.pMultisampleState = &multisampling;
-    pipelineInfo.pDepthStencilState = &depthStencil; // Optional
+    pipelineInfo.pDepthStencilState = nullptr; // Optional
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDynamicState = nullptr; // Optional
 
     pipelineInfo.layout = pipelineLayout;
 
     pipelineInfo.renderPass = renderPassManager.renderPass;
-    pipelineInfo.subpass = 0;
+    pipelineInfo.subpass = 1;
 
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
     pipelineInfo.basePipelineIndex = -1; // Optional
@@ -252,4 +258,5 @@ void TerrainPipeline::createPipeline()
     {
         device.destroyShaderModule(shaderStages[i].module);
     }
+
 }

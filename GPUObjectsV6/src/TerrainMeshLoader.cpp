@@ -141,7 +141,7 @@ void TerrainMeshLoader::drawChunk(TerrainQuadTreeNode* node, TreeNodeDrawResaour
 
 		vertCount = mesh->verts.size();
 		indCount = mesh->indicies.size();
-
+		
 		// these indicies are in vert count space - meaning 1 = 1 vert not 1 byte
 		vertIndex = renderer->gloablVertAllocator->alloc(mesh->verts.size());
 		indIndex = renderer->gloablIndAllocator->alloc(mesh->indicies.size());

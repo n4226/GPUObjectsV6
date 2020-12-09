@@ -15,7 +15,7 @@
 #include "VaribleIndexAllocator.h"
 #include "IndexAllocator.h"
 #include "ResourceTransferTask.h"
-
+#include "GBufferComputePipeline.h"
 
 class Renderer
 {
@@ -26,13 +26,19 @@ public:
 
 	void renderFrame();
 
+	void encodeDifferedPass();
+
+	void encodeGBufferPass();
+
+	void updateCameraUniformBuffer();
+
 
 	
 	// systems
 	TerrainSystem* terrainSystem;
 
 
-	vk::Device& device;
+	vk::Device device;
 	vk::PhysicalDevice& physicalDevice;
 	WindowManager& window;
 
@@ -91,6 +97,16 @@ private:
 	vk::DescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;
 
+
+	// differed pass
+
+	DifferedPass* differedPass;
+	Buffer* differedPassVertBuff;
+	size_t differedPassBuffIndexOffset;
+
+
+	vk::DescriptorPool differedDescriptorPool;
+	std::vector<VkDescriptorSet> differedDescriptorSets;
 
 	friend TerrainSystem;
 
