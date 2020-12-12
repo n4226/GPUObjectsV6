@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "ComputePipeline.h"
 
-class DifferedPass: public GraphicsPipeline
+class DeferredPass: public GraphicsPipeline
 {
 public:
 	//GBufferPass(vk::Device device);

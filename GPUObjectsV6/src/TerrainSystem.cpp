@@ -35,6 +35,11 @@ void TerrainSystem::CreateRenderResources()
 
 	VkHelpers::createPoolsAndCommandBufffers
 		(renderer->device, cmdBufferPools, commandBuffers, renderer->window.swapChainImageViews.size(), renderer->window.queueFamilyIndices.graphicsFamily.value(), vk::CommandBufferLevel::eSecondary);
+	cmdBuffsUpToDate.resize(renderer->window.swapChainImageViews.size());
+
+	for (auto val: cmdBuffsUpToDate) {
+		val = true;
+	}
 
 }
 
@@ -49,13 +54,35 @@ vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass)
 {
 	PROFILE_FUNCTION
 
-	renderer->window.device.resetCommandPool(cmdBufferPools[renderer->window.currentSurfaceIndex], {});
+	uint32_t bufferIndex = renderer->window.currentSurfaceIndex;
+
+		// if CPU mode 2 than only re encode commands for this surface's command buffer when changes occor otherwise just return the cmd buff for hte current surface
+#if RenderMode == RenderModeCPU2
+	{
+		//TODO: posibly make this a try lock to improve performance
+		auto cmdsValid = drawCommandsValid.lock();
+
+		if (*cmdsValid == false) {
+			for (auto val : cmdBuffsUpToDate) {
+				val = false;
+			}
+		*cmdsValid = true;    
+		}
+		if (cmdBuffsUpToDate[bufferIndex] == true)
+			return &commandBuffers[renderer->window.currentSurfaceIndex];
+		else
+			cmdBuffsUpToDate[bufferIndex] = true;
+	}
+
+#endif
+
+	renderer->window.device.resetCommandPool(cmdBufferPools[bufferIndex], {});
 
 	vk::CommandBuffer* buffer = &commandBuffers[renderer->window.currentSurfaceIndex];
-	
+
 
 	vk::CommandBufferInheritanceInfo inheritanceInfo{};
-	inheritanceInfo.renderPass =  renderer->window.renderPassManager->renderPass;
+	inheritanceInfo.renderPass = renderer->window.renderPassManager->renderPass;
 	inheritanceInfo.subpass = subpass;
 	inheritanceInfo.framebuffer = renderer->window.swapChainFramebuffers[renderer->window.currentSurfaceIndex];
 
@@ -68,9 +95,9 @@ vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass)
 	buffer->bindPipeline(vk::PipelineBindPoint::eGraphics, renderer->window.pipelineCreator->vkItem);
 
 	// setup descriptor and buffer bindings
-	
+
 	buffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, renderer->window.pipelineCreator->pipelineLayout, 0, { renderer->descriptorSets[renderer->window.currentSurfaceIndex] }, {});
-	
+
 	renderer->globalMeshBuffer->bindVerticiesIntoCommandBuffer(*buffer, 0);
 	renderer->globalMeshBuffer->bindIndiciesIntoCommandBuffer(*buffer);
 
@@ -228,6 +255,12 @@ void TerrainSystem::processTree()
 					*shouldRunLoop = true;
 					destroyAwaitingNodes = true;
 				}
+#if RenderMode == RenderModeCPU2
+				{
+					auto cmdsValid = drawCommandsValid.lock();
+					*cmdsValid = false;
+				}
+#endif
 			});
 
 	}
@@ -265,7 +298,7 @@ double TerrainSystem::threshold(const TerrainQuadTreeNode* node)
 {
 	auto nodeRad = Math::llaDistance(node->frame.start, node->frame.getEnd(), tree.radius);
 	//      return  radius / (node.lodLevel + 1).double * 1;
-	return nodeRad * 0.9;
+	return nodeRad * 1;
 }
 
 bool TerrainSystem::determinActive(const TerrainQuadTreeNode* node)

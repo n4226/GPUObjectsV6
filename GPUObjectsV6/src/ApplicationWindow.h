@@ -69,8 +69,8 @@ public:
 	Image* gbuffer_ao;
 	Image* depthImage;
 
-	//Differed 
-	//Image* differed_colorAttachment; - right now befoe adding post processing passes the differed writes directly to swap chain
+	//Deferred 
+	//Image* deferred_colorAttachment; - right now befoe adding post processing passes the deferred writes directly to swap chain
 
 
 

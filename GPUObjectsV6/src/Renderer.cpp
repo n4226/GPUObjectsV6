@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Renderer.h"
+#include "WorldScene.h"
 
 Renderer::Renderer(vk::Device& device, vk::PhysicalDevice& physicalDevice, WindowManager& window) : device(device), physicalDevice(physicalDevice), window(window)
 {
@@ -14,9 +15,9 @@ Renderer::~Renderer()
 {
 	PROFILE_FUNCTION
 
-	delete differedPassVertBuff;
-	device.destroyDescriptorPool(differedDescriptorPool);
-	delete differedPass;
+	delete deferredPassVertBuff;
+	device.destroyDescriptorPool(deferredDescriptorPool);
+	delete deferredPass;
 
 	for (auto pool : dynamicCommandPools)
 	{
@@ -77,71 +78,75 @@ void Renderer::createRenderResources()
 	// create depth attatchment(s)
 	createDepthAttatchments();
 
-	// create differed pipeline
+	// create deferred pipeline
 
-	differedPass = new DifferedPass(device,{window.swapchainExtent},*window.renderPassManager);
+	deferredPass = new DeferredPass(device,{window.swapchainExtent},*window.renderPassManager);
 
-	differedPass->createPipeline();
+	deferredPass->createPipeline();
 
-	std::vector<glm::vec2> differedPassVerts = { 
+	std::vector<glm::vec2> deferredPassVerts = { 
 		glm::vec2(-1,-1),
 		glm::vec2(1,-1),
 		glm::vec2(-1,1),
 		glm::vec2(1,1),
 	};
 
-	std::vector<glm::uint16> differedPassindicies = {
+	std::vector<glm::uint16> deferredPassindicies = {
 		0,1,2,
 		2,1,3,
 	};
 
-	auto indicyLength = (sizeof(glm::uint16) * differedPassindicies.size()) ;
-	differedPassBuffIndexOffset = sizeof(glm::vec2) * differedPassVerts.size();
+	auto indicyLength = (sizeof(glm::uint16) * deferredPassindicies.size()) ;
+	deferredPassBuffIndexOffset = sizeof(glm::vec2) * deferredPassVerts.size();
 
 
-	differedPassVertBuff = new Buffer(device, allocator, indicyLength + differedPassBuffIndexOffset, { ResourceStorageType::cpuToGpu, { vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eIndexBuffer }, vk::SharingMode::eConcurrent,
+	deferredPassVertBuff = new Buffer(device, allocator, indicyLength + deferredPassBuffIndexOffset, { ResourceStorageType::cpuToGpu, { vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eIndexBuffer }, vk::SharingMode::eConcurrent,
 		{ window.queueFamilyIndices.graphicsFamily.value(), window.queueFamilyIndices.resourceTransferFamily.value() } });
 
-	differedPassVertBuff->mapMemory();
+	deferredPassVertBuff->mapMemory();
 
-	memcpy(differedPassVertBuff->mappedData,differedPassVerts.data(), differedPassBuffIndexOffset);
-	memcpy(reinterpret_cast<char*>(differedPassVertBuff->mappedData) + differedPassBuffIndexOffset,differedPassindicies.data(), indicyLength);
+	memcpy(deferredPassVertBuff->mappedData,deferredPassVerts.data(), deferredPassBuffIndexOffset);
+	memcpy(reinterpret_cast<char*>(deferredPassVertBuff->mappedData) + deferredPassBuffIndexOffset,deferredPassindicies.data(), indicyLength);
 
-	differedPassVertBuff->unmapMemory();
+	deferredPassVertBuff->unmapMemory();
 
-	// differed pass
+	// deferred pass
 
 
 
 	{
 		// the total max number of this descriptor allocated - if 2 sets and each one has 2 of this descriptor than thes would have to be 4 in order to allocate both sets
-		VkDescriptorPoolSize inputAttachmentmPoolSize{};
-		inputAttachmentmPoolSize.type = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-		inputAttachmentmPoolSize.descriptorCount = 3;
+		VkDescriptorPoolSize inputAttachmentPoolSize{};
+		inputAttachmentPoolSize.type = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+		inputAttachmentPoolSize.descriptorCount = 3 * window.swapChainImages.size();
 
-		std::array<VkDescriptorPoolSize, 1> poolSizes = { inputAttachmentmPoolSize };
+		VkDescriptorPoolSize uniformPoolSize{};
+		uniformPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		uniformPoolSize.descriptorCount = 1;// * window.swapChainImages.size();
+
+		std::array<VkDescriptorPoolSize, 2> poolSizes = { inputAttachmentPoolSize, uniformPoolSize };
 
 		VkDescriptorPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 		poolInfo.poolSizeCount = poolSizes.size();
 		poolInfo.pPoolSizes = poolSizes.data();
 
-		poolInfo.maxSets = 1;
+		poolInfo.maxSets = window.swapChainImages.size();
 
-		differedDescriptorPool = device.createDescriptorPool({ poolInfo });
+		deferredDescriptorPool = device.createDescriptorPool({ poolInfo });
 
 
-		std::vector<vk::DescriptorSetLayout> layouts = differedPass->descriptorSetLayouts;
+		std::vector<vk::DescriptorSetLayout> layouts(window.swapChainImages.size(), deferredPass->descriptorSetLayouts[0]);
 		vk::DescriptorSetAllocateInfo allocInfo{};
-		allocInfo.descriptorPool = differedDescriptorPool;
-		allocInfo.descriptorSetCount = 1;
+		allocInfo.descriptorPool = deferredDescriptorPool;
+		allocInfo.descriptorSetCount = window.swapChainImages.size();
 		allocInfo.pSetLayouts = layouts.data();
 
 		VkDescriptorSetAllocateInfo c_allocInfo = allocInfo;
 
-		differedDescriptorSets.resize(1);
+		deferredDescriptorSets.resize(window.swapChainImages.size());
 
-		vkAllocateDescriptorSets(device, &c_allocInfo, differedDescriptorSets.data());
+		vkAllocateDescriptorSets(device, &c_allocInfo, deferredDescriptorSets.data());
 
 	}
 
@@ -260,7 +265,7 @@ void Renderer::createUniformsAndDescriptors()
 
 	// make uniforms
 
-	VkDeviceSize uniformBufferSize = sizeof(SceneUniforms); //sizeof(TriangleUniformBufferObject);
+	VkDeviceSize uniformBufferSize = sizeof(SceneUniforms) + sizeof(PostProcessEarthDatAndUniforms); //sizeof(TriangleUniformBufferObject);
 
 	uniformBuffers.resize(window.swapChainImages.size());
 
@@ -277,7 +282,7 @@ void Renderer::createUniformsAndDescriptors()
 		VkDescriptorBufferInfo globalUniformBufferInfo{};
 		globalUniformBufferInfo.buffer = uniformBuffers[i]->vkItem;
 		globalUniformBufferInfo.offset = 0;
-		globalUniformBufferInfo.range = sizeof(SceneUniforms);
+		globalUniformBufferInfo.range = VK_WHOLE_SIZE;
 
 		VkDescriptorBufferInfo modelUniformBufferInfo{};
 		//TODO fix this to actuall non staging buffer
@@ -313,11 +318,11 @@ void Renderer::createUniformsAndDescriptors()
 
 
 		device.updateDescriptorSets({ globalUniformDescriptorWrite, modelUniformsDescriptorWrite }, {});
-	}
+	//}
 
-	// differed descriptors
+	// deferred descriptors
 
-	{
+	//{
 
 		std::array<VkDescriptorImageInfo, 3> inputAttachmentDescriptors{};
 		// albedo and normal
@@ -338,46 +343,64 @@ void Renderer::createUniformsAndDescriptors()
 
 
 
-		std::array<VkWriteDescriptorSet, 3> differedInputDescriptorWrite{};
-		differedInputDescriptorWrite[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		differedInputDescriptorWrite[0].dstSet = differedDescriptorSets[0];
-		differedInputDescriptorWrite[0].dstBinding = 0;
-		differedInputDescriptorWrite[0].dstArrayElement = 0;
+		std::array<VkWriteDescriptorSet, 4> deferredInputDescriptorWrite{};
+		deferredInputDescriptorWrite[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		deferredInputDescriptorWrite[0].dstSet = deferredDescriptorSets[i];
+		deferredInputDescriptorWrite[0].dstBinding = 0;
+		deferredInputDescriptorWrite[0].dstArrayElement = 0;
 									
-		differedInputDescriptorWrite[0].descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-		differedInputDescriptorWrite[0].descriptorCount = 1;
+		deferredInputDescriptorWrite[0].descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+		deferredInputDescriptorWrite[0].descriptorCount = 1;
 									
-		differedInputDescriptorWrite[0].pBufferInfo = nullptr;
-		differedInputDescriptorWrite[0].pImageInfo = &inputAttachmentDescriptors[0]; // Optional
-		differedInputDescriptorWrite[0].pTexelBufferView = nullptr; // Optional
+		deferredInputDescriptorWrite[0].pBufferInfo = nullptr;
+		deferredInputDescriptorWrite[0].pImageInfo = &inputAttachmentDescriptors[0]; // Optional
+		deferredInputDescriptorWrite[0].pTexelBufferView = nullptr; // Optional
 
 
-		differedInputDescriptorWrite[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		differedInputDescriptorWrite[1].dstSet = differedDescriptorSets[0];
-		differedInputDescriptorWrite[1].dstBinding = 1;
-		differedInputDescriptorWrite[1].dstArrayElement = 0;
+		deferredInputDescriptorWrite[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		deferredInputDescriptorWrite[1].dstSet = deferredDescriptorSets[i];
+		deferredInputDescriptorWrite[1].dstBinding = 1;
+		deferredInputDescriptorWrite[1].dstArrayElement = 0;
 
-		differedInputDescriptorWrite[1].descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-		differedInputDescriptorWrite[1].descriptorCount = 1;
+		deferredInputDescriptorWrite[1].descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+		deferredInputDescriptorWrite[1].descriptorCount = 1;
 
-		differedInputDescriptorWrite[1].pBufferInfo = nullptr;
-		differedInputDescriptorWrite[1].pImageInfo = &inputAttachmentDescriptors[1]; // Optional
-		differedInputDescriptorWrite[1].pTexelBufferView = nullptr; // Optional
+		deferredInputDescriptorWrite[1].pBufferInfo = nullptr;
+		deferredInputDescriptorWrite[1].pImageInfo = &inputAttachmentDescriptors[1]; // Optional
+		deferredInputDescriptorWrite[1].pTexelBufferView = nullptr; // Optional
 
 
-		differedInputDescriptorWrite[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		differedInputDescriptorWrite[2].dstSet = differedDescriptorSets[0];
-		differedInputDescriptorWrite[2].dstBinding = 2;
-		differedInputDescriptorWrite[2].dstArrayElement = 0;
+		deferredInputDescriptorWrite[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		deferredInputDescriptorWrite[2].dstSet = deferredDescriptorSets[i];
+		deferredInputDescriptorWrite[2].dstBinding = 2;
+		deferredInputDescriptorWrite[2].dstArrayElement = 0;
 
-		differedInputDescriptorWrite[2].descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-		differedInputDescriptorWrite[2].descriptorCount = 1;
+		deferredInputDescriptorWrite[2].descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+		deferredInputDescriptorWrite[2].descriptorCount = 1;
 
-		differedInputDescriptorWrite[2].pBufferInfo = nullptr;
-		differedInputDescriptorWrite[2].pImageInfo = &inputAttachmentDescriptors[2]; // Optional
-		differedInputDescriptorWrite[2].pTexelBufferView = nullptr; // Optional
+		deferredInputDescriptorWrite[2].pBufferInfo = nullptr;
+		deferredInputDescriptorWrite[2].pImageInfo = &inputAttachmentDescriptors[2]; // Optional
+		deferredInputDescriptorWrite[2].pTexelBufferView = nullptr; // Optional
 
-		vkUpdateDescriptorSets(device, static_cast<uint32_t>(differedInputDescriptorWrite.size()),differedInputDescriptorWrite.data(), 0,nullptr);
+
+		VkWriteDescriptorSet post_globalUniformDescriptorWrite{};
+		post_globalUniformDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		post_globalUniformDescriptorWrite.dstSet = deferredDescriptorSets[i];
+		post_globalUniformDescriptorWrite.dstBinding = 3;
+		post_globalUniformDescriptorWrite.dstArrayElement = 0;
+
+		post_globalUniformDescriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		post_globalUniformDescriptorWrite.descriptorCount = 1;
+
+		post_globalUniformDescriptorWrite.pBufferInfo = &globalUniformBufferInfo;
+		post_globalUniformDescriptorWrite.pImageInfo = nullptr; // Optional
+		post_globalUniformDescriptorWrite.pTexelBufferView = nullptr; // Optional
+
+
+		deferredInputDescriptorWrite[3] = post_globalUniformDescriptorWrite;
+
+
+		vkUpdateDescriptorSets(device, static_cast<uint32_t>(deferredInputDescriptorWrite.size()),deferredInputDescriptorWrite.data(), 0,nullptr);
 
 
 	}
@@ -391,7 +414,7 @@ void Renderer::renderFrame()
 
 
 	/* 
-		Render Pass layout -- PBR-Differed Pipeline
+		Render Pass layout -- PBR-Deferred Pipeline
 		
 		if gpu driven: a compute pre pass
 
@@ -403,7 +426,7 @@ void Renderer::renderFrame()
 
 			- output: for now just rgb color buffer
 
-		differed lighting pass 
+		deferred lighting pass 
 
 			- input: all outputed gbuffer buffers - memory synchronised
 
@@ -412,7 +435,7 @@ void Renderer::renderFrame()
 
 		a varible number of post passes 
 			
-			- input: previus output or differed output
+			- input: previus output or deferred output
 
 			- output: new texture same format as input
 			
@@ -446,7 +469,7 @@ void Renderer::renderFrame()
 
 
 		//VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-		const std::array<float,4> clearComponents = { 0.0f, 0.0f, 0.2f, 1.0f };
+		const std::array<float,4> clearComponents = { 0.0f, 0.0f, 0.2f, 0.0f };
 
 		//TODO -----------------(3,"fix load ops of textures to remove unnecicary clearing") --------------------------------------------------------------------------------------------
 		std::array<vk::ClearValue, 5> clearColors = {
@@ -474,7 +497,7 @@ void Renderer::renderFrame()
 
 	dynamicCommandBuffers[window.currentSurfaceIndex].nextSubpass(vk::SubpassContents::eInline);
 
-	encodeDifferedPass();
+	encodeDeferredPass();
 
 
 	// end encoding 
@@ -501,13 +524,13 @@ void Renderer::encodeGBufferPass()
 }
 
 
-void Renderer::encodeDifferedPass()
+void Renderer::encodeDeferredPass()
 {
-	dynamicCommandBuffers[window.currentSurfaceIndex].bindPipeline(vk::PipelineBindPoint::eGraphics, differedPass->vkItem);
+	dynamicCommandBuffers[window.currentSurfaceIndex].bindPipeline(vk::PipelineBindPoint::eGraphics, deferredPass->vkItem);
 
-	dynamicCommandBuffers[window.currentSurfaceIndex].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, differedPass->pipelineLayout, 0, { differedDescriptorSets[0] }, {});
-	dynamicCommandBuffers[window.currentSurfaceIndex].bindIndexBuffer(differedPassVertBuff->vkItem, differedPassBuffIndexOffset, vk::IndexType::eUint16);
-	dynamicCommandBuffers[window.currentSurfaceIndex].bindVertexBuffers(0, { differedPassVertBuff->vkItem }, { 0 });
+	dynamicCommandBuffers[window.currentSurfaceIndex].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, deferredPass->pipelineLayout, 0, { deferredDescriptorSets[window.currentSurfaceIndex] }, {});
+	dynamicCommandBuffers[window.currentSurfaceIndex].bindIndexBuffer(deferredPassVertBuff->vkItem, deferredPassBuffIndexOffset, vk::IndexType::eUint16);
+	dynamicCommandBuffers[window.currentSurfaceIndex].bindVertexBuffers(0, { deferredPassVertBuff->vkItem }, { 0 });
 
 
 	dynamicCommandBuffers[window.currentSurfaceIndex].drawIndexed(6, 1, 0, 0, 0);
@@ -525,9 +548,24 @@ void Renderer::updateCameraUniformBuffer()
 	SceneUniforms uniforms;
 
 	uniforms.viewProjection = window.camera.viewProjection(window.swapchainExtent.width, window.swapchainExtent.height);
-	uniformBuffers[window.currentSurfaceIndex]->tempMapAndWrite(&uniforms, 0, sizeof(uniforms));
+
+	uniformBuffers[window.currentSurfaceIndex]->mapMemory();
+	uniformBuffers[window.currentSurfaceIndex]->tempMapAndWrite(&uniforms, 0, sizeof(uniforms),false);
+
+	PostProcessEarthDatAndUniforms postUniforms;
+
+	postUniforms.camFloatedGloabelPos = glm::vec4(window.camera.transform.position,1);
+	postUniforms.sunDir = glm::vec4(glm::normalize(Math::LlatoGeo(world->playerLLA,glm::dvec3(0),terrainSystem->getRadius())),1);
+	postUniforms.earthCenter = glm::vec4(static_cast<glm::vec3>(world->origin),1);
+	postUniforms.viewMat = window.camera.view();
+	postUniforms.invertedViewMat = glm::inverse(window.camera.view());
+
+	uniformBuffers[window.currentSurfaceIndex]->tempMapAndWrite(&postUniforms, sizeof(uniforms), sizeof(postUniforms),false);
+	uniformBuffers[window.currentSurfaceIndex]->unmapMemory();
 
 	camFrustrom = new Frustum(uniforms.viewProjection);
+
+
 }
 
 void Renderer::submitFrameQueue(vk::CommandBuffer* buffers,uint32_t bufferCount)

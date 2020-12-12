@@ -312,7 +312,7 @@ void WindowManager::createFramebuffers()
             gbuffer_normal_roughness->view,
             gbuffer_ao->view,
             depthImage->view,
-            //Differed
+            //Deferred
             swapChainImageViews[i],
         };
 

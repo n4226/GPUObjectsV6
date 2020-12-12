@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "GBufferComputePipeline.h"
 
-//DifferedPass::DifferedPass(vk::Device device)
+//DeferredPass::DeferredPass(vk::Device device)
 //{
 
 	//std::array<VkDescriptorSetLayoutBinding, 3> setLayoutBindings{};
@@ -31,7 +31,7 @@
 	//std::vector<vk::DescriptorSetLayout> descriptorSetLayouts = { device.createDescriptorSetLayout({ layoutInfo }) };
 
 
-	//pipeline = new ComputePipeline(device, descriptorSetLayouts, "shaders/LightingDiffered.compute.sprv");
+	//pipeline = new ComputePipeline(device, descriptorSetLayouts, "shaders/LightingDeferred.compute.sprv");
 
 //}
 
@@ -40,10 +40,10 @@
 //	//delete pipeline;
 //}
 
-void DifferedPass::createPipeline()
+void DeferredPass::createPipeline()
 {
 
-	std::array<VkDescriptorSetLayoutBinding, 3> setLayoutBindings{};
+	std::array<VkDescriptorSetLayoutBinding, 4> setLayoutBindings{};
 
 	// thses have same indicies as frame buffer and render pass attatchmetns
 
@@ -61,6 +61,13 @@ void DifferedPass::createPipeline()
 	setLayoutBindings[2].descriptorCount = 1;
 	setLayoutBindings[2].descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
 	setLayoutBindings[2].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+
+    setLayoutBindings[3].binding = 3;
+    setLayoutBindings[3].descriptorCount = 1;
+    setLayoutBindings[3].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    setLayoutBindings[3].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
 
 	VkDescriptorSetLayoutCreateInfo layoutInfo{};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;

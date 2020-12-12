@@ -1,7 +1,7 @@
 #include "Instrumentor.h"
 #include "pch.h"
 
-#define RDK_PROFILING 0
+#define RDK_PROFILING 1
 
 #if RDK_PROFILING
 #define PROFILE_SCOPE(name) InstrumentationTimer timer##__line__(name);
@@ -20,19 +20,28 @@
 
 // testing environment
 
-#define RenderMode 2
+//enum RenderingModes
+//{
+//	modeCPU1 = 0,
+//	modeCPU2 = 1,
+//	modeGPU = 0,
+//};
 
-#define RenderModeCPU1 1
-#define RenderModeCPU2 0
-#define RenderModeGPU  0
+#define RenderModeCPU1 0
+#define RenderModeCPU2 1
+#define RenderModeGPU  2
+
+#define RenderMode RenderModeCPU2
+
+
 
 #define RenderTerainScale 1
 
 
-#if RenderMode == 0
+#if RenderMode == RenderModeCPU1
 #define VK_SUBPASS_INDEX_GBUFFER 0
 #define VK_SUBPASS_INDEX_LIGHTING 1
-#elif RenderMode == 1
+#elif RenderMode == RenderModeCPU2
 #define VK_SUBPASS_INDEX_GBUFFER 0
 #define VK_SUBPASS_INDEX_LIGHTING 1
 #else

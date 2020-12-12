@@ -45,9 +45,9 @@ void RenderPassManager::createMainRenderPass()
 
 			3 = depth atatchment
 
-		Differed Output:
+		Deferred Output:
 
-			4 = differed_colorAttachment
+			4 = deferred_colorAttachment
 
 
 	*/
@@ -113,21 +113,21 @@ void RenderPassManager::createMainRenderPass()
 	depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 
-	// Differed Output
+	// Deferred Output
 
 
-	VkAttachmentDescription differed_colorAttachment{};
-	differed_colorAttachment.format = swapChainImageFormat;
-	differed_colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	VkAttachmentDescription deferred_colorAttachment{};
+	deferred_colorAttachment.format = swapChainImageFormat;
+	deferred_colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 
-	differed_colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	differed_colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	deferred_colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	deferred_colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 
-	differed_colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	differed_colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	deferred_colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	deferred_colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 
-	differed_colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	differed_colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	deferred_colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	deferred_colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
 
 	// post processing
@@ -138,7 +138,7 @@ void RenderPassManager::createMainRenderPass()
 
 		gbuffer_albedo_metallic, gbuffer_normal_roughness, gbuffer_ao, depthAttachment,
 		
-		differed_colorAttachment
+		deferred_colorAttachment
 	};
 
 #pragma endregion
@@ -187,9 +187,9 @@ void RenderPassManager::createMainRenderPass()
 
 	}
 
-	//Differed
+	//Deferred
 
-	VkSubpassDescription differed{};
+	VkSubpassDescription deferred{};
 	{
 		// this passes output tex
 		VkAttachmentReference colorAttachmentRef{};
@@ -219,26 +219,26 @@ void RenderPassManager::createMainRenderPass()
 		//gbuffer_depth_AttachmentRef.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 		std::array<VkAttachmentReference, 3> inputAttachments = {
-			gbuffer_albdo_metallic_AttachmentRef, gbuffer_normal_roughness_AttachmentRef, gbuffer_ao_AttachmentRef// depth in differed stage currently not avaliable, gbuffer_depth_AttachmentRef
+			gbuffer_albdo_metallic_AttachmentRef, gbuffer_normal_roughness_AttachmentRef, gbuffer_ao_AttachmentRef// depth in deferred stage currently not avaliable, gbuffer_depth_AttachmentRef
 		};
 
 
 		// flags are whre can enable per view attributes for multi view one gpu rendereing in the future
-		differed.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+		deferred.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 
-		differed.inputAttachmentCount = inputAttachments.size();
-		differed.pInputAttachments = inputAttachments.data();
+		deferred.inputAttachmentCount = inputAttachments.size();
+		deferred.pInputAttachments = inputAttachments.data();
 
-		differed.colorAttachmentCount = 1;
-		differed.pColorAttachments = &colorAttachmentRef;
-		differed.pDepthStencilAttachment = nullptr;
+		deferred.colorAttachmentCount = 1;
+		deferred.pColorAttachments = &colorAttachmentRef;
+		deferred.pDepthStencilAttachment = nullptr;
 
 	}
 
 
 
 	std::array<VkSubpassDescription, 2> subpasses = {
-		gbuffer, differed
+		gbuffer, deferred
 	};
 
 #pragma endregion
@@ -259,23 +259,23 @@ void RenderPassManager::createMainRenderPass()
 
 
 
-	VkSubpassDependency DifferedDependencyOnGBuffer{};
-	DifferedDependencyOnGBuffer.srcSubpass = 0;
-	DifferedDependencyOnGBuffer.dstSubpass = 1;
+	VkSubpassDependency DeferredDependencyOnGBuffer{};
+	DeferredDependencyOnGBuffer.srcSubpass = 0;
+	DeferredDependencyOnGBuffer.dstSubpass = 1;
 
-	DifferedDependencyOnGBuffer.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	DifferedDependencyOnGBuffer.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	DeferredDependencyOnGBuffer.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	DeferredDependencyOnGBuffer.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT ;
 	  
 
-	//TODO: for now differed lighting and will be a fullscreen quad insteasd of compute pass because this is necessary for subpasses 
-	DifferedDependencyOnGBuffer.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT; //VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
-	//TODO: add dpeth buffer as input attatchment to differed pass  | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-	DifferedDependencyOnGBuffer.dstAccessMask = VK_ACCESS_SHADER_READ_BIT; 
+	//TODO: for now deferred lighting and will be a fullscreen quad insteasd of compute pass because this is necessary for subpasses 
+	DeferredDependencyOnGBuffer.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT; //VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+	//TODO: add dpeth buffer as input attatchment to deferred pass  | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+	DeferredDependencyOnGBuffer.dstAccessMask = VK_ACCESS_SHADER_READ_BIT; 
 
 
 
 	std::array<VkSubpassDependency, 2> dependencies = {
-		externalGBufferDependency, DifferedDependencyOnGBuffer
+		externalGBufferDependency, DeferredDependencyOnGBuffer
 	};
 
 

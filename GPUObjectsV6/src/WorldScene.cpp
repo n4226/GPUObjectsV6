@@ -8,6 +8,7 @@ WorldScene::WorldScene(WindowManager& window) :
 {
 	PROFILE_FUNCTION
 	renderer = new Renderer(window.device, window.physicalDevice, window);
+	renderer->world = this;
 	terrainSystem = new TerrainSystem(renderer,&origin);
 	terrainSystem->trackedTransform = &playerTrans;
 	terrainSystem->world = this;
@@ -46,8 +47,8 @@ void WorldScene::startScene()
 {
 	loadScene();
 	while (!glfwWindowShouldClose(window.window)) {
-		runFullUpdateLoop();
-	}
+			runFullUpdateLoop();
+		}
 
 	window.device.waitIdle();
 }

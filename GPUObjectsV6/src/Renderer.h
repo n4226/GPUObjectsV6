@@ -26,7 +26,7 @@ public:
 
 	void renderFrame();
 
-	void encodeDifferedPass();
+	void encodeDeferredPass();
 
 	void encodeGBufferPass();
 
@@ -36,7 +36,7 @@ public:
 	
 	// systems
 	TerrainSystem* terrainSystem;
-
+	WorldScene* world;
 
 	vk::Device device;
 	vk::PhysicalDevice& physicalDevice;
@@ -98,15 +98,15 @@ private:
 	std::vector<VkDescriptorSet> descriptorSets;
 
 
-	// differed pass
+	// deferred pass
 
-	DifferedPass* differedPass;
-	Buffer* differedPassVertBuff;
-	size_t differedPassBuffIndexOffset;
+	DeferredPass* deferredPass;
+	Buffer* deferredPassVertBuff;
+	size_t deferredPassBuffIndexOffset;
 
 
-	vk::DescriptorPool differedDescriptorPool;
-	std::vector<VkDescriptorSet> differedDescriptorSets;
+	vk::DescriptorPool deferredDescriptorPool;
+	std::vector<VkDescriptorSet> deferredDescriptorSets;
 
 	friend TerrainSystem;
 
