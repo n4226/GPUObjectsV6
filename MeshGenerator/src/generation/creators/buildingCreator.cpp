@@ -9,6 +9,8 @@ void buildingCreator::createInto(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& osm
 		
 		// TODO remove duplicate pointes if they fall on a streight 2d line after being clipped to the chunk -> this could be for objecy such as buildings or more commanly to grounds of different surfaces eg ocean and land
 
+
+
 		if (element.type == osm::type::way && element.tags.count("building") > 0) {
 			addBuilding(mesh, osm, element, frame);
 		}
@@ -41,6 +43,24 @@ void buildingCreator::addBuilding(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& os
 	std::transform(nodes.begin(), nodes.end(), basePath.begin(), [&](osm::element* element) {
 		return glm::dvec2(*element->lat, *element->lon);
 	});
+
+	glm::dvec2 min = glm::dvec2(90,180);
+	glm::dvec2 max = glm::dvec2(-90,-180);
+
+	for (auto& pos : basePath) {
+		if (pos.x < min.x)
+			min.x = pos.x;
+		if (pos.y < min.y)
+			min.y = pos.y;
+
+		if (pos.x > max.x)
+			max.x = pos.x;
+		if (pos.y > max.y)
+			max.y = pos.y;
+	}
+
+	if (!frame.contains(min) && !frame.contains(max))
+		return;
 
 	for (size_t i = 0; i < (basePath.size() - 1); i++)
 	{

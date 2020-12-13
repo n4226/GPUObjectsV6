@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include "ConfigSystem.h"
 #include "pch.h"
 #include <GLFW/glfw3.h>
 #include "GPUSelector.h"
@@ -104,6 +105,8 @@ private:
 	void destroyWindow();
 
 	void createWindow();
+
+	void makeWindwWithMode(ConfigSystem::Config::Window& winConfig, GLFWmonitor* monitor);
 
 	void createInstance();
 

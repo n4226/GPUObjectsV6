@@ -84,9 +84,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\constants.h" />
     <ClInclude Include="src\math\path\Bezier.h" />
     <ClInclude Include="src\math\path\Path.h" />
     <ClInclude Include="src\math\FrustrumMath.h" />
+    <ClInclude Include="src\memory\IndexAllocator.h" />
+    <ClInclude Include="src\memory\VaribleIndexAllocator.h" />
     <ClInclude Include="src\rendering structures\BinaryMesh.h" />
     <ClInclude Include="src\math\Box.h" />
     <ClInclude Include="src\math\Math.h" />
@@ -96,6 +99,8 @@
     <ClCompile Include="src\math\path\Bezier.cpp" />
     <ClCompile Include="src\math\path\Path.cpp" />
     <ClCompile Include="src\math\FrustrumMath.cpp" />
+    <ClCompile Include="src\memory\IndexAllocator.cpp" />
+    <ClCompile Include="src\memory\VaribleIndexAllocator.cpp" />
     <ClCompile Include="src\rendering structures\BinaryMesh.cpp" />
     <ClCompile Include="src\math\Box.cpp" />
     <ClCompile Include="src\math\Math.cpp" />

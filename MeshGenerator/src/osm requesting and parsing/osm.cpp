@@ -1,51 +1,66 @@
 #include "osm.h"
 
-#include "nlohmann/json.hpp"
+//#include "nlohmann/json.hpp"
 
 #include <execution>
 #include <ranges>
 #include <algorithm>
 
+
+// rapidjson/example/simpledom/simpledom.cpp`
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+
+
+
 namespace osm {
-	using namespace nlohmann;
+	//using namespace nlohmann;
+	using namespace rapidjson;
+
 	osm makeOSM(std::string& str)
 	{
-		auto j = json::parse(str);
+
+		Document j;
+
+		j.Parse(str.c_str());
+
+		//auto j = json::parse(str);
 
 		osm osm;
 
 		// parse headers
 
-		osm.version = j["version"];
-		osm.generator = j["generator"];
-		osm.osm3S.timestampOsmBase = j["osm3s"]["timestamp_osm_base"];
-		osm.osm3S.copyright = j["osm3s"]["copyright"];
+		osm.version = j["version"].GetDouble();
+		osm.generator = j["generator"].GetString();
+		osm.osm3S.timestampOsmBase = j["osm3s"]["timestamp_osm_base"].GetString();
+		osm.osm3S.copyright = j["osm3s"]["copyright"].GetString();
 
 		// parse elements
 		
 
-		auto jElements = j["elements"];
-		osm.elements.resize(jElements.size());
-		std::transform(std::execution::par, jElements.begin(), jElements.end(), osm.elements.begin(), [](nlohmann::json je) {
+		auto jElements = j["elements"].GetArray();
+		osm.elements.resize(jElements.Size());
+		std::transform(std::execution::seq, jElements.begin(), jElements.end(), osm.elements.begin(), [](Value& je) {
 			element e;
 
-			e.id = je["id"];
+			e.id = je["id"].GetInt64();
 
-			auto nodes = je["nodes"];
-			if (!nodes.is_null()) {
-				e.nodes.resize(nodes.size());
-				for (size_t i = 0; i < nodes.size(); i++)
-					e.nodes[i] = nodes[i].get<uint64_t>();
+			if (je.HasMember("nodes")) {
+				auto nodes = je["nodes"].GetArray();
+				e.nodes.resize(nodes.Size());
+				for (size_t i = 0; i < nodes.Size(); i++)
+					e.nodes[i] = nodes[i].GetUint64();
 			}
 
-			auto members = je["members"];
-			if (!members.is_null()) {
+			if (je.HasMember("members")) {
+				auto members = je["members"].GetArray();
 				e.members = std::make_shared<std::vector<member>>();
 				std::vector<member>& eMembers = *e.members;
-				eMembers.resize(members.size());
-				for (size_t i = 0; i < members.size(); i++) {
+				eMembers.resize(members.Size());
+				for (size_t i = 0; i < members.Size(); i++) {
 
-					eMembers[i].ref = members[i]["ref"];
+					eMembers[i].ref = members[i]["ref"].GetInt64();
 
 					if (members[i]["role"] == "outer") {
 						eMembers[i].role = role::outer;
@@ -76,8 +91,15 @@ namespace osm {
 				}
 			}
 
-			if (!je["tags"].is_null())
-				e.tags = je["tags"].get<std::map<std::string, std::string>>();
+			if (je.HasMember("tags")) {
+				auto tags = je["tags"].GetObject();
+
+				e.tags = std::map<std::string, std::string>();
+				
+				for (auto& t : tags) {
+					e.tags.insert(std::pair<std::string, std::string>(t.name.GetString(), t.value.GetString()));
+				}
+			}
 
 
 			if (je["type"] == "way") {
@@ -95,16 +117,14 @@ namespace osm {
 
 			}
 
-			auto lat = je["lat"];
-			auto lon = je["lon"];
 
-			if (!lat.is_null()) {
+			if (je.HasMember("lat")) {
 				e.lat = std::make_shared<double>();
-				*e.lat = lat.get<double>();
+				*e.lat = je["lat"].GetDouble();
 			}
-			if (!lon.is_null()) {
+			if (je.HasMember("lon")) {
 				e.lon = std::make_shared<double>();
-				*e.lon = lon.get<double>();
+				*e.lon = je["lon"].GetDouble();
 			}
 			return e;
 		});

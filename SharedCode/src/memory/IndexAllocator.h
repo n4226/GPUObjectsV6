@@ -1,5 +1,5 @@
 #pragma once
-#include "pch.h"
+
 #include <set>
 
 /// <summary>
@@ -8,7 +8,7 @@
 class IndexAllocator
 {
 public:
-	IndexAllocator(VkDeviceSize size,VkDeviceSize allocSize);
+	IndexAllocator(size_t size,size_t allocSize);
 
 	~IndexAllocator();
 	
@@ -16,13 +16,13 @@ public:
 	/// returns UINT64_MAX if full
 	/// </summary>
 	/// <returns></returns>
-	VkDeviceAddress alloc();
-	void free(VkDeviceAddress index);
+	size_t alloc();
+	void free(size_t index);
 
-	const VkDeviceSize totalSize;
-	const VkDeviceSize indexCount;
-	const VkDeviceSize allocSize;
-	VkDeviceSize usedSize = 0;
+	const size_t totalSize;
+	const size_t indexCount;
+	const size_t allocSize;
+	size_t usedSize = 0;
 
 
 private:
@@ -30,9 +30,9 @@ private:
 	/// <summary>
 	/// in unscaled space - all indicies a next to eachother = output space / allocSize
 	/// </summary>
-	//std::set<VkDeviceAddress> usedIndicies;
+	//std::set<size_t> usedIndicies;
 
-	VkDeviceAddress currentIndex = 0;
+	size_t currentIndex = 0;
 
 };
 

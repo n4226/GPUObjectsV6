@@ -8,9 +8,10 @@
 #include <fstream>
 
 #include "../dependencies/httplib.h"
+#include "constants.h"
 
 
-const std::string cashDir = R"(.\osmCash\)";
+const std::string cashDir = OSM_CASH_DIR;//R"(.\osmCash\)";
 
 OsmFetcher::OsmFetcher()
 {
@@ -42,6 +43,11 @@ osm::osm OsmFetcher::fetchChunk(Box frame)
     //std::cout << response->body << "\n";
 
     //update cash - raw osm
+
+    if (response.error() == httplib::Error::Read)
+        throw std::runtime_error("error");
+    if (response->body.empty())
+        throw std::runtime_error("osmEmpty");
 
     {
         std::ofstream out;

@@ -140,7 +140,7 @@ vk::PresentModeKHR GPUSelector::chooseSwapPresentMode(const std::vector<vk::Pres
 
 VkExtent2D GPUSelector::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow* window) {
 	PROFILE_FUNCTION
-	if (capabilities.currentExtent.width != UINT32_MAX) {
+	if (capabilities.currentExtent.width != UINT32_MAX && capabilities.currentExtent.width != 0) {
 		return capabilities.currentExtent;
 	}
 	else {

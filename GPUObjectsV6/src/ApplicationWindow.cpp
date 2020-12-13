@@ -74,8 +74,10 @@ void WindowManager::recreateSwapchain()
 
     pipelineCreator->createPipeline();
 
-
+    createFrameBufferImages();
     createFramebuffers();
+
+    //TODO: call renderer.updateDescriptors() somehow
 
     //TODO buffers might need to be recreated
     //createCommandBuffers();
@@ -371,9 +373,49 @@ void WindowManager::createWindow()
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    window = glfwCreateWindow(1920, 1080, "GPUObjectsV6", nullptr, nullptr);
+    auto windowConfig = configSystem.global().windows[0];
+
+    auto monitor = glfwGetPrimaryMonitor();
+
+    makeWindwWithMode(windowConfig, monitor);
+
+
     glfwSetWindowUserPointer(window, this);
     glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+}
+
+void WindowManager::makeWindwWithMode(ConfigSystem::Config::Window& winConfig, GLFWmonitor* monitor)
+{
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+    if (winConfig.size.x == 0 || winConfig.mode != ConfigSystem::Config::Window::WindowMode::windowed) {
+        winConfig.size.x = mode->width;
+        winConfig.size.y = mode->height;
+    }
+
+    switch (winConfig.mode)
+    {
+    case ConfigSystem::Config::Window::WindowMode::windowed:
+        window = glfwCreateWindow(winConfig.size.x, winConfig.size.y, "GPUObjectsV6", nullptr, nullptr);
+        break;
+    case ConfigSystem::Config::Window::WindowMode::FullscreenBorderless:
+
+        glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+        glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+        glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+        glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate); 
+
+
+        window = glfwCreateWindow(mode->width, mode->height, "GPUObjectsV6", monitor, NULL);
+
+    case ConfigSystem::Config::Window::WindowMode::Fullscreen:
+        window = glfwCreateWindow(winConfig.size.x, winConfig.size.y, "GPUObjectsV6", monitor, nullptr);
+        break;
+    default:
+        break;
+    }
+
+   
 }
 
 
@@ -412,6 +454,12 @@ void WindowManager::createInstance()
 
 void WindowManager::cleanupSwapchain()
 {
+
+    delete gbuffer_albedo_metallic;
+    delete gbuffer_normal_roughness;
+    delete gbuffer_ao;
+    delete depthImage;
+
     for (auto framebuffer : swapChainFramebuffers) {
         vkDestroyFramebuffer(device, framebuffer, nullptr);
     }
@@ -436,12 +484,7 @@ WindowManager::~WindowManager()
         device.waitIdle();
 
     delete ResourceTransferer::shared;
-    delete gbuffer_albedo_metallic;
-    delete gbuffer_normal_roughness;
-    delete gbuffer_ao;
-    delete depthImage;
 
-    vmaDestroyAllocator(allocator);
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         device.destroySemaphore(imageAvailableSemaphores[i]);
@@ -451,6 +494,8 @@ WindowManager::~WindowManager()
 
     cleanupSwapchain();
 
+    vmaDestroyAllocator(allocator);
+    
     device.destroy();
 
     instance.destroySurfaceKHR(surface);

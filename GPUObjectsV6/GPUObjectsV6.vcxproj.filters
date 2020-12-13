@@ -67,6 +67,9 @@
     <Filter Include="Header only Dependencies\libGuarded">
       <UniqueIdentifier>{55839401-3741-489f-ae32-e1f7b8bea1ec}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\application\config">
+      <UniqueIdentifier>{bb8b5e10-a28e-4e9b-a537-a4eab57ac73d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ApplicationWindow.cpp">
@@ -86,9 +89,6 @@
     </ClCompile>
     <ClCompile Include="src\GPUSelector.cpp">
       <Filter>Source Files\application</Filter>
-    </ClCompile>
-    <ClCompile Include="src\IndexAllocator.cpp">
-      <Filter>Source Files\renderer\helpers</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
@@ -135,9 +135,6 @@
     <ClCompile Include="src\uniforms.cpp">
       <Filter>Source Files\renderer\layout objects</Filter>
     </ClCompile>
-    <ClCompile Include="src\VaribleIndexAllocator.cpp">
-      <Filter>Source Files\renderer\helpers</Filter>
-    </ClCompile>
     <ClCompile Include="src\VkHelpers.cpp">
       <Filter>Source Files\renderer\helpers</Filter>
     </ClCompile>
@@ -174,6 +171,9 @@
     <ClCompile Include="src\GBufferComputePipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ConfigSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ApplicationWindow.h">
@@ -189,9 +189,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\GPUSelector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\IndexAllocator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Instrumentor.h">
@@ -240,9 +237,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\uniforms.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\VaribleIndexAllocator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\vk_mem_alloc.h">
@@ -300,6 +294,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\GBufferComputePipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ConfigSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

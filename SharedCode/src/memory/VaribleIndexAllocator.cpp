@@ -1,9 +1,10 @@
-#include "pch.h"
 #include "VaribleIndexAllocator.h"
 
 #include <algorithm>
+#include <assert.h>
+#include <iostream>
 
-VaribleIndexAllocator::VaribleIndexAllocator(VkDeviceSize size)
+VaribleIndexAllocator::VaribleIndexAllocator(size_t size)
 	: totalSize(size)
 {
 	auto fullSpace = new freeSpace;
@@ -12,8 +13,8 @@ VaribleIndexAllocator::VaribleIndexAllocator(VkDeviceSize size)
 	fullSpace->size = size;
 
 	freeSpaces.push_back(fullSpace);
-	freeSpaces_beginnings.insert(std::pair<VkDeviceSize,freeSpace*>(0,fullSpace));
-	freeSpaces_ends.insert(std::pair<VkDeviceSize,freeSpace*>(size - 1,fullSpace));
+	freeSpaces_beginnings.insert(std::pair<size_t,freeSpace*>(0,fullSpace));
+	freeSpaces_ends.insert(std::pair<size_t,freeSpace*>(size - 1,fullSpace));
 	std::make_heap(freeSpaces.begin(), freeSpaces.end(), freeSpace_rank_greater_than());
 }
 
@@ -22,25 +23,32 @@ VaribleIndexAllocator::~VaribleIndexAllocator()
 
 }
 
-VkDeviceAddress VaribleIndexAllocator::alloc(VkDeviceSize size)
+size_t VaribleIndexAllocator::alloc(size_t size)
 {
 
 	freeSpace* space = nullptr;
 
 	bool loop = true;
 
+	if (freeSpaces.empty())
+	{ 
+		std::runtime_error("allocation empty");
+		return 0;
+	}
+
 	while (loop)
 	{
 		std::pop_heap(freeSpaces.begin(), freeSpaces.end(), freeSpace_rank_greater_than());
 		space = freeSpaces[freeSpaces.size() - 1];
 		freeSpaces.pop_back();
-		freeSpaces_ends.erase(space->start + space->size - 1);
-		freeSpaces_beginnings.erase(space->start);
 
-		if (noLongerFreeSpaceHitList.count(space) == 0)
+		if (noLongerFreeSpaceHitList.count(space) == 0) {
+			freeSpaces_ends.erase(space->start + space->size - 1);
+			freeSpaces_beginnings.erase(space->start);
 			loop = false;
+		}
 		else {
-			//noLongerFreeSpaceHitList.erase(space);
+			noLongerFreeSpaceHitList.erase(space);
 			delete space;
 		}
 	}
@@ -54,10 +62,11 @@ VkDeviceAddress VaribleIndexAllocator::alloc(VkDeviceSize size)
 	newSpace->start = space->start + size;
 	newSpace->size = space->size - size;
 
-	addFreeSpace(newSpace);
+	if (newSpace->size > 0)
+		addFreeSpace(newSpace);
 
 
-	std::cout << "allocated: " << allocatedSize << "/" << totalSize << " = " << static_cast<float>(allocatedSize) / (totalSize / 100) << "%" << std::endl;
+	//std::cout << "allocated: " << allocatedSize << "/" << totalSize << " = " << static_cast<float>(allocatedSize) / (totalSize / 100) << "%" << std::endl;
 
 
 	auto start = space->start;
@@ -80,7 +89,7 @@ VkDeviceAddress VaribleIndexAllocator::alloc(VkDeviceSize size)
 	*/
 }
 
-void VaribleIndexAllocator::free(VkDeviceAddress address, VkDeviceSize size)
+void VaribleIndexAllocator::free(size_t address, size_t size)
 {
 
 	
@@ -94,6 +103,7 @@ void VaribleIndexAllocator::free(VkDeviceAddress address, VkDeviceSize size)
 	if (freeSpaces_ends.count(address - 1) > 0) {
 		auto previous = freeSpaces_ends.at(address - 1);
 
+		freeSpaces_ends.erase(address - 1);
 		noLongerFreeSpaceHitList.insert(previous);
 
 		newSpace->start = previous->start;
@@ -103,11 +113,13 @@ void VaribleIndexAllocator::free(VkDeviceAddress address, VkDeviceSize size)
 	if (freeSpaces_beginnings.count(address + size) > 0) {
 		auto next = freeSpaces_beginnings.at(address + size);
 
+		freeSpaces_beginnings.erase(address + size);
 		noLongerFreeSpaceHitList.insert(next);
 
 		newSpace->size += next->size;
 	}
 
+	
 	addFreeSpace(newSpace);
 
 
@@ -119,6 +131,6 @@ void VaribleIndexAllocator::addFreeSpace(VaribleIndexAllocator::freeSpace* newSp
 {
 	freeSpaces.push_back(newSpace);
 	std::push_heap(freeSpaces.begin(), freeSpaces.end(),freeSpace_rank_greater_than());
-	freeSpaces_beginnings.insert(std::pair<VkDeviceSize, freeSpace*>(newSpace->start, newSpace));
-	freeSpaces_ends.insert(std::pair<VkDeviceSize, freeSpace*>(newSpace->start + newSpace->size - 1, newSpace));
+	freeSpaces_beginnings.emplace(std::pair<size_t, freeSpace*>(newSpace->start, newSpace));
+	freeSpaces_ends.emplace(std::pair<size_t, freeSpace*>(newSpace->start + newSpace->size - 1, newSpace));
 }

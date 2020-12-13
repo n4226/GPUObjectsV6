@@ -1,10 +1,12 @@
 #pragma once
-#include "pch.h"
+#include <vector>
+#include <unordered_map>
+#include <unordered_set>
 
 class VaribleIndexAllocator
 {
 public:
-	VaribleIndexAllocator(VkDeviceSize size);
+	VaribleIndexAllocator(size_t size);
 
 	~VaribleIndexAllocator();
 
@@ -12,16 +14,16 @@ public:
 	/// returns UINT64_MAX if full
 	/// </summary>
 	/// <returns></returns>
-	VkDeviceAddress alloc(VkDeviceSize size);
-	void free(VkDeviceAddress address, VkDeviceSize size);
+	size_t alloc(size_t size);
+	void free(size_t address, size_t size);
 
 
-	const VkDeviceSize totalSize;
-	VkDeviceSize allocatedSize = 0;
+	const size_t totalSize;
+	size_t allocatedSize = 0;
 
 	struct freeSpace {
-		VkDeviceSize start;
-		VkDeviceSize size;
+		size_t start;
+		size_t size;
 
 		bool operator<(const freeSpace& other) const {
 			return size < other.size;
@@ -36,14 +38,15 @@ public:
 
 	void addFreeSpace(VaribleIndexAllocator::freeSpace* newSpace);
 
-private:
+//TODO: this is for testing
+//private:
 
 	std::vector<freeSpace*> freeSpaces = {};
-	std::unordered_map<VkDeviceSize,freeSpace*> freeSpaces_ends = {};
-	std::unordered_map<VkDeviceSize,freeSpace*> freeSpaces_beginnings = {};
+	std::unordered_map<size_t,freeSpace*> freeSpaces_ends = {};
+	std::unordered_map<size_t,freeSpace*> freeSpaces_beginnings = {};
 
 	std::unordered_set<freeSpace*> noLongerFreeSpaceHitList = {};
 
-	VkDeviceAddress currentAdress = 0;
+	size_t currentAdress = 0;
 };
 

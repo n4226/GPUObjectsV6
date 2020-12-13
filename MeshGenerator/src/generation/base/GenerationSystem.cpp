@@ -7,10 +7,16 @@
 #include <fstream>
 #include <thread>
 #include <Windows.h>
-
+#include "constants.h"
 #include <filesystem>
+#include <algorithm>
+#include <execution>
 
-const std::string outputDir = R"(./terrain/chunkMeshes/)";
+#include <chrono>
+
+
+
+const std::string outputDir = TERRAIN_DIR;//R"(./terrain/chunkMeshes/)";
 
 GenerationSystem::GenerationSystem(std::vector<Box>&& chunks)
     : osmFetcher(),
@@ -22,38 +28,49 @@ GenerationSystem::GenerationSystem(std::vector<Box>&& chunks)
 
 void GenerationSystem::generate()
 {
-    for (Box& chunk : chunks) {
+    auto startTime = std::chrono::high_resolution_clock::now();
+    //for (Box& chunk : chunks) {
+    std::for_each(std::execution::par, chunks.begin(), chunks.end(), [this](Box& chunk) {
         auto file = outputDir + chunk.toString() + ".bmesh";
+        try {
 
-        if (std::filesystem::exists(file)) {
-            printf("skipping an already saved chunk chunk\n");
-            continue;
+            if (std::filesystem::exists(file)) {
+                printf("skipping an already saved chunk chunk\n");
+                return;
+            }
+
+            BinaryMeshSeirilizer::Mesh mesh;
+            printf("going to get Osm for a chunk\n");
+            osm::osm osmData = osmFetcher.fetchChunk(chunk);
+
+
+            printf("Got Osm for a chunk\n");
+
+            for (icreator* creator : creators)
+                creator->createInto(mesh, osmData, chunk);
+
+
+            BinaryMeshSeirilizer binaryMesh(mesh);
+
+            // write to file
+            printf("writing to mesh file\n");
+            {
+
+                std::ofstream out;
+                out.open(file, std::fstream::out | std::fstream::binary);
+
+                out.write(reinterpret_cast<char*>(binaryMesh.mesh), binaryMesh.meshLength);
+                out.close();
+                printf("wrote to mesh file\n");
+            }
         }
-
-        BinaryMeshSeirilizer::Mesh mesh;
-        printf("going to get Osm for a chunk\n");
-        osm::osm osmData = osmFetcher.fetchChunk(chunk);
-        printf("Got Osm for a chunk\n");
-
-        for (icreator* creator : creators)
-            creator->createInto(mesh,osmData,chunk);
-
-
-        BinaryMeshSeirilizer binaryMesh(mesh);
-
-        // write to file
-        printf("writing to mesh file\n");
-        {
-
-            std::ofstream out;
-            out.open(file, std::fstream::out | std::fstream::binary);
-
-            out.write(reinterpret_cast<char*>(binaryMesh.mesh), binaryMesh.meshLength);
-            out.close();
-            printf("wrote to mesh file\n");
+        catch (...) {
+            return;
         }
-    }
-    printf("finished all chunks\n");
+    });
+    auto endTime = std::chrono::high_resolution_clock::now();
+    auto time = std::chrono::duration<double>(endTime - startTime);
+    printf("finished all chunks in %f seconds \n",time);
 }
 
 std::vector<Box> GenerationSystem::genreateChunksAround(glm::dvec2 desired, int divided, glm::ivec2 formation)

@@ -277,6 +277,12 @@ void Renderer::createUniformsAndDescriptors()
 	
 	// set up descriptors 
 
+	updateDescriptors();
+
+}
+
+void Renderer::updateDescriptors()
+{
 	for (size_t i = 0; i < window.swapChainImages.size(); i++) {
 
 		VkDescriptorBufferInfo globalUniformBufferInfo{};
@@ -318,11 +324,11 @@ void Renderer::createUniformsAndDescriptors()
 
 
 		device.updateDescriptorSets({ globalUniformDescriptorWrite, modelUniformsDescriptorWrite }, {});
-	//}
+		//}
 
-	// deferred descriptors
+		// deferred descriptors
 
-	//{
+		//{
 
 		std::array<VkDescriptorImageInfo, 3> inputAttachmentDescriptors{};
 		// albedo and normal
@@ -348,10 +354,10 @@ void Renderer::createUniformsAndDescriptors()
 		deferredInputDescriptorWrite[0].dstSet = deferredDescriptorSets[i];
 		deferredInputDescriptorWrite[0].dstBinding = 0;
 		deferredInputDescriptorWrite[0].dstArrayElement = 0;
-									
+
 		deferredInputDescriptorWrite[0].descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
 		deferredInputDescriptorWrite[0].descriptorCount = 1;
-									
+
 		deferredInputDescriptorWrite[0].pBufferInfo = nullptr;
 		deferredInputDescriptorWrite[0].pImageInfo = &inputAttachmentDescriptors[0]; // Optional
 		deferredInputDescriptorWrite[0].pTexelBufferView = nullptr; // Optional
@@ -400,11 +406,10 @@ void Renderer::createUniformsAndDescriptors()
 		deferredInputDescriptorWrite[3] = post_globalUniformDescriptorWrite;
 
 
-		vkUpdateDescriptorSets(device, static_cast<uint32_t>(deferredInputDescriptorWrite.size()),deferredInputDescriptorWrite.data(), 0,nullptr);
+		vkUpdateDescriptorSets(device, static_cast<uint32_t>(deferredInputDescriptorWrite.size()), deferredInputDescriptorWrite.data(), 0, nullptr);
 
 
 	}
-
 }
 
 

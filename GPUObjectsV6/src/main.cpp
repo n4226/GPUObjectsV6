@@ -8,17 +8,16 @@
 
 #include "WorldScene.h"
 #include "environment.h"
-
+#include "main.h"
 
 
 
 
 int main() {
 
-  //  jobTest();
-//    Instrumentor::Get().EndSession();
-    //return 0;
+    Instrumentor::Get().BeginSession("Launch", "instruments_Launch.profile");
 
+    // Configure Marl
     auto confic = marl::Scheduler::Config();
 
     confic.setWorkerThreadCount(std::thread::hardware_concurrency() - 1);
@@ -28,7 +27,7 @@ int main() {
     scheduler.bind();
     defer(scheduler.unbind());
 
-    Instrumentor::Get().BeginSession("Launch", "instruments_Launch.json");
+    configSystem.readFromDisk();
 
     WindowManager* windowCreator = new WindowManager();
     
@@ -39,14 +38,14 @@ int main() {
     WorldScene* scene = new WorldScene(*windowCreator);
     
     Instrumentor::Get().EndSession();
-    Instrumentor::Get().BeginSession("Run", "instruments_Run.json");
+    Instrumentor::Get().BeginSession("Run", "instruments_Run.profile");
 
     printf("starting render loop\n");
 
     scene->startScene();
 
     Instrumentor::Get().EndSession();
-    Instrumentor::Get().BeginSession("Shutdown", "instruments_Shutdown.json");
+    Instrumentor::Get().BeginSession("Shutdown", "instruments_Shutdown.profile");
 
     delete scene;
     delete windowCreator;
@@ -55,3 +54,4 @@ int main() {
 
     return 0;
 }
+

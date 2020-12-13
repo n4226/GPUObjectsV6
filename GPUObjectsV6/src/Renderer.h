@@ -12,8 +12,8 @@
 #include "Camera.h"
 #include "PipelineCreator.h"
 #include "TerrainSystem.h"
-#include "VaribleIndexAllocator.h"
-#include "IndexAllocator.h"
+#include "memory/VaribleIndexAllocator.h"
+#include "memory/IndexAllocator.h"
 #include "ResourceTransferTask.h"
 #include "GBufferComputePipeline.h"
 
@@ -64,6 +64,8 @@ public:
 
 	IndexAllocator* globalModelBufferAllocator;
 	std::array<Buffer*,2> globalModelBuffers;
+
+	size_t gpuUnactiveGlobalModelBuffer = 1;
 	size_t gpuActiveGlobalModelBuffer = 0;
 
 	Buffer* globalModelBufferStaging;
@@ -80,6 +82,8 @@ private:
 	void createDescriptorPoolAndSets();
 
 	void createUniformsAndDescriptors();
+
+	void updateDescriptors();
 
 	void createDynamicRenderCommands(vk::Device& device, WindowManager& window);
 

@@ -14,7 +14,7 @@ TreeNodeDrawResaourceToCoppy TerrainMeshLoader::loadMeshPreDrawChunk(TerrainQuad
 {
 	// get  and encode mesh
 	//TODO store this in a better place
-	const char* Terrain_Chunk_Mesh_Dir = R"(terrain/chunkMeshes/)";
+	const char* Terrain_Chunk_Mesh_Dir = TERRAIN_DIR;//R"(terrain/chunkMeshes/)";
 
 	TreeNodeDrawResaourceToCoppy meshStore;
 

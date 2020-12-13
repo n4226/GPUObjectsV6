@@ -36,6 +36,7 @@
 #include "math/FrustrumMath.h"
 #include "math/path/Path.h"
 #include "math/path/Bezier.h"
+#include "constants.h"
 
 // internal 
 
@@ -49,7 +50,7 @@
 #include "Image.h"
 #include "uniforms.h"
 #include "RenderSystem.h"
-
+#include "ConfigSystem.h"
 
 
 // stl

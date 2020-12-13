@@ -61,7 +61,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)DEBUG;</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)SharedCode\src;$(SolutionDir)Dependencies\marl-main\marl-main\include;C:\VulkanSDK\1.2.154.1\Include;C:\code\binary libraries\glm-master;C:\code\binary libraries\glfw-3.3.2.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)SharedCode\src;$(SolutionDir)Dependencies\marl-main\marl-main\include;C:\VulkanSDK\1.2.154.1\Include;C:\code\binary libraries\glm-master;C:\code\binary libraries\glfw-3.3.2.bin.WIN64\include;$(SolutionDir)MeshGenerator\src\Dependencies;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -84,7 +84,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)SharedCode\src;$(SolutionDir)Dependencies\marl-main\marl-main\include;C:\VulkanSDK\1.2.154.1\Include;C:\code\binary libraries\glm-master;C:\code\binary libraries\glfw-3.3.2.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)SharedCode\src;$(SolutionDir)Dependencies\marl-main\marl-main\include;C:\VulkanSDK\1.2.154.1\Include;C:\code\binary libraries\glm-master;C:\code\binary libraries\glfw-3.3.2.bin.WIN64\include;$(SolutionDir)MeshGenerator\src\Dependencies;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -100,6 +100,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ConfigSystem.cpp" />
     <ClCompile Include="src\GBufferComputePipeline.cpp" />
     <ClCompile Include="src\ComputePipeline.cpp" />
     <ClCompile Include="MeshBuffers.cpp" />
@@ -114,7 +115,6 @@
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\environment.h" />
     <ClCompile Include="src\GPUSelector.cpp" />
-    <ClCompile Include="src\IndexAllocator.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -132,7 +132,6 @@
     <ClCompile Include="src\Transform.cpp" />
     <ClCompile Include="src\TrianglePipeline.cpp" />
     <ClCompile Include="src\uniforms.cpp" />
-    <ClCompile Include="src\VaribleIndexAllocator.cpp" />
     <ClCompile Include="src\VkHelpers.cpp" />
     <ClCompile Include="src\vma.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -141,6 +140,7 @@
     <ClCompile Include="src\WorldScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ConfigSystem.h" />
     <ClInclude Include="src\GBufferComputePipeline.h" />
     <ClInclude Include="src\ComputePipeline.h" />
     <ClInclude Include="libGuarded\cs_cow_guarded.h" />
@@ -152,6 +152,7 @@
     <ClInclude Include="libGuarded\cs_rcu_list.h" />
     <ClInclude Include="libGuarded\cs_shared_guarded.h" />
     <ClInclude Include="MeshBuffers.h" />
+    <ClInclude Include="src\main.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\ResourceTransferTask.h" />
     <ClInclude Include="src\CameraSystem.h" />
@@ -162,7 +163,6 @@
     <ClInclude Include="src\Buffer.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\GPUSelector.h" />
-    <ClInclude Include="src\IndexAllocator.h" />
     <ClInclude Include="src\Instrumentor.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\PipelineCreator.h" />
@@ -179,7 +179,6 @@
     <ClInclude Include="src\Transform.h" />
     <ClInclude Include="src\TrianglePipeline.h" />
     <ClInclude Include="src\uniforms.h" />
-    <ClInclude Include="src\VaribleIndexAllocator.h" />
     <ClInclude Include="src\VkHelpers.h" />
     <ClInclude Include="src\vk_mem_alloc.h" />
     <ClInclude Include="src\WorldScene.h" />
