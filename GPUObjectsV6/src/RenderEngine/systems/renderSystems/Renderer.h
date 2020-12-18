@@ -1,21 +1,21 @@
 #pragma once
 
-#include "pch.h"
-#include "Buffer.h"
-#include "Mesh.h"
-#include "uniforms.h"
-#include "Transform.h"
+#include "../../../pch.h"
+#include "../../vulkanAbstractions/Buffer.h"
+#include "../../dataObjects/Mesh.h"
+#include "../../dataObjects/uniforms.h"
+#include "../../dataObjects/Transform.h"
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
 #include "glm/vec3.hpp"
 #include "glm/gtc/quaternion.hpp"
-#include "Camera.h"
-#include "PipelineCreator.h"
-#include "TerrainSystem.h"
+#include "../../dataObjects/Camera.h"
+#include "../../spacificVulkanImplementations/renderPipelines/PipelineCreator.h"
+#include "../terrainSystem/TerrainSystem.h"
 #include "memory/VaribleIndexAllocator.h"
 #include "memory/IndexAllocator.h"
-#include "ResourceTransferTask.h"
-#include "GBufferComputePipeline.h"
+#include "../../spacificVulkanImplementations/resources/ResourceTransferTask.h"
+#include "../../spacificVulkanImplementations/renderPipelines/GBufferComputePipeline.h"
 
 class Renderer
 {

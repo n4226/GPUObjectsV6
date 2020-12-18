@@ -72,22 +72,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\ApplicationWindow.cpp">
-      <Filter>Source Files\application</Filter>
-    </ClCompile>
-    <ClCompile Include="src\AttributeHelpers.cpp">
-      <Filter>Source Files\helping objects</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Buffer.cpp">
-      <Filter>Source Files\helping objects</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Camera.cpp">
-      <Filter>Source Files\helping objects\high level</Filter>
-    </ClCompile>
     <ClCompile Include="src\environment.h">
-      <Filter>Source Files\application</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GPUSelector.cpp">
       <Filter>Source Files\application</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cpp">
@@ -96,171 +81,111 @@
     <ClCompile Include="src\pch.cpp">
       <Filter>Header Files\pch</Filter>
     </ClCompile>
-    <ClCompile Include="src\PipelineCreator.cpp">
-      <Filter>Source Files\renderer\pipelines</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Renderer.cpp">
-      <Filter>Source Files\renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RenderPassManager.cpp">
-      <Filter>Source Files\renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RenderSystem.cpp">
-      <Filter>Source Files\renderer\render systems</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ResourceHeap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\TerrainMeshLoader.cpp">
+    <ClCompile Include="src\RenderEngine\systems\terrainSystem\TerrainMeshLoader.cpp">
       <Filter>Source Files\renderer\render systems\terrain system</Filter>
     </ClCompile>
-    <ClCompile Include="src\TerrainPipeline.cpp">
-      <Filter>Source Files\renderer\pipelines</Filter>
-    </ClCompile>
-    <ClCompile Include="src\TerrainQuadTree.cpp">
+    <ClCompile Include="src\RenderEngine\systems\terrainSystem\TerrainQuadTree.cpp">
       <Filter>Source Files\renderer\render systems\terrain system</Filter>
     </ClCompile>
-    <ClCompile Include="src\TerrainQuadTreeNode.cpp">
+    <ClCompile Include="src\RenderEngine\systems\terrainSystem\TerrainQuadTreeNode.cpp">
       <Filter>Source Files\renderer\render systems\terrain system</Filter>
     </ClCompile>
-    <ClCompile Include="src\TerrainSystem.cpp">
-      <Filter>Source Files\renderer\render systems\terrain system</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Transform.cpp">
-      <Filter>Source Files\helping objects\high level</Filter>
-    </ClCompile>
-    <ClCompile Include="src\TrianglePipeline.cpp">
-      <Filter>Source Files\renderer\pipelines</Filter>
-    </ClCompile>
-    <ClCompile Include="src\uniforms.cpp">
-      <Filter>Source Files\renderer\layout objects</Filter>
-    </ClCompile>
-    <ClCompile Include="src\VkHelpers.cpp">
-      <Filter>Source Files\renderer\helpers</Filter>
-    </ClCompile>
-    <ClCompile Include="src\vma.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\vmaSettings.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\WorldScene.cpp">
-      <Filter>Source Files\application</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Image.cpp">
+    <ClCompile Include="src\RenderEngine\vulkanAbstractions\Buffer.cpp">
       <Filter>Source Files\helping objects</Filter>
     </ClCompile>
-    <ClCompile Include="src\CameraSystem.cpp">
+    <ClCompile Include="src\RenderEngine\vulkanAbstractions\GPUSelector.cpp">
+      <Filter>Source Files\application</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\vulkanAbstractions\Image.cpp">
+      <Filter>Source Files\helping objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\vulkanAbstractions\VkHelpers.cpp">
+      <Filter>Source Files\renderer\helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\vulkanAbstractions\vma.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\vulkanAbstractions\vmaSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\systems\terrainSystem\TerrainSystem.cpp">
+      <Filter>Source Files\renderer\render systems\terrain system</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Application\ApplicationRendererBridge\ApplicationWindow.cpp">
+      <Filter>Source Files\application</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\dataObjects\Camera.cpp">
+      <Filter>Source Files\helping objects\high level</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\dataObjects\Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\dataObjects\MeshBuffers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\systems\CameraSystem.cpp">
       <Filter>Source Files\application\scene systems</Filter>
     </ClCompile>
-    <ClCompile Include="src\FloatingOriginSystem.cpp">
+    <ClCompile Include="src\Application\ConfigSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\dataObjects\uniforms.cpp">
+      <Filter>Source Files\renderer\layout objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\systems\renderSystems\Renderer.cpp">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\systems\renderSystems\RenderSystem.cpp">
+      <Filter>Source Files\renderer\render systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\systems\FloatingOriginSystem.cpp">
       <Filter>Source Files\application\scene systems</Filter>
     </ClCompile>
-    <ClCompile Include="src\ResourceTransferTask.cpp">
+    <ClCompile Include="src\Application\FileManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\dataObjects\Transform.cpp">
+      <Filter>Source Files\helping objects\high level</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\vulkanAbstractions\AttributeHelpers.cpp">
+      <Filter>Source Files\helping objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\spacificVulkanImplementations\RenderPassManager.cpp">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\ComputePipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\PipelineCreator.cpp">
+      <Filter>Source Files\renderer\pipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\spacificVulkanImplementations\resources\ResourceTransferTask.cpp">
       <Filter>Source Files\renderer\resource managment systems</Filter>
     </ClCompile>
-    <ClCompile Include="src\Mesh.cpp">
+    <ClCompile Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\concrete\TerrainPipeline.cpp">
+      <Filter>Source Files\renderer\pipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\concrete\TrianglePipeline.cpp">
+      <Filter>Source Files\renderer\pipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Application\ApplicationRendererBridge\WorldScene.cpp">
+      <Filter>Source Files\application</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\vulkanAbstractions\ResourceHeap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ComputePipeline.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GBufferComputePipeline.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ConfigSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\MeshBuffers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FileManager.cpp">
+    <ClCompile Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\GBufferComputePipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\ApplicationWindow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\AttributeHelpers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Buffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GPUSelector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Instrumentor.h">
       <Filter>Source Files\tools</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h">
       <Filter>Header Files\pch</Filter>
     </ClInclude>
-    <ClInclude Include="src\PipelineCreator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\RenderPassManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\RenderSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ResourceHeap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\TerrainMeshLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\TerrainPipeline.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\TerrainQuadTree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\TerrainQuadTreeNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\TerrainSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Transform.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\TrianglePipeline.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\uniforms.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\vk_mem_alloc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\VkHelpers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\WorldScene.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FloatingOriginSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\CameraSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ResourceTransferTask.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="libGuarded\cs_cow_guarded.h">
@@ -287,25 +212,100 @@
     <ClInclude Include="libGuarded\cs_shared_guarded.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ComputePipeline.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GBufferComputePipeline.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ConfigSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\MeshBuffers.h">
+    <ClInclude Include="src\RenderEngine\systems\terrainSystem\TerrainQuadTreeNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\FileManager.h">
+    <ClInclude Include="src\RenderEngine\systems\terrainSystem\TerrainMeshLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\systems\terrainSystem\TerrainQuadTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\vulkanAbstractions\Buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\vulkanAbstractions\GPUSelector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\vulkanAbstractions\Image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\vulkanAbstractions\VkHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\vulkanAbstractions\vk_mem_alloc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\systems\terrainSystem\TerrainSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Application\ApplicationRendererBridge\ApplicationWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\dataObjects\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\dataObjects\Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\dataObjects\MeshBuffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\systems\CameraSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Application\ConfigSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\dataObjects\uniforms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\systems\renderSystems\Renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\systems\renderSystems\RenderSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\systems\FloatingOriginSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Application\FileManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\dataObjects\Transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\vulkanAbstractions\AttributeHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\spacificVulkanImplementations\RenderPassManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\ComputePipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\PipelineCreator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\spacificVulkanImplementations\resources\ResourceTransferTask.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\concrete\TerrainPipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\concrete\TrianglePipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Application\ApplicationRendererBridge\WorldScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\vulkanAbstractions\ResourceHeap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\GBufferComputePipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

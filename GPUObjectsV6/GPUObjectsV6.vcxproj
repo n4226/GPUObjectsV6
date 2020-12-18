@@ -61,7 +61,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)DEBUG;</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)SharedCode\src;$(SolutionDir)Dependencies\marl-main\marl-main\include;C:\VulkanSDK\1.2.154.1\Include;C:\code\binary libraries\glm-master;C:\code\binary libraries\glfw-3.3.2.bin.WIN64\include;$(SolutionDir)MeshGenerator\src\Dependencies;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)SharedCode\src;$(SolutionDir)Dependencies\marl-main\marl-main\include;C:\VulkanSDK\1.2.154.1\Include;C:\code\binary libraries\glm-master;C:\code\binary libraries\glfw-3.3.2.bin.WIN64\include;$(SolutionDir)MeshGenerator\src\Dependencies;$(projectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -100,51 +100,114 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\FileManager.cpp" />
-    <ClCompile Include="src\ConfigSystem.cpp" />
-    <ClCompile Include="src\GBufferComputePipeline.cpp" />
-    <ClCompile Include="src\ComputePipeline.cpp" />
-    <ClCompile Include="src\MeshBuffers.cpp" />
-    <ClCompile Include="src\Mesh.cpp" />
-    <ClCompile Include="src\ResourceTransferTask.cpp" />
-    <ClCompile Include="src\CameraSystem.cpp" />
-    <ClCompile Include="src\FloatingOriginSystem.cpp" />
-    <ClCompile Include="src\Image.cpp" />
-    <ClCompile Include="src\ApplicationWindow.cpp" />
-    <ClCompile Include="src\AttributeHelpers.cpp" />
-    <ClCompile Include="src\Buffer.cpp" />
-    <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\Application\FileManager.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\Application\ConfigSystem.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\GBufferComputePipeline.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\ComputePipeline.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\dataObjects\MeshBuffers.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\dataObjects\Mesh.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\spacificVulkanImplementations\resources\ResourceTransferTask.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\systems\CameraSystem.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\systems\FloatingOriginSystem.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\vulkanAbstractions\Image.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\Application\ApplicationRendererBridge\ApplicationWindow.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\vulkanAbstractions\AttributeHelpers.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\vulkanAbstractions\Buffer.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\dataObjects\Camera.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="src\environment.h" />
-    <ClCompile Include="src\GPUSelector.cpp" />
+    <ClCompile Include="src\RenderEngine\vulkanAbstractions\GPUSelector.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\PipelineCreator.cpp" />
-    <ClCompile Include="src\Renderer.cpp" />
-    <ClCompile Include="src\RenderPassManager.cpp" />
-    <ClCompile Include="src\RenderSystem.cpp" />
-    <ClCompile Include="src\ResourceHeap.cpp" />
-    <ClCompile Include="src\TerrainMeshLoader.cpp" />
-    <ClCompile Include="src\TerrainPipeline.cpp" />
-    <ClCompile Include="src\TerrainQuadTree.cpp" />
-    <ClCompile Include="src\TerrainQuadTreeNode.cpp" />
-    <ClCompile Include="src\TerrainSystem.cpp" />
-    <ClCompile Include="src\Transform.cpp" />
-    <ClCompile Include="src\TrianglePipeline.cpp" />
-    <ClCompile Include="src\uniforms.cpp" />
-    <ClCompile Include="src\VkHelpers.cpp" />
-    <ClCompile Include="src\vma.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    <ClCompile Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\PipelineCreator.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="src\vmaSettings.cpp" />
-    <ClCompile Include="src\WorldScene.cpp" />
+    <ClCompile Include="src\RenderEngine\systems\renderSystems\Renderer.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\spacificVulkanImplementations\RenderPassManager.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\systems\renderSystems\RenderSystem.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\vulkanAbstractions\ResourceHeap.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\systems\terrainSystem\TerrainMeshLoader.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\concrete\TerrainPipeline.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\systems\terrainSystem\TerrainQuadTree.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\systems\terrainSystem\TerrainQuadTreeNode.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\systems\terrainSystem\TerrainSystem.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\dataObjects\Transform.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\concrete\TrianglePipeline.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\dataObjects\uniforms.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\vulkanAbstractions\VkHelpers.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\vulkanAbstractions\vma.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\vulkanAbstractions\vmaSettings.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="src\Application\ApplicationRendererBridge\WorldScene.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\FileManager.h" />
-    <ClInclude Include="src\ConfigSystem.h" />
-    <ClInclude Include="src\GBufferComputePipeline.h" />
-    <ClInclude Include="src\ComputePipeline.h" />
+    <ClInclude Include="src\Application\FileManager.h" />
+    <ClInclude Include="src\Application\ConfigSystem.h" />
+    <ClInclude Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\GBufferComputePipeline.h" />
+    <ClInclude Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\ComputePipeline.h" />
     <ClInclude Include="libGuarded\cs_cow_guarded.h" />
     <ClInclude Include="libGuarded\cs_deferred_guarded.h" />
     <ClInclude Include="libGuarded\cs_lr_guarded.h" />
@@ -153,37 +216,37 @@
     <ClInclude Include="libGuarded\cs_rcu_guarded.h" />
     <ClInclude Include="libGuarded\cs_rcu_list.h" />
     <ClInclude Include="libGuarded\cs_shared_guarded.h" />
-    <ClInclude Include="src\MeshBuffers.h" />
+    <ClInclude Include="src\RenderEngine\dataObjects\MeshBuffers.h" />
     <ClInclude Include="src\main.h" />
-    <ClInclude Include="src\Mesh.h" />
-    <ClInclude Include="src\ResourceTransferTask.h" />
-    <ClInclude Include="src\CameraSystem.h" />
-    <ClInclude Include="src\FloatingOriginSystem.h" />
-    <ClInclude Include="src\Image.h" />
-    <ClInclude Include="src\ApplicationWindow.h" />
-    <ClInclude Include="src\AttributeHelpers.h" />
-    <ClInclude Include="src\Buffer.h" />
-    <ClInclude Include="src\Camera.h" />
-    <ClInclude Include="src\GPUSelector.h" />
+    <ClInclude Include="src\RenderEngine\dataObjects\Mesh.h" />
+    <ClInclude Include="src\RenderEngine\spacificVulkanImplementations\resources\ResourceTransferTask.h" />
+    <ClInclude Include="src\RenderEngine\systems\CameraSystem.h" />
+    <ClInclude Include="src\RenderEngine\systems\FloatingOriginSystem.h" />
+    <ClInclude Include="src\RenderEngine\vulkanAbstractions\Image.h" />
+    <ClInclude Include="src\Application\ApplicationRendererBridge\ApplicationWindow.h" />
+    <ClInclude Include="src\RenderEngine\vulkanAbstractions\AttributeHelpers.h" />
+    <ClInclude Include="src\RenderEngine\vulkanAbstractions\Buffer.h" />
+    <ClInclude Include="src\RenderEngine\dataObjects\Camera.h" />
+    <ClInclude Include="src\RenderEngine\vulkanAbstractions\GPUSelector.h" />
     <ClInclude Include="src\Instrumentor.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\PipelineCreator.h" />
-    <ClInclude Include="src\Renderer.h" />
-    <ClInclude Include="src\RenderPassManager.h" />
-    <ClInclude Include="src\RenderSystem.h" />
+    <ClInclude Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\PipelineCreator.h" />
+    <ClInclude Include="src\RenderEngine\systems\renderSystems\Renderer.h" />
+    <ClInclude Include="src\RenderEngine\spacificVulkanImplementations\RenderPassManager.h" />
+    <ClInclude Include="src\RenderEngine\systems\renderSystems\RenderSystem.h" />
     <ClInclude Include="src\resource.h" />
-    <ClInclude Include="src\ResourceHeap.h" />
-    <ClInclude Include="src\TerrainMeshLoader.h" />
-    <ClInclude Include="src\TerrainPipeline.h" />
-    <ClInclude Include="src\TerrainQuadTree.h" />
-    <ClInclude Include="src\TerrainQuadTreeNode.h" />
-    <ClInclude Include="src\TerrainSystem.h" />
-    <ClInclude Include="src\Transform.h" />
-    <ClInclude Include="src\TrianglePipeline.h" />
-    <ClInclude Include="src\uniforms.h" />
-    <ClInclude Include="src\VkHelpers.h" />
-    <ClInclude Include="src\vk_mem_alloc.h" />
-    <ClInclude Include="src\WorldScene.h" />
+    <ClInclude Include="src\RenderEngine\vulkanAbstractions\ResourceHeap.h" />
+    <ClInclude Include="src\RenderEngine\systems\terrainSystem\TerrainMeshLoader.h" />
+    <ClInclude Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\concrete\TerrainPipeline.h" />
+    <ClInclude Include="src\RenderEngine\systems\terrainSystem\TerrainQuadTree.h" />
+    <ClInclude Include="src\RenderEngine\systems\terrainSystem\TerrainQuadTreeNode.h" />
+    <ClInclude Include="src\RenderEngine\systems\terrainSystem\TerrainSystem.h" />
+    <ClInclude Include="src\RenderEngine\dataObjects\Transform.h" />
+    <ClInclude Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\concrete\TrianglePipeline.h" />
+    <ClInclude Include="src\RenderEngine\dataObjects\uniforms.h" />
+    <ClInclude Include="src\RenderEngine\vulkanAbstractions\VkHelpers.h" />
+    <ClInclude Include="src\RenderEngine\vulkanAbstractions\vk_mem_alloc.h" />
+    <ClInclude Include="src\Application\ApplicationRendererBridge\WorldScene.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\GBuffer.frag" />

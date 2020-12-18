@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Mesh.h"
-#include "pch.h"
+#include "../../dataObjects/Mesh.h"
+#include "../../../pch.h"
 #include "Math.h"
 #include "glm/glm.hpp"
 #include "TerrainQuadTreeNode.h"

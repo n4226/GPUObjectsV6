@@ -1,12 +1,12 @@
 #pragma once
 
-#include "RenderPassManager.h"
-#include "pch.h"
+#include "../RenderPassManager.h"
+#include "../../../pch.h"
 #include <iostream>
 #include <GLFW/glfw3.h>
 #include <optional>
 #include <fstream>
-#include "Mesh.h"
+#include "../../dataObjects/Mesh.h"
 
 class ComputePipeline;
 

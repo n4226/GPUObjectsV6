@@ -1,11 +1,11 @@
 #pragma once
 
-#include "pch.h"
-#include "AttributeHelpers.h"
+#include "../../pch.h"
+#include "../vulkanAbstractions/AttributeHelpers.h"
 #include <glm/glm.hpp>
 #include <vector>
 #include "glm/glm.hpp"
-#include "Buffer.h"
+#include "../vulkanAbstractions/Buffer.h"
 #include "rendering structures/BinaryMesh.h"
 
 

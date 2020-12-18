@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Renderer.h"
-#include "WorldScene.h"
+#include "../../../Application/ApplicationRendererBridge/WorldScene.h"
 
 Renderer::Renderer(vk::Device& device, vk::PhysicalDevice& physicalDevice, WindowManager& window) : device(device), physicalDevice(physicalDevice), window(window)
 {

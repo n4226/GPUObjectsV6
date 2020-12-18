@@ -1,15 +1,15 @@
 #pragma once
 
 
-#include "ConfigSystem.h"
-#include "pch.h"
+#include "../ConfigSystem.h"
+#include "../../pch.h"
 #include <GLFW/glfw3.h>
-#include "GPUSelector.h"
-#include "PipelineCreator.h"
-#include "Camera.h"
-#include "TrianglePipeline.h"
-#include "TerrainPipeline.h"
-#include "environment.h"
+#include "../../RenderEngine/vulkanAbstractions/GPUSelector.h"
+#include "../../RenderEngine/spacificVulkanImplementations/renderPipelines/PipelineCreator.h"
+#include "../../RenderEngine/dataObjects/Camera.h"
+#include "../../RenderEngine/spacificVulkanImplementations/renderPipelines/concrete/TrianglePipeline.h"
+#include "../../RenderEngine/spacificVulkanImplementations/renderPipelines/concrete/TerrainPipeline.h"
+#include "../../environment.h"
 
 class WorldScene;
 

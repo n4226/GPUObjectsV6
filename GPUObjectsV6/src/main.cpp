@@ -1,12 +1,8 @@
 #include "pch.h"
 
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
 
-
-
-#include "WorldScene.h"
+#include "Application/ApplicationRendererBridge/WorldScene.h"
 #include "environment.h"
 #include "main.h"
 

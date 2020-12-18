@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "CameraSystem.h"
-#include "WorldScene.h"
+#include "../../Application/ApplicationRendererBridge/WorldScene.h"
 
 CameraSystem::CameraSystem()
 	: cameraPath(cameraPoints, true)

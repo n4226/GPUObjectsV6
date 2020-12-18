@@ -1,12 +1,12 @@
 #pragma once
 
 #include "pch.h"
-#include "RenderSystem.h"
+#include "../renderSystems/RenderSystem.h"
 #include "TerrainQuadTree.h"
 #include "TerrainQuadTreeNode.h"
 #include "TerrainMeshLoader.h"
-#include "Transform.h"
-#include "VkHelpers.h"
+#include "../../dataObjects/Transform.h"
+#include "../../vulkanAbstractions/VkHelpers.h"
 
 class Renderer;
 class FloatingOriginSystem;

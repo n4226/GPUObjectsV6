@@ -10,7 +10,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
-#include "vk_mem_alloc.h"
+#include "RenderEngine/vulkanAbstractions/vk_mem_alloc.h"
 
 
 #include "marl/defer.h"
@@ -40,17 +40,17 @@
 
 // internal 
 
-#include "VkHelpers.h"
-#include "ApplicationWindow.h"
+#include "RenderEngine/vulkanAbstractions/VkHelpers.h"
+#include "Application/ApplicationRendererBridge/ApplicationWindow.h"
 #include "math/Math.h"
 #include "math/Box.h"
-#include "Mesh.h"
+#include "RenderEngine/dataObjects/Mesh.h"
 #include "environment.h"
-#include "Buffer.h"
-#include "Image.h"
-#include "uniforms.h"
-#include "RenderSystem.h"
-#include "ConfigSystem.h"
+#include "RenderEngine/vulkanAbstractions/Buffer.h"
+#include "RenderEngine/vulkanAbstractions/Image.h"
+#include "RenderEngine/dataObjects/uniforms.h"
+#include "RenderEngine/systems/renderSystems/RenderSystem.h"
+#include "Application/ConfigSystem.h"
 
 
 // stl

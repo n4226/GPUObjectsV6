@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "FloatingOriginSystem.h"
-#include "WorldScene.h"
-#include "TerrainSystem.h"
+#include "../../Application/ApplicationRendererBridge/WorldScene.h"
+#include "terrainSystem/TerrainSystem.h"
 
 
 void FloatingOriginSystem::update()

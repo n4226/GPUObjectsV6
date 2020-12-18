@@ -2,9 +2,9 @@
 
 #include "pch.h"
 #include "ApplicationWindow.h"
-#include "Renderer.h"
+#include "../../RenderEngine/systems/renderSystems/Renderer.h"
 #include <GLFW/glfw3.h>
-#include "TerrainSystem.h"
+#include "../../RenderEngine/systems/terrainSystem/TerrainSystem.h"
 #include "environment.h"
 
 class WorldScene

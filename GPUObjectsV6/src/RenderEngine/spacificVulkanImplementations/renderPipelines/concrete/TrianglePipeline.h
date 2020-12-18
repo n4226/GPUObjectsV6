@@ -1,8 +1,8 @@
 #pragma once
 
-#include "PipelineCreator.h"
+#include "../PipelineCreator.h"
 
-class TerrainPipeline: public GraphicsPipeline
+class TrianglePipeline : public GraphicsPipeline
 {
 public:
 	using GraphicsPipeline::GraphicsPipeline;

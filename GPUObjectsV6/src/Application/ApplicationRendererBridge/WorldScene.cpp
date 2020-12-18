@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "WorldScene.h"
-#include "CameraSystem.h"
-#include "FloatingOriginSystem.h"
+#include "../../RenderEngine/systems/CameraSystem.h"
+#include "../../RenderEngine/systems/FloatingOriginSystem.h"
 
 WorldScene::WorldScene(WindowManager& window) : 
 	window(window)
