@@ -7,7 +7,12 @@
 
 #include "generation/base/GenerationSystem.h"
 
+#include "math/triangulation/Triangulation.h"
+
 int main() {
+
+
+	Triangulation::triangulate({});
 
 	glm::dvec2 desired(40.610319941413, -74.039182662964);
 
@@ -15,7 +20,7 @@ int main() {
 
 	GenerationSystem genSys(GenerationSystem::genreateChunksAround(desired,12, glm::ivec2(12,12)));
 	
-	genSys.generate();
+	//genSys.generate();
 
 
 	/*s{

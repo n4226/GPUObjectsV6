@@ -14,7 +14,7 @@ public:
 	OsmFetcher();
 
 
-	osm::osm fetchChunk(Box frame);
+	osm::osm fetchChunk(Box frame, bool onlyUseOSMCash);
 
 private:
 	std::string getQuery(Box frame);

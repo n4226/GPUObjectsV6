@@ -35,12 +35,13 @@ void TerrainSystem::CreateRenderResources()
 
 	VkHelpers::createPoolsAndCommandBufffers
 		(renderer->device, cmdBufferPools, commandBuffers, renderer->window.swapChainImageViews.size(), renderer->window.queueFamilyIndices.graphicsFamily.value(), vk::CommandBufferLevel::eSecondary);
+#if RenderMode == RenderModeCPU2
 	cmdBuffsUpToDate.resize(renderer->window.swapChainImageViews.size());
 
 	for (auto val: cmdBuffsUpToDate) {
 		val = true;
 	}
-
+#endif
 }
 
 void TerrainSystem::update()
@@ -110,10 +111,11 @@ vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass)
 		{
 
 			//// frustrom cull
-			//if (!renderer->camFrustrom->IsBoxVisible(it->second.aabbMin, it->second.aabbMax)) {
-			//	continue;
-			//}
-
+#if RenderMode == RenderModeCPU1
+			if (!renderer->camFrustrom->IsBoxVisible(it->second.aabbMin, it->second.aabbMax)) {
+				continue;
+			}
+#endif
 			buffer->pushConstants(renderer->window.pipelineCreator->pipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(DrawPushData), &it->second.drawData);
 			buffer->drawIndexed(it->second.indexCount, 1, it->second.indIndex, it->second.vertIndex, 0);
 		}

@@ -1,11 +1,11 @@
 #include "pch.h"
-#include "CppUnitTest.h"
+
 
 #include "memory/VaribleIndexAllocator.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-namespace VaribleSizeAllocatorTests
+namespace GPUObjectsTests
 {
 	TEST_CLASS(VaribleSizeAllocatorTests)
 	{

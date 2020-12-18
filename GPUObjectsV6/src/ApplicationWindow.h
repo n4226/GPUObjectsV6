@@ -20,6 +20,33 @@ public:
 	void createAllocator();
 	~WindowManager();
 
+	//// application spacific - will move to other class after refactor - not sure about render pass manager yet
+
+
+		// manager objects
+
+	GraphicsPipeline* pipelineCreator;
+	RenderPassManager* renderPassManager;
+
+
+	vk::Instance instance = nullptr;
+
+
+
+	vk::Device device = nullptr;
+	vk::PhysicalDevice physicalDevice = nullptr;
+	VmaAllocator allocator;
+
+
+	GPUQueues deviceQueues;
+	QueueFamilyIndices queueFamilyIndices;
+
+	const int MAX_FRAMES_IN_FLIGHT = 3;
+
+
+	//// window spacific - will keep here after refactor
+
+
 	/// <summary>
 	/// 
 	/// </summary>
@@ -27,22 +54,9 @@ public:
 	bool getDrawable();
 	void presentDrawable();
 
-
 	Camera camera;
 
-	// manager objects
-
-	GraphicsPipeline* pipelineCreator;
-	RenderPassManager* renderPassManager;
-
-
 	GLFWwindow* window = nullptr;
-
-	vk::Instance instance = nullptr;
-
-	vk::Device device = nullptr;
-	vk::PhysicalDevice physicalDevice = nullptr;
-	VmaAllocator allocator;
 
 	// Swap Chain
 
@@ -75,8 +89,6 @@ public:
 
 
 
-	GPUQueues deviceQueues;
-	QueueFamilyIndices queueFamilyIndices;
 
 	vk::SurfaceKHR surface;
 
@@ -84,7 +96,6 @@ public:
 	size_t currentFrame = 0;
 
 
-	const int MAX_FRAMES_IN_FLIGHT = 3;
 
 	// Synchronization objects
 
@@ -98,6 +109,21 @@ public:
 	void recreateSwapchain();
 private:
 
+	//// application spacific - will move to other class after refactor
+
+	void createInstance();
+	void createDevice();
+
+
+	std::vector<const char*> validationLayers = {
+		#if RDX_ENABLE_VK_VALIDATION_LAYERS
+		"VK_LAYER_KHRONOS_validation"
+		#endif
+	};
+
+	//// window spacific - will keep here after refactor
+
+
 	void cleanupSwapchain();
 
 	void runWindowLoop();
@@ -108,11 +134,9 @@ private:
 
 	void makeWindwWithMode(ConfigSystem::Config::Window& winConfig, GLFWmonitor* monitor);
 
-	void createInstance();
 
 	void createSurface();
 
-	void createDevice();
 
 	void createSwapchain();
 
@@ -122,13 +146,6 @@ private:
 	void createFramebuffers();
 
 	void createSemaphores();
-
-
-	std::vector<const char*> validationLayers = {
-		#if RDX_ENABLE_VK_VALIDATION_LAYERS
-		"VK_LAYER_KHRONOS_validation"
-		#endif
-	};
 
 
 };

@@ -2,6 +2,7 @@
 #include "pch.h"
 
 #define RDK_PROFILING 1
+#define RDK_VALIDATION 1
 
 #if RDK_PROFILING
 #define PROFILE_SCOPE(name) InstrumentationTimer timer##__line__(name);
@@ -11,10 +12,10 @@
 #define PROFILE_FUNCTION
 #endif
 
-#ifdef NDEBUG
-#define RDX_ENABLE_VK_VALIDATION_LAYERS false;
-#else
+#if !NDEBUG && RDK_VALIDATION
 #define RDX_ENABLE_VK_VALIDATION_LAYERS true;
+#else
+#define RDX_ENABLE_VK_VALIDATION_LAYERS false;
 #endif
 
 

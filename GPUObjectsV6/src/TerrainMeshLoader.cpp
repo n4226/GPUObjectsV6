@@ -3,7 +3,7 @@
 #include "TerrainSystem.h"
 #include "Renderer.h"
 #include <filesystem>
-
+#include "FileManager.h"
 
 
 
@@ -14,7 +14,7 @@ TreeNodeDrawResaourceToCoppy TerrainMeshLoader::loadMeshPreDrawChunk(TerrainQuad
 {
 	// get  and encode mesh
 	//TODO store this in a better place
-	const char* Terrain_Chunk_Mesh_Dir = TERRAIN_DIR;//R"(terrain/chunkMeshes/)";
+	const auto Terrain_Chunk_Mesh_Dir = FileManager::getTerrainChunkDir();//R"(terrain/chunkMeshes/)";
 
 	TreeNodeDrawResaourceToCoppy meshStore;
 

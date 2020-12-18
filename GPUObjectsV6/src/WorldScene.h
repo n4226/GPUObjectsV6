@@ -42,6 +42,8 @@ public:
 	double deltaTime = 0;
 	float  deltaTimef = 0;
 
+	size_t frameNum = 0;
+
 private:
 
 	void loadScene();

@@ -87,6 +87,21 @@ void WorldScene::updateScene()
 	time = newtime;
 	timef = newtimef;
 
+	if (frameNum == 2000) {
+		char** stats = new char*;
+		vmaBuildStatsString(renderer->allocator, stats,VK_TRUE);
+		//std::string statString(*stats);
+
+		{
+			std::ofstream out;
+			out.open("vmaDump.profile", std::fstream::out);
+			//out.open(file, std::fstream::out);
+			out << *stats;
+			out.close();
+		}
+		vmaFreeStatsString(renderer->allocator, *stats);
+	}
+
 	for (System* sys : generalSystems) {
 		sys->update();
 	}
@@ -94,4 +109,6 @@ void WorldScene::updateScene()
 	terrainSystem->update();
 
 	window.camera.transform = playerTrans;
+
+	frameNum += 1;
 }

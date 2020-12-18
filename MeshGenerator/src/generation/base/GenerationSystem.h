@@ -12,7 +12,7 @@ public:
 	GenerationSystem(std::vector<Box>&& chunks);
 	
 
-	void generate();
+	void generate(bool onlyUseOSMCash = false);
 
 	static std::vector<Box> genreateChunksAround(glm::dvec2 desired,int divided, glm::ivec2 formation);
 private:

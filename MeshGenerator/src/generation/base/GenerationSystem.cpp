@@ -26,11 +26,11 @@ GenerationSystem::GenerationSystem(std::vector<Box>&& chunks)
 
 }
 
-void GenerationSystem::generate()
+void GenerationSystem::generate(bool onlyUseOSMCash)
 {
     auto startTime = std::chrono::high_resolution_clock::now();
     //for (Box& chunk : chunks) {
-    std::for_each(std::execution::par, chunks.begin(), chunks.end(), [this](Box& chunk) {
+    std::for_each(std::execution::par, chunks.begin(), chunks.end(), [this,onlyUseOSMCash](Box& chunk) {
         auto file = outputDir + chunk.toString() + ".bmesh";
         try {
 
@@ -41,7 +41,7 @@ void GenerationSystem::generate()
 
             BinaryMeshSeirilizer::Mesh mesh;
             printf("going to get Osm for a chunk\n");
-            osm::osm osmData = osmFetcher.fetchChunk(chunk);
+            osm::osm osmData = osmFetcher.fetchChunk(chunk,onlyUseOSMCash);
 
 
             printf("Got Osm for a chunk\n");

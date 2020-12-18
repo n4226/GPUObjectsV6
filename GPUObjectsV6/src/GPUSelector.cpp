@@ -1,6 +1,10 @@
 #include "GPUSelector.h"
 #include "pch.h"
 
+bool QueueFamilyIndices::isComplete() {
+	// resource transfer faqmily is not currently optional
+	return graphicsFamily.has_value() && presentFamily.has_value() && resourceTransferFamily.has_value();
+}
 
 vk::PhysicalDevice GPUSelector::primaryGPU(vk::Instance instance, vk::SurfaceKHR surface)
 {

@@ -17,7 +17,7 @@ OsmFetcher::OsmFetcher()
 {
 }
 
-osm::osm OsmFetcher::fetchChunk(Box frame)
+osm::osm OsmFetcher::fetchChunk(Box frame, bool onlyUseOSMCash)
 {
     auto file = cashDir + frame.toString() + ".osm";
 
@@ -30,6 +30,8 @@ osm::osm OsmFetcher::fetchChunk(Box frame)
             std::istreambuf_iterator<char>());
         return osm::makeOSM(str);
     }
+    else if (onlyUseOSMCash)
+        throw std::runtime_error("not in osm cash");
     printf("fetching osm from server\n");
     //get from server 
 

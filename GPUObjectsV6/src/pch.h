@@ -63,3 +63,4 @@
 #include <assert.h>
 #include <set>
 #include <shared_mutex>
+#include <optional>

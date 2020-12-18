@@ -1,11 +1,8 @@
 #pragma once
 
-
 #include "pch.h"
-#include <iostream>
 #include <GLFW/glfw3.h>
 #include <optional>
-#include "environment.h"
 
 struct SwapChainSupportDetails {
 	VkSurfaceCapabilitiesKHR capabilities;
@@ -18,10 +15,7 @@ struct QueueFamilyIndices {
 	std::optional<uint32_t> presentFamily;
 	std::optional<uint32_t> resourceTransferFamily;
 
-	bool isComplete() {
-		// resource transfer faqmily is not currently optional
-		return graphicsFamily.has_value() && presentFamily.has_value() && resourceTransferFamily.has_value();
-	}
+	bool isComplete();
 
 };
 

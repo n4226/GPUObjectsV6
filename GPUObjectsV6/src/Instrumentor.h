@@ -63,7 +63,8 @@ public:
     {
         {
             auto queue = pendingResults.lock();
-            for (ProfileResult& result : *queue) {
+            std::vector<ProfileResult>& results = *queue;
+            for (ProfileResult& result : results) {
                 WriteProfile(result);
             }
             queue->clear();
