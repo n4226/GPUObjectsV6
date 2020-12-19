@@ -39,5 +39,4 @@ private:
 	Config* config;
 };
 
-
 extern ConfigSystem configSystem;

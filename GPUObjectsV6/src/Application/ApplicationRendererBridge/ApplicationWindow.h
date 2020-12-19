@@ -19,10 +19,12 @@ class Application;
 class WindowManager
 {
 public:
-	WindowManager(Application* app);
+	WindowManager(Application* app, size_t globalIndex);
 	~WindowManager();
 
 	void finishInit();
+
+	size_t globalIndex;
 
 	//// application spacific - will move to other class after refactor - not sure about render pass manager yet
 
@@ -100,8 +102,10 @@ public:
 
 	vk::Device device;
 	Renderer* renderer;
+	size_t indexInRenderer;
 
 	Application& app;
+
 
 private:
 

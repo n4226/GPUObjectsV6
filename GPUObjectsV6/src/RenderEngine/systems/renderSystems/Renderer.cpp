@@ -7,6 +7,12 @@ Renderer::Renderer(Application& app, vk::Device device, vk::PhysicalDevice physi
 	: app(app), device(device), physicalDevice(physicalDevice), allocator(allocator), windows(windows), deviceQueues(deviceQueues), queueFamilyIndices(queueFamilyIndices)
 {
 	PROFILE_FUNCTION;
+
+	for (size_t i = 0; i < windows.size(); i++)
+	{
+		windows[i]->indexInRenderer = i;
+		camFrustroms.emplace_back(windows[i]->camera.view());
+	}
 }
 
 void Renderer::createAllResources()
@@ -25,9 +31,8 @@ Renderer::~Renderer()
 	device.destroyDescriptorPool(deferredDescriptorPool);
 
 	for (auto pool : dynamicCommandPools)
-	{
-		device.destroyCommandPool(pool);
-	}
+		for (auto spool : pool)
+			device.destroyCommandPool(spool);
 
 	for (auto buffer : uniformBuffers)
 	{
@@ -127,23 +132,24 @@ void Renderer::createRenderResources()
 		poolInfo.poolSizeCount = poolSizes.size();
 		poolInfo.pPoolSizes = poolSizes.data();
 
-		poolInfo.maxSets = app.maxSwapChainImages;
+		poolInfo.maxSets = app.maxSwapChainImages * windows.size();
 
 		deferredDescriptorPool = device.createDescriptorPool({ poolInfo });
 
-		//TODO: fix this ---- windows[0]
-		std::vector<vk::DescriptorSetLayout> layouts(app.maxSwapChainImages, windows[0]->deferredPass->descriptorSetLayouts[0]);
-		vk::DescriptorSetAllocateInfo allocInfo{};
-		allocInfo.descriptorPool = deferredDescriptorPool;
-		allocInfo.descriptorSetCount = app.maxSwapChainImages;
-		allocInfo.pSetLayouts = layouts.data();
+		deferredDescriptorSets.resize(windows.size());
+		for (size_t i = 0; i < windows.size(); i++) {
+			std::vector<vk::DescriptorSetLayout> layouts(app.maxSwapChainImages, windows[i]->deferredPass->descriptorSetLayouts[0]);
+			vk::DescriptorSetAllocateInfo allocInfo{};
+			allocInfo.descriptorPool = deferredDescriptorPool;
+			allocInfo.descriptorSetCount = app.maxSwapChainImages;
+			allocInfo.pSetLayouts = layouts.data();
 
-		VkDescriptorSetAllocateInfo c_allocInfo = allocInfo;
+			VkDescriptorSetAllocateInfo c_allocInfo = allocInfo;
 
-		deferredDescriptorSets.resize(app.maxSwapChainImages);
+			deferredDescriptorSets[i].resize(app.maxSwapChainImages);
 
-		vkAllocateDescriptorSets(device, &c_allocInfo, deferredDescriptorSets.data());
-
+			vkAllocateDescriptorSets(device, &c_allocInfo, deferredDescriptorSets[i].data());
+		}
 	}
 
 }
@@ -224,31 +230,36 @@ void Renderer::createDescriptorPoolAndSets()
 	poolInfo.poolSizeCount = poolSizes.size();
 	poolInfo.pPoolSizes = poolSizes.data();
 
-	poolInfo.maxSets = static_cast<uint32_t>(app.maxSwapChainImages);
+	poolInfo.maxSets = static_cast<uint32_t>(app.maxSwapChainImages * windows.size());
 
 	descriptorPool = device.createDescriptorPool({ poolInfo });
 
 
-	//TODO: fix this ---- windows[0]
-	std::vector<vk::DescriptorSetLayout> layouts(app.maxSwapChainImages, windows[0]->pipelineCreator->descriptorSetLayouts[0]);
-	vk::DescriptorSetAllocateInfo allocInfo{};
-	allocInfo.descriptorPool = descriptorPool;
-	allocInfo.descriptorSetCount = static_cast<uint32_t>(app.maxSwapChainImages);
-	allocInfo.pSetLayouts = layouts.data();
+	descriptorSets.resize(windows.size());
 
-	VkDescriptorSetAllocateInfo c_allocInfo = allocInfo;
+	for (size_t i = 0; i < windows.size(); i++) {
+		std::vector<vk::DescriptorSetLayout> layouts(app.maxSwapChainImages, windows[i]->pipelineCreator->descriptorSetLayouts[0]);
+		vk::DescriptorSetAllocateInfo allocInfo{};
+		allocInfo.descriptorPool = descriptorPool;
+		allocInfo.descriptorSetCount = static_cast<uint32_t>(app.maxSwapChainImages);
+		allocInfo.pSetLayouts = layouts.data();
 
-	descriptorSets.resize(app.maxSwapChainImages);
+		VkDescriptorSetAllocateInfo c_allocInfo = allocInfo;
 
-	vkAllocateDescriptorSets(device, &c_allocInfo, descriptorSets.data());
+		descriptorSets[i].resize(app.maxSwapChainImages);
 
+		vkAllocateDescriptorSets(device, &c_allocInfo, descriptorSets[i].data());
+	}
 
 }
 
 void Renderer::createDynamicRenderCommands()
 {
-	VkHelpers::createPoolsAndCommandBufffers
-		(device, dynamicCommandPools, dynamicCommandBuffers, app.maxSwapChainImages, queueFamilyIndices.graphicsFamily.value(), vk::CommandBufferLevel::ePrimary);
+	dynamicCommandPools.resize(windows.size());
+	dynamicCommandBuffers.resize(windows.size());
+	for (size_t i = 0; i < windows.size(); i++)
+		VkHelpers::createPoolsAndCommandBufffers
+			(device, dynamicCommandPools[i], dynamicCommandBuffers[i], app.maxSwapChainImages, queueFamilyIndices.graphicsFamily.value(), vk::CommandBufferLevel::ePrimary);
 }
 
 void Renderer::createUniformsAndDescriptors()
@@ -260,7 +271,7 @@ void Renderer::createUniformsAndDescriptors()
 
 	VkDeviceSize uniformBufferSize = sizeof(SceneUniforms) + sizeof(PostProcessEarthDatAndUniforms); //sizeof(TriangleUniformBufferObject);
 
-	uniformBuffers.resize(app.maxSwapChainImages);
+	uniformBuffers.resize(app.MAX_FRAMES_IN_FLIGHT);
 
 	BufferCreationOptions uniformOptions = { ResourceStorageType::cpuToGpu,{vk::BufferUsageFlagBits::eUniformBuffer}, vk::SharingMode::eExclusive };
 
@@ -270,60 +281,13 @@ void Renderer::createUniformsAndDescriptors()
 	
 	// set up descriptors 
 
-	//TODO: fix this ---- windows[0]
-	updateDescriptors(*windows[0]);
+	updateLoadTimeDescriptors(*windows[0]);
 
 }
 
-void Renderer::updateDescriptors(WindowManager& window)
+void Renderer::updateLoadTimeDescriptors(WindowManager& window)
 {
 	for (size_t i = 0; i < app.maxSwapChainImages; i++) {
-
-		VkDescriptorBufferInfo globalUniformBufferInfo{};
-		globalUniformBufferInfo.buffer = uniformBuffers[i]->vkItem;
-		globalUniformBufferInfo.offset = 0;
-		globalUniformBufferInfo.range = VK_WHOLE_SIZE;
-
-		VkDescriptorBufferInfo modelUniformBufferInfo{};
-		//TODO fix this to actuall non staging buffer
-		modelUniformBufferInfo.buffer = globalModelBufferStaging->vkItem;
-		modelUniformBufferInfo.offset = 0;
-		modelUniformBufferInfo.range = sizeof(ModelUniforms) * maxModelUniformDescriptorArrayCount;
-
-		VkWriteDescriptorSet globalUniformDescriptorWrite{};
-		globalUniformDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		globalUniformDescriptorWrite.dstSet = descriptorSets[i];
-		globalUniformDescriptorWrite.dstBinding = 0;
-		globalUniformDescriptorWrite.dstArrayElement = 0;
-
-		globalUniformDescriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		globalUniformDescriptorWrite.descriptorCount = 1;
-
-		globalUniformDescriptorWrite.pBufferInfo = &globalUniformBufferInfo;
-		globalUniformDescriptorWrite.pImageInfo = nullptr; // Optional
-		globalUniformDescriptorWrite.pTexelBufferView = nullptr; // Optional
-
-		VkWriteDescriptorSet modelUniformsDescriptorWrite{};
-		modelUniformsDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		modelUniformsDescriptorWrite.dstSet = descriptorSets[i];
-		modelUniformsDescriptorWrite.dstBinding = 1;
-		modelUniformsDescriptorWrite.dstArrayElement = 0;
-
-		modelUniformsDescriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-		modelUniformsDescriptorWrite.descriptorCount = 1;
-
-		modelUniformsDescriptorWrite.pBufferInfo = &modelUniformBufferInfo;
-		modelUniformsDescriptorWrite.pImageInfo = nullptr; // Optional
-		modelUniformsDescriptorWrite.pTexelBufferView = nullptr; // Optional
-
-
-		device.updateDescriptorSets({ globalUniformDescriptorWrite, modelUniformsDescriptorWrite }, {});
-		//}
-
-		// deferred descriptors
-
-		//{
-
 		std::array<VkDescriptorImageInfo, 3> inputAttachmentDescriptors{};
 		// albedo and normal
 		inputAttachmentDescriptors[0].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -343,9 +307,9 @@ void Renderer::updateDescriptors(WindowManager& window)
 
 
 
-		std::array<VkWriteDescriptorSet, 4> deferredInputDescriptorWrite{};
+		std::array<VkWriteDescriptorSet, 3> deferredInputDescriptorWrite{};
 		deferredInputDescriptorWrite[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		deferredInputDescriptorWrite[0].dstSet = deferredDescriptorSets[i];
+		deferredInputDescriptorWrite[0].dstSet = deferredDescriptorSets[window.indexInRenderer][i];
 		deferredInputDescriptorWrite[0].dstBinding = 0;
 		deferredInputDescriptorWrite[0].dstArrayElement = 0;
 
@@ -358,7 +322,7 @@ void Renderer::updateDescriptors(WindowManager& window)
 
 
 		deferredInputDescriptorWrite[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		deferredInputDescriptorWrite[1].dstSet = deferredDescriptorSets[i];
+		deferredInputDescriptorWrite[1].dstSet = deferredDescriptorSets[window.indexInRenderer][i];
 		deferredInputDescriptorWrite[1].dstBinding = 1;
 		deferredInputDescriptorWrite[1].dstArrayElement = 0;
 
@@ -371,7 +335,7 @@ void Renderer::updateDescriptors(WindowManager& window)
 
 
 		deferredInputDescriptorWrite[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		deferredInputDescriptorWrite[2].dstSet = deferredDescriptorSets[i];
+		deferredInputDescriptorWrite[2].dstSet = deferredDescriptorSets[window.indexInRenderer][i];
 		deferredInputDescriptorWrite[2].dstBinding = 2;
 		deferredInputDescriptorWrite[2].dstArrayElement = 0;
 
@@ -383,9 +347,54 @@ void Renderer::updateDescriptors(WindowManager& window)
 		deferredInputDescriptorWrite[2].pTexelBufferView = nullptr; // Optional
 
 
+		vkUpdateDescriptorSets(device, static_cast<uint32_t>(deferredInputDescriptorWrite.size()), deferredInputDescriptorWrite.data(), 0, nullptr);
+	}
+}
+
+void Renderer::updateRunTimeDescriptors(WindowManager& window)
+{
+
+		VkDescriptorBufferInfo globalUniformBufferInfo{};
+		globalUniformBufferInfo.buffer = uniformBuffers[world->app.currentFrame]->vkItem;
+		globalUniformBufferInfo.offset = 0;
+		globalUniformBufferInfo.range = VK_WHOLE_SIZE;
+
+		VkDescriptorBufferInfo modelUniformBufferInfo{};
+		//TODO fix this to actuall non staging buffer ------------------------------------------------------------------------------------IMPORTANT USING STAGING BUFF HERE ASS ACTUAL BUFF
+		modelUniformBufferInfo.buffer = globalModelBufferStaging->vkItem;
+		modelUniformBufferInfo.offset = 0;
+		modelUniformBufferInfo.range = sizeof(ModelUniforms) * maxModelUniformDescriptorArrayCount;
+
+		VkWriteDescriptorSet globalUniformDescriptorWrite{};
+		globalUniformDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		globalUniformDescriptorWrite.dstSet = descriptorSets[window.indexInRenderer][window.currentSurfaceIndex];
+		globalUniformDescriptorWrite.dstBinding = 0;
+		globalUniformDescriptorWrite.dstArrayElement = 0;
+
+		globalUniformDescriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		globalUniformDescriptorWrite.descriptorCount = 1;
+
+		globalUniformDescriptorWrite.pBufferInfo = &globalUniformBufferInfo;
+		globalUniformDescriptorWrite.pImageInfo = nullptr; // Optional
+		globalUniformDescriptorWrite.pTexelBufferView = nullptr; // Optional
+
+		VkWriteDescriptorSet modelUniformsDescriptorWrite{};
+		modelUniformsDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		modelUniformsDescriptorWrite.dstSet = descriptorSets[window.indexInRenderer][window.currentSurfaceIndex];
+		modelUniformsDescriptorWrite.dstBinding = 1;
+		modelUniformsDescriptorWrite.dstArrayElement = 0;
+
+		modelUniformsDescriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		modelUniformsDescriptorWrite.descriptorCount = 1;
+
+		modelUniformsDescriptorWrite.pBufferInfo = &modelUniformBufferInfo;
+		modelUniformsDescriptorWrite.pImageInfo = nullptr; // Optional
+		modelUniformsDescriptorWrite.pTexelBufferView = nullptr; // Optional
+
+		// differed pass
 		VkWriteDescriptorSet post_globalUniformDescriptorWrite{};
 		post_globalUniformDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		post_globalUniformDescriptorWrite.dstSet = deferredDescriptorSets[i];
+		post_globalUniformDescriptorWrite.dstSet = deferredDescriptorSets[window.indexInRenderer][window.currentSurfaceIndex];
 		post_globalUniformDescriptorWrite.dstBinding = 3;
 		post_globalUniformDescriptorWrite.dstArrayElement = 0;
 
@@ -397,15 +406,23 @@ void Renderer::updateDescriptors(WindowManager& window)
 		post_globalUniformDescriptorWrite.pTexelBufferView = nullptr; // Optional
 
 
-		deferredInputDescriptorWrite[3] = post_globalUniformDescriptorWrite;
+		device.updateDescriptorSets({ globalUniformDescriptorWrite, modelUniformsDescriptorWrite, post_globalUniformDescriptorWrite }, {});
+		//}
 
+		// deferred descriptors
 
-		vkUpdateDescriptorSets(device, static_cast<uint32_t>(deferredInputDescriptorWrite.size()), deferredInputDescriptorWrite.data(), 0, nullptr);
+		//{
 
-
-	}
+		
 }
 
+
+void Renderer::renderScene()
+{
+	updateCameraUniformBuffer();
+
+
+}
 
 void Renderer::renderFrame(WindowManager& window)
 {
@@ -440,22 +457,27 @@ void Renderer::renderFrame(WindowManager& window)
 			
 	*/
 
-	updateCameraUniformBuffer(window);
 
 
+	// update descriptors to link drawable bound objects eg comd buffs to frame bound objets eg uniform buffers 
+
+
+	updateRunTimeDescriptors(window);
 
 #pragma region CreateRootCMDBuffer
 
 	// create root cmd buffer
 
-	device.resetCommandPool(dynamicCommandPools[window.currentSurfaceIndex], {});
+	device.resetCommandPool(dynamicCommandPools[window.indexInRenderer][window.currentSurfaceIndex], {});
+
+	auto& cmdBuff = dynamicCommandBuffers[window.indexInRenderer][window.currentSurfaceIndex];
 
 	VkCommandBufferBeginInfo beginInfo{};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	beginInfo.flags = 0; //VkCommandBufferUsageFlagBits::VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT; // Optional
 	beginInfo.pInheritanceInfo = nullptr; // Optional
 
-	dynamicCommandBuffers[window.currentSurfaceIndex].begin(beginInfo);
+	cmdBuff.begin(beginInfo);
 
 
 	// begin a render pass
@@ -490,27 +512,28 @@ void Renderer::renderFrame(WindowManager& window)
 #pragma endregion
 	
 	//vkCmdBeginRenderPass(commandBuffers[i], &info, VK_SUBPASS_CONTENTS_INLINE);
-	dynamicCommandBuffers[window.currentSurfaceIndex].beginRenderPass(&renderPassInfo, vk::SubpassContents::eSecondaryCommandBuffers);
+	cmdBuff.beginRenderPass(&renderPassInfo, vk::SubpassContents::eSecondaryCommandBuffers);
 
 	encodeGBufferPass(window);
 
-	dynamicCommandBuffers[window.currentSurfaceIndex].nextSubpass(vk::SubpassContents::eInline);
+	cmdBuff.nextSubpass(vk::SubpassContents::eInline);
 
 	encodeDeferredPass(window);
 
 
 	// end encoding 
 
-	dynamicCommandBuffers[window.currentSurfaceIndex].endRenderPass();
-	dynamicCommandBuffers[window.currentSurfaceIndex].end();
+	cmdBuff.endRenderPass();
+	cmdBuff.end();
 
 	// submit frame
 
-	submitFrameQueue(window,&dynamicCommandBuffers[window.currentSurfaceIndex],1);
+	submitFrameQueue(window,&cmdBuff,1);
 }
 
 void Renderer::encodeGBufferPass(WindowManager& window)
 {
+	auto& cmdBuff = dynamicCommandBuffers[window.indexInRenderer][window.currentSurfaceIndex];
 
 	// run terrain system draw
 
@@ -519,50 +542,61 @@ void Renderer::encodeGBufferPass(WindowManager& window)
 
 	// exicute indirect commands
 
-	dynamicCommandBuffers[window.currentSurfaceIndex].executeCommands({ 1, generatedTerrainCmds });
+	cmdBuff.executeCommands({ 1, generatedTerrainCmds });
 }
 
 
 void Renderer::encodeDeferredPass(WindowManager& window)
 {
-	dynamicCommandBuffers[window.currentSurfaceIndex].bindPipeline(vk::PipelineBindPoint::eGraphics, window.deferredPass->vkItem);
+	auto& cmdBuff = dynamicCommandBuffers[window.indexInRenderer][window.currentSurfaceIndex];
 
-	dynamicCommandBuffers[window.currentSurfaceIndex].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, window.deferredPass->pipelineLayout, 0, { deferredDescriptorSets[window.currentSurfaceIndex] }, {});
-	dynamicCommandBuffers[window.currentSurfaceIndex].bindIndexBuffer(deferredPassVertBuff->vkItem, deferredPassBuffIndexOffset, vk::IndexType::eUint16);
-	dynamicCommandBuffers[window.currentSurfaceIndex].bindVertexBuffers(0, { deferredPassVertBuff->vkItem }, { 0 });
-
-
-	dynamicCommandBuffers[window.currentSurfaceIndex].drawIndexed(6, 1, 0, 0, 0);
+	cmdBuff.bindPipeline(vk::PipelineBindPoint::eGraphics, window.deferredPass->vkItem);
+	
+	cmdBuff.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, window.deferredPass->pipelineLayout, 0, { deferredDescriptorSets[window.indexInRenderer][window.currentSurfaceIndex] }, {});
+	cmdBuff.bindIndexBuffer(deferredPassVertBuff->vkItem, deferredPassBuffIndexOffset, vk::IndexType::eUint16);
+	cmdBuff.bindVertexBuffers(0, { deferredPassVertBuff->vkItem }, { 0 });
+	
+	
+	cmdBuff.drawIndexed(6, 1, 0, 0, 0);
 
 
 
 }
 
 
-void Renderer::updateCameraUniformBuffer(WindowManager& window)
+void Renderer::updateCameraUniformBuffer()
 {
 
 	// update uniform buffer
 
+	auto& camera = windows[0]->camera;
+
 	SceneUniforms uniforms;
 
-	uniforms.viewProjection = window.camera.viewProjection(window.swapchainExtent.width, window.swapchainExtent.height);
+	uniforms.viewProjection = camera.viewProjection(windows[0]->swapchainExtent.width, windows[0]->swapchainExtent.height);
 
-	uniformBuffers[window.currentSurfaceIndex]->mapMemory();
-	uniformBuffers[window.currentSurfaceIndex]->tempMapAndWrite(&uniforms, 0, sizeof(uniforms),false);
+	uniformBuffers[app.currentFrame]->mapMemory();
+	uniformBuffers[app.currentFrame]->tempMapAndWrite(&uniforms, 0, sizeof(uniforms),false);
 
 	PostProcessEarthDatAndUniforms postUniforms;
 
-	postUniforms.camFloatedGloabelPos = glm::vec4(window.camera.transform.position,1);
+	postUniforms.camFloatedGloabelPos = glm::vec4(camera.transform.position,1);
 	postUniforms.sunDir = glm::vec4(glm::normalize(Math::LlatoGeo(world->playerLLA,glm::dvec3(0),terrainSystem->getRadius())),1);
 	postUniforms.earthCenter = glm::vec4(static_cast<glm::vec3>(world->origin),1);
-	postUniforms.viewMat = window.camera.view();
-	postUniforms.invertedViewMat = glm::inverse(window.camera.view());
+	postUniforms.viewMat = camera.view();
+	postUniforms.invertedViewMat = glm::inverse(camera.view());
 
-	uniformBuffers[window.currentSurfaceIndex]->tempMapAndWrite(&postUniforms, sizeof(uniforms), sizeof(postUniforms),false);
-	uniformBuffers[window.currentSurfaceIndex]->unmapMemory();
+	uniformBuffers[app.currentFrame]->tempMapAndWrite(&postUniforms, sizeof(uniforms), sizeof(postUniforms),false);
+	uniformBuffers[app.currentFrame]->unmapMemory();
 
-	camFrustrom = new Frustum(uniforms.viewProjection);
+
+
+	for (size_t i = 0; i < windows.size(); i++)
+	{
+		camFrustroms.emplace_back(uniforms.viewProjection);
+	}
+	//camFrustrom = new Frustum(uniforms.viewProjection);
+
 
 
 }

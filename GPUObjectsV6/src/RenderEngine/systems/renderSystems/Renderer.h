@@ -25,6 +25,7 @@ public:
 	void createAllResources();
 	~Renderer();
 
+	void renderScene();
 	void renderFrame(WindowManager& window);
 	
 	// systems
@@ -77,7 +78,8 @@ private:
 
 	void createUniformsAndDescriptors();
 
-	void updateDescriptors(WindowManager& window);
+	void updateLoadTimeDescriptors(WindowManager& window);
+	void updateRunTimeDescriptors(WindowManager& window);
 
 	void createDynamicRenderCommands();
 
@@ -89,18 +91,19 @@ private:
 
 	void encodeGBufferPass(WindowManager& window);
 
-	void updateCameraUniformBuffer(WindowManager& window);
+	void updateCameraUniformBuffer();
 
 	// render resources
 
 
-	std::vector<vk::CommandPool> dynamicCommandPools;
-	std::vector<vk::CommandBuffer> dynamicCommandBuffers;
+	std::vector<std::vector<vk::CommandPool  >> dynamicCommandPools;
+	std::vector<std::vector<vk::CommandBuffer>> dynamicCommandBuffers;
 
 
 
 	vk::DescriptorPool descriptorPool;
-	std::vector<VkDescriptorSet> descriptorSets;
+	// first dimension is windows second is surface index
+	std::vector<std::vector<VkDescriptorSet>> descriptorSets;
 
 
 	// deferred pass
@@ -110,13 +113,13 @@ private:
 
 
 	vk::DescriptorPool deferredDescriptorPool;
-	std::vector<VkDescriptorSet> deferredDescriptorSets;
+	std::vector<std::vector<VkDescriptorSet>> deferredDescriptorSets;
 
 	friend TerrainSystem;
 	friend Application;
 
 
-	Frustum* camFrustrom;
+	std::vector<Frustum> camFrustroms;
 
 	// handles
 

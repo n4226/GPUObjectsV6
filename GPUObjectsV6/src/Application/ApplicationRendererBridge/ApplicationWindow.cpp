@@ -6,8 +6,8 @@
 
 using namespace std;
 
-WindowManager::WindowManager(Application* app)
-    : app(*app)
+WindowManager::WindowManager(Application* app, size_t globalIndex)
+    : app(*app), globalIndex(globalIndex)
 {
     PROFILE_FUNCTION;
 
@@ -303,8 +303,7 @@ void WindowManager::createWindow()
 {
     PROFILE_FUNCTION;
 
-
-    auto windowConfig = configSystem.global().windows[0];
+    auto windowConfig = configSystem.global().windows[globalIndex];
 
     auto monitor = glfwGetPrimaryMonitor();
 
@@ -439,6 +438,7 @@ bool WindowManager::getDrawable()
     }
 
     // Check if a previous frame is using this image (i.e. there is its fence to wait on)
+    // wait when the current image is being used by a frame that is still inflight
     if (imagesInFlight[currentSurfaceIndex] != VK_NULL_HANDLE) {
         vkWaitForFences(device, 1, &imagesInFlight[currentSurfaceIndex], VK_TRUE, UINT64_MAX);
     }
@@ -478,8 +478,6 @@ void WindowManager::presentDrawable()
     else if (result != vk::Result::eSuccess) {
        // throw std::runtime_error("failed to present swap chain image");
     }
-
-    app.currentFrame = (app.currentFrame + 1) % app.MAX_FRAMES_IN_FLIGHT;
  }
 
 

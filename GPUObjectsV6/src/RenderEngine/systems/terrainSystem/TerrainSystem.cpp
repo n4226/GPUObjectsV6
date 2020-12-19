@@ -28,17 +28,21 @@ TerrainSystem::TerrainSystem(Application& app, WorldScene& scene, glm::dvec3* or
 TerrainSystem::~TerrainSystem()
 {
 	for (auto pool : cmdBufferPools)
-	{
-		app.renderers[0]->device.destroyCommandPool(pool);
-	}
+		for(auto spool: pool)
+			app.renderers[0]->device.destroyCommandPool(spool);
 }
 
 void TerrainSystem::CreateRenderResources()
 {
-	PROFILE_FUNCTION
+	PROFILE_FUNCTION;
 
-	VkHelpers::createPoolsAndCommandBufffers
-		(app.renderers[0]->device, cmdBufferPools, commandBuffers, app.maxSwapChainImages, app.renderers[0]->queueFamilyIndices.graphicsFamily.value(), vk::CommandBufferLevel::eSecondary);
+	cmdBufferPools.resize(app.renderers[0]->windows.size());
+	commandBuffers.resize(app.renderers[0]->windows.size());
+
+	for (size_t i = 0; i < app.renderers[0]->windows.size(); i++)
+		VkHelpers::createPoolsAndCommandBufffers
+			(app.renderers[0]->device, cmdBufferPools[i], commandBuffers[i], app.maxSwapChainImages, app.renderers[0]->queueFamilyIndices.graphicsFamily.value(), vk::CommandBufferLevel::eSecondary);
+
 #if RenderMode == RenderModeCPU2
 	cmdBuffsUpToDate.resize(app.maxSwapChainImages);
 
@@ -83,9 +87,9 @@ vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass, WindowManager& 
 
 #endif
 
-	renderer->device.resetCommandPool(cmdBufferPools[bufferIndex], {});
+	renderer->device.resetCommandPool(cmdBufferPools[window.indexInRenderer][bufferIndex], {});
 
-	vk::CommandBuffer* buffer = &commandBuffers[bufferIndex];
+	vk::CommandBuffer* buffer = &commandBuffers[window.indexInRenderer][bufferIndex];
 
 
 	vk::CommandBufferInheritanceInfo inheritanceInfo{};
@@ -103,7 +107,7 @@ vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass, WindowManager& 
 
 	// setup descriptor and buffer bindings
 
-	buffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, window.pipelineCreator->pipelineLayout, 0, { renderer->descriptorSets[window.currentSurfaceIndex] }, {});
+	buffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, window.pipelineCreator->pipelineLayout, 0, { renderer->descriptorSets[window.indexInRenderer][window.currentSurfaceIndex] }, {});
 
 	renderer->globalMeshBuffer->bindVerticiesIntoCommandBuffer(*buffer, 0);
 	renderer->globalMeshBuffer->bindIndiciesIntoCommandBuffer(*buffer);
@@ -118,7 +122,7 @@ vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass, WindowManager& 
 
 			//// frustrom cull
 #if RenderMode == RenderModeCPU1
-			if (!renderer->camFrustrom->IsBoxVisible(it->second.aabbMin, it->second.aabbMax)) {
+			if (!renderer->camFrustroms[window.indexInRenderer].IsBoxVisible(it->second.aabbMin, it->second.aabbMax)) {
 				continue;
 			}
 #endif

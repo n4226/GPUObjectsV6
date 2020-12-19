@@ -1,11 +1,12 @@
 #include "pch.h"
 #include "ConfigSystem.h"
+#include "Application/FileManager.h"
 
 #include <iomanip>
 
 using namespace nlohmann;
 
-const std::string configDir = R"(./config/)";
+//const std::string configDir = R"(./config/)";
 
 ConfigSystem configSystem = ConfigSystem();
 
@@ -18,7 +19,7 @@ ConfigSystem::Config& ConfigSystem::global()
 
 void ConfigSystem::readFromDisk()
 {
-    auto filePath = configDir + "global.config";
+    auto filePath = FileManager::getConfigDir() + "global.config";
 
     std::ifstream f(filePath);
     if (f.good()) {
@@ -36,7 +37,7 @@ void ConfigSystem::readFromDisk()
 
 void ConfigSystem::writeToDisk()
 {
-    auto filePath = configDir + "global.config";
+    auto filePath = FileManager::getConfigDir() + "global.config";
 
     auto data = config->toJson();
 

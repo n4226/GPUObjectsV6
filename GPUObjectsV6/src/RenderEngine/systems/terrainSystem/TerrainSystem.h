@@ -82,8 +82,8 @@ private:
 	/// <summary>
 	/// one for each drawable
 	/// </summary>
-	std::vector<vk::CommandPool> cmdBufferPools;
-	std::vector<vk::CommandBuffer> commandBuffers;
+	std::vector<std::vector<vk::CommandPool  >> cmdBufferPools;
+	std::vector<std::vector<vk::CommandBuffer>> commandBuffers;
 
 	/*vk::DescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;*/

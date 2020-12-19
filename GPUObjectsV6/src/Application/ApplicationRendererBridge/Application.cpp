@@ -56,10 +56,14 @@ void Application::startup()
 
     worldScene = new WorldScene(*this);
 
-    {// create windows
-        PROFILE_SCOPE("create windows");
+    auto cfgWindows = configSystem.global().windows;
 
-        auto window = new WindowManager(this);
+        // create windows
+    for (size_t i = 0; i < cfgWindows.size(); i++)
+    {
+        PROFILE_SCOPE("create window");
+
+        auto window = new WindowManager(this,0);
 
         window->camera.fov = 60;
         window->camera.zNear = 0.1;
@@ -103,7 +107,6 @@ void Application::run()
 
 void Application::runLoop()
 {
-
     worldScene->loadScene();
 
 
@@ -133,10 +136,16 @@ void Application::runLoopIteration()
 
     // update scene
     worldScene->updateScene();
-    // draw view
-    if (windows[0]->getDrawable() == true) return;
-    renderers[0]->renderFrame(*windows[0]);
-    windows[0]->presentDrawable();
+
+    // draw view - this should be able to be done all in parallel
+    for (size_t i = 0; i < windows.size(); i++)
+    {
+        if (windows[i]->getDrawable() == true) continue;
+        renderers[0]->renderFrame(*windows[i]);
+        windows[i]->presentDrawable();
+    }
+
+    currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
 
