@@ -12,15 +12,13 @@ class WorldScene
 
 public:
 
-	WorldScene(WindowManager& window);
+	WorldScene(Application& app);
 	~WorldScene();
 
-	WindowManager& window;
-	
-	Renderer* renderer;
 
-	void startScene();
+	Application& app;
 
+	void load();
 	void runFullUpdateLoop();
 
 	TerrainSystem* terrainSystem;
@@ -49,6 +47,6 @@ private:
 	void loadScene();
 
 	void updateScene();
-
+	friend Application;
 };
 

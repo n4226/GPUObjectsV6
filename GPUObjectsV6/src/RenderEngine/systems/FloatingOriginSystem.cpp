@@ -2,7 +2,7 @@
 #include "FloatingOriginSystem.h"
 #include "../../Application/ApplicationRendererBridge/WorldScene.h"
 #include "terrainSystem/TerrainSystem.h"
-
+#include "Application/ApplicationRendererBridge/Application.h"
 
 void FloatingOriginSystem::update()
 {
@@ -36,7 +36,8 @@ void FloatingOriginSystem::update()
 
             copyReceipts.push_back(modelAddress);
 
-            ModelUniforms* model = reinterpret_cast<ModelUniforms*>(reinterpret_cast<char*>(world->renderer->globalModelBufferStaging->mappedData) + modelAddress.offset);
+            //TODO: fix renderers[0]
+            ModelUniforms* model = reinterpret_cast<ModelUniforms*>(reinterpret_cast<char*>(world->app.renderers[0]->globalModelBufferStaging->mappedData) + modelAddress.offset);
             model->model = model->model * deltaTransform.matrix();
         }
         

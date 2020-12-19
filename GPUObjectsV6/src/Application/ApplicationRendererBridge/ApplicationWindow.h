@@ -9,40 +9,28 @@
 #include "../../RenderEngine/dataObjects/Camera.h"
 #include "../../RenderEngine/spacificVulkanImplementations/renderPipelines/concrete/TrianglePipeline.h"
 #include "../../RenderEngine/spacificVulkanImplementations/renderPipelines/concrete/TerrainPipeline.h"
+#include "../../RenderEngine/spacificVulkanImplementations/renderPipelines/GBufferComputePipeline.h"
 #include "../../environment.h"
 
 class WorldScene;
+class Renderer;
+class Application;
 
 class WindowManager
 {
 public:
-	WindowManager();
-	void createAllocator();
+	WindowManager(Application* app);
 	~WindowManager();
+
+	void finishInit();
 
 	//// application spacific - will move to other class after refactor - not sure about render pass manager yet
 
 
 		// manager objects
 
-	GraphicsPipeline* pipelineCreator;
 	RenderPassManager* renderPassManager;
-
-
-	vk::Instance instance = nullptr;
-
-
-
-	vk::Device device = nullptr;
-	vk::PhysicalDevice physicalDevice = nullptr;
-	VmaAllocator allocator;
-
-
-	GPUQueues deviceQueues;
-	QueueFamilyIndices queueFamilyIndices;
-
-	const int MAX_FRAMES_IN_FLIGHT = 3;
-
+	GraphicsPipeline* pipelineCreator;
 
 	//// window spacific - will keep here after refactor
 
@@ -87,13 +75,13 @@ public:
 	//Deferred 
 	//Image* deferred_colorAttachment; - right now befoe adding post processing passes the deferred writes directly to swap chain
 
+	DeferredPass* deferredPass;
 
 
 
 	vk::SurfaceKHR surface;
 
 	uint32_t currentSurfaceIndex;
-	size_t currentFrame = 0;
 
 
 
@@ -107,19 +95,20 @@ public:
 	bool framebufferResized = false;
 
 	void recreateSwapchain();
+
+	// refrences =
+
+	vk::Device device;
+	Renderer* renderer;
+
+	Application& app;
+
 private:
 
 	//// application spacific - will move to other class after refactor
 
-	void createInstance();
-	void createDevice();
 
-
-	std::vector<const char*> validationLayers = {
-		#if RDX_ENABLE_VK_VALIDATION_LAYERS
-		"VK_LAYER_KHRONOS_validation"
-		#endif
-	};
+	
 
 	//// window spacific - will keep here after refactor
 

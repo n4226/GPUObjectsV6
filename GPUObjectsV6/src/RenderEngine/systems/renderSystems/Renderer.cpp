@@ -1,14 +1,20 @@
 #include "pch.h"
 #include "Renderer.h"
 #include "../../../Application/ApplicationRendererBridge/WorldScene.h"
+#include "../../../Application/ApplicationRendererBridge/Application.h"
 
-Renderer::Renderer(vk::Device& device, vk::PhysicalDevice& physicalDevice, WindowManager& window) : device(device), physicalDevice(physicalDevice), window(window)
+Renderer::Renderer(Application& app, vk::Device device, vk::PhysicalDevice physicalDevice, VmaAllocator allocator, std::vector<WindowManager*>& windows, GPUQueues& deviceQueues, QueueFamilyIndices& queueFamilyIndices)
+	: app(app), device(device), physicalDevice(physicalDevice), allocator(allocator), windows(windows), deviceQueues(deviceQueues), queueFamilyIndices(queueFamilyIndices)
 {
-	PROFILE_FUNCTION
+	PROFILE_FUNCTION;
+}
+
+void Renderer::createAllResources()
+{
 	createRenderResources();
 	createUniformsAndDescriptors();
 
-	createDynamicRenderCommands(device, window);
+	createDynamicRenderCommands();
 }
 
 Renderer::~Renderer()
@@ -17,7 +23,6 @@ Renderer::~Renderer()
 
 	delete deferredPassVertBuff;
 	device.destroyDescriptorPool(deferredDescriptorPool);
-	delete deferredPass;
 
 	for (auto pool : dynamicCommandPools)
 	{
@@ -59,9 +64,7 @@ Renderer::~Renderer()
 
 void Renderer::createRenderResources()
 {
-	PROFILE_FUNCTION
-
-	allocator = window.allocator;
+	PROFILE_FUNCTION;
 
 	
 #pragma region Create Global vert and in
@@ -75,14 +78,7 @@ void Renderer::createRenderResources()
 
 	createDescriptorPoolAndSets();
 
-	// create depth attatchment(s)
-	createDepthAttatchments();
-
-	// create deferred pipeline
-
-	deferredPass = new DeferredPass(device,{window.swapchainExtent},*window.renderPassManager);
-
-	deferredPass->createPipeline();
+	
 
 	std::vector<glm::vec2> deferredPassVerts = { 
 		glm::vec2(-1,-1),
@@ -101,7 +97,7 @@ void Renderer::createRenderResources()
 
 
 	deferredPassVertBuff = new Buffer(device, allocator, indicyLength + deferredPassBuffIndexOffset, { ResourceStorageType::cpuToGpu, { vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eIndexBuffer }, vk::SharingMode::eConcurrent,
-		{ window.queueFamilyIndices.graphicsFamily.value(), window.queueFamilyIndices.resourceTransferFamily.value() } });
+		{ queueFamilyIndices.graphicsFamily.value(), queueFamilyIndices.resourceTransferFamily.value() } });
 
 	deferredPassVertBuff->mapMemory();
 
@@ -118,7 +114,7 @@ void Renderer::createRenderResources()
 		// the total max number of this descriptor allocated - if 2 sets and each one has 2 of this descriptor than thes would have to be 4 in order to allocate both sets
 		VkDescriptorPoolSize inputAttachmentPoolSize{};
 		inputAttachmentPoolSize.type = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-		inputAttachmentPoolSize.descriptorCount = 3 * window.swapChainImages.size();
+		inputAttachmentPoolSize.descriptorCount = 3 * app.maxSwapChainImages;
 
 		VkDescriptorPoolSize uniformPoolSize{};
 		uniformPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -131,20 +127,20 @@ void Renderer::createRenderResources()
 		poolInfo.poolSizeCount = poolSizes.size();
 		poolInfo.pPoolSizes = poolSizes.data();
 
-		poolInfo.maxSets = window.swapChainImages.size();
+		poolInfo.maxSets = app.maxSwapChainImages;
 
 		deferredDescriptorPool = device.createDescriptorPool({ poolInfo });
 
-
-		std::vector<vk::DescriptorSetLayout> layouts(window.swapChainImages.size(), deferredPass->descriptorSetLayouts[0]);
+		//TODO: fix this ---- windows[0]
+		std::vector<vk::DescriptorSetLayout> layouts(app.maxSwapChainImages, windows[0]->deferredPass->descriptorSetLayouts[0]);
 		vk::DescriptorSetAllocateInfo allocInfo{};
 		allocInfo.descriptorPool = deferredDescriptorPool;
-		allocInfo.descriptorSetCount = window.swapChainImages.size();
+		allocInfo.descriptorSetCount = app.maxSwapChainImages;
 		allocInfo.pSetLayouts = layouts.data();
 
 		VkDescriptorSetAllocateInfo c_allocInfo = allocInfo;
 
-		deferredDescriptorSets.resize(window.swapChainImages.size());
+		deferredDescriptorSets.resize(app.maxSwapChainImages);
 
 		vkAllocateDescriptorSets(device, &c_allocInfo, deferredDescriptorSets.data());
 
@@ -156,7 +152,7 @@ void Renderer::makeGlobalMeshBuffers(const VkDeviceSize& vCount, const VkDeviceS
 {
 	BufferCreationOptions options =
 	{ ResourceStorageType::cpu,{ vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferSrc }, vk::SharingMode::eConcurrent,
-		{ window.queueFamilyIndices.graphicsFamily.value(), window.queueFamilyIndices.resourceTransferFamily.value() } };
+		{ queueFamilyIndices.graphicsFamily.value(), queueFamilyIndices.resourceTransferFamily.value() } };
 
 	globalMeshStagingBuffer = new BindlessMeshBuffer(device, allocator, options, vCount, indexCount);
 
@@ -207,10 +203,6 @@ void Renderer::makeGlobalMeshBuffers(const VkDeviceSize& vCount, const VkDeviceS
 	globalModelBufferAllocator = new IndexAllocator(maxModelUniformDescriptorArrayCount, sizeof(ModelUniforms));
 }
 
-void Renderer::createDepthAttatchments()
-{
-
-}
 
 void Renderer::createDescriptorPoolAndSets()
 {
@@ -218,12 +210,12 @@ void Renderer::createDescriptorPoolAndSets()
 
 	VkDescriptorPoolSize globalUniformPoolSize{};
 	globalUniformPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	globalUniformPoolSize.descriptorCount = static_cast<uint32_t>(window.swapChainImages.size());
+	globalUniformPoolSize.descriptorCount = static_cast<uint32_t>(app.maxSwapChainImages);
 
 	// the total max number of this descriptor allocated - if 2 sets and each one has 2 of this descriptor than thes would have to be 4 in order to allocate both sets
 	VkDescriptorPoolSize modelUniformPoolSize{};
 	modelUniformPoolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-	modelUniformPoolSize.descriptorCount = static_cast<uint32_t>(window.swapChainImages.size());
+	modelUniformPoolSize.descriptorCount = static_cast<uint32_t>(app.maxSwapChainImages);
 
 	std::array<VkDescriptorPoolSize, 2> poolSizes = { globalUniformPoolSize, modelUniformPoolSize };
 
@@ -232,30 +224,31 @@ void Renderer::createDescriptorPoolAndSets()
 	poolInfo.poolSizeCount = poolSizes.size();
 	poolInfo.pPoolSizes = poolSizes.data();
 
-	poolInfo.maxSets = static_cast<uint32_t>(window.swapChainImages.size());
+	poolInfo.maxSets = static_cast<uint32_t>(app.maxSwapChainImages);
 
 	descriptorPool = device.createDescriptorPool({ poolInfo });
 
 
-	std::vector<vk::DescriptorSetLayout> layouts(window.swapChainImages.size(), window.pipelineCreator->descriptorSetLayouts[0]);
+	//TODO: fix this ---- windows[0]
+	std::vector<vk::DescriptorSetLayout> layouts(app.maxSwapChainImages, windows[0]->pipelineCreator->descriptorSetLayouts[0]);
 	vk::DescriptorSetAllocateInfo allocInfo{};
 	allocInfo.descriptorPool = descriptorPool;
-	allocInfo.descriptorSetCount = static_cast<uint32_t>(window.swapChainImages.size());
+	allocInfo.descriptorSetCount = static_cast<uint32_t>(app.maxSwapChainImages);
 	allocInfo.pSetLayouts = layouts.data();
 
 	VkDescriptorSetAllocateInfo c_allocInfo = allocInfo;
 
-	descriptorSets.resize(window.swapChainImages.size());
+	descriptorSets.resize(app.maxSwapChainImages);
 
 	vkAllocateDescriptorSets(device, &c_allocInfo, descriptorSets.data());
 
 
 }
 
-void Renderer::createDynamicRenderCommands(vk::Device& device, WindowManager& window)
+void Renderer::createDynamicRenderCommands()
 {
 	VkHelpers::createPoolsAndCommandBufffers
-		(device, dynamicCommandPools, dynamicCommandBuffers, window.swapChainImageViews.size(), window.queueFamilyIndices.graphicsFamily.value(), vk::CommandBufferLevel::ePrimary);
+		(device, dynamicCommandPools, dynamicCommandBuffers, app.maxSwapChainImages, queueFamilyIndices.graphicsFamily.value(), vk::CommandBufferLevel::ePrimary);
 }
 
 void Renderer::createUniformsAndDescriptors()
@@ -267,7 +260,7 @@ void Renderer::createUniformsAndDescriptors()
 
 	VkDeviceSize uniformBufferSize = sizeof(SceneUniforms) + sizeof(PostProcessEarthDatAndUniforms); //sizeof(TriangleUniformBufferObject);
 
-	uniformBuffers.resize(window.swapChainImages.size());
+	uniformBuffers.resize(app.maxSwapChainImages);
 
 	BufferCreationOptions uniformOptions = { ResourceStorageType::cpuToGpu,{vk::BufferUsageFlagBits::eUniformBuffer}, vk::SharingMode::eExclusive };
 
@@ -277,13 +270,14 @@ void Renderer::createUniformsAndDescriptors()
 	
 	// set up descriptors 
 
-	updateDescriptors();
+	//TODO: fix this ---- windows[0]
+	updateDescriptors(*windows[0]);
 
 }
 
-void Renderer::updateDescriptors()
+void Renderer::updateDescriptors(WindowManager& window)
 {
-	for (size_t i = 0; i < window.swapChainImages.size(); i++) {
+	for (size_t i = 0; i < app.maxSwapChainImages; i++) {
 
 		VkDescriptorBufferInfo globalUniformBufferInfo{};
 		globalUniformBufferInfo.buffer = uniformBuffers[i]->vkItem;
@@ -413,7 +407,7 @@ void Renderer::updateDescriptors()
 }
 
 
-void Renderer::renderFrame()
+void Renderer::renderFrame(WindowManager& window)
 {
 	PROFILE_FUNCTION
 
@@ -446,7 +440,7 @@ void Renderer::renderFrame()
 			
 	*/
 
-	updateCameraUniformBuffer();
+	updateCameraUniformBuffer(window);
 
 
 
@@ -498,11 +492,11 @@ void Renderer::renderFrame()
 	//vkCmdBeginRenderPass(commandBuffers[i], &info, VK_SUBPASS_CONTENTS_INLINE);
 	dynamicCommandBuffers[window.currentSurfaceIndex].beginRenderPass(&renderPassInfo, vk::SubpassContents::eSecondaryCommandBuffers);
 
-	encodeGBufferPass();
+	encodeGBufferPass(window);
 
 	dynamicCommandBuffers[window.currentSurfaceIndex].nextSubpass(vk::SubpassContents::eInline);
 
-	encodeDeferredPass();
+	encodeDeferredPass(window);
 
 
 	// end encoding 
@@ -512,15 +506,15 @@ void Renderer::renderFrame()
 
 	// submit frame
 
-	submitFrameQueue(&dynamicCommandBuffers[window.currentSurfaceIndex],1);
+	submitFrameQueue(window,&dynamicCommandBuffers[window.currentSurfaceIndex],1);
 }
 
-void Renderer::encodeGBufferPass()
+void Renderer::encodeGBufferPass(WindowManager& window)
 {
 
 	// run terrain system draw
 
-	auto generatedTerrainCmds = terrainSystem->renderSystem(0);
+	auto generatedTerrainCmds = terrainSystem->renderSystem(0,window);
 
 
 	// exicute indirect commands
@@ -529,11 +523,11 @@ void Renderer::encodeGBufferPass()
 }
 
 
-void Renderer::encodeDeferredPass()
+void Renderer::encodeDeferredPass(WindowManager& window)
 {
-	dynamicCommandBuffers[window.currentSurfaceIndex].bindPipeline(vk::PipelineBindPoint::eGraphics, deferredPass->vkItem);
+	dynamicCommandBuffers[window.currentSurfaceIndex].bindPipeline(vk::PipelineBindPoint::eGraphics, window.deferredPass->vkItem);
 
-	dynamicCommandBuffers[window.currentSurfaceIndex].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, deferredPass->pipelineLayout, 0, { deferredDescriptorSets[window.currentSurfaceIndex] }, {});
+	dynamicCommandBuffers[window.currentSurfaceIndex].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, window.deferredPass->pipelineLayout, 0, { deferredDescriptorSets[window.currentSurfaceIndex] }, {});
 	dynamicCommandBuffers[window.currentSurfaceIndex].bindIndexBuffer(deferredPassVertBuff->vkItem, deferredPassBuffIndexOffset, vk::IndexType::eUint16);
 	dynamicCommandBuffers[window.currentSurfaceIndex].bindVertexBuffers(0, { deferredPassVertBuff->vkItem }, { 0 });
 
@@ -545,7 +539,7 @@ void Renderer::encodeDeferredPass()
 }
 
 
-void Renderer::updateCameraUniformBuffer()
+void Renderer::updateCameraUniformBuffer(WindowManager& window)
 {
 
 	// update uniform buffer
@@ -573,11 +567,11 @@ void Renderer::updateCameraUniformBuffer()
 
 }
 
-void Renderer::submitFrameQueue(vk::CommandBuffer* buffers,uint32_t bufferCount)
+void Renderer::submitFrameQueue(WindowManager& window, vk::CommandBuffer* buffers,uint32_t bufferCount)
 {
 	vk::SubmitInfo submitInfo{};
 
-	std::vector<vk::Semaphore> waitSemaphores = { window.imageAvailableSemaphores[window.currentFrame] };
+	std::vector<vk::Semaphore> waitSemaphores = { window.imageAvailableSemaphores[app.currentFrame] };
 	std::vector<vk::PipelineStageFlags> waitStages = { vk::PipelineStageFlags(vk::PipelineStageFlagBits::eColorAttachmentOutput) };
 	submitInfo.waitSemaphoreCount = waitSemaphores.size();
 	submitInfo.pWaitSemaphores = waitSemaphores.data();
@@ -586,14 +580,14 @@ void Renderer::submitFrameQueue(vk::CommandBuffer* buffers,uint32_t bufferCount)
 	submitInfo.commandBufferCount = bufferCount;
 	submitInfo.pCommandBuffers = buffers;
 
-	std::vector<vk::Semaphore> signalSemaphores = { window.renderFinishedSemaphores[window.currentFrame] };
+	std::vector<vk::Semaphore> signalSemaphores = { window.renderFinishedSemaphores[app.currentFrame] };
 	submitInfo.setSignalSemaphores(signalSemaphores);
 
 	
 
-	vkResetFences(device, 1, &window.inFlightFences[window.currentFrame]);
+	vkResetFences(device, 1, &window.inFlightFences[app.currentFrame]);
 
 	// submit queue
 
-	window.deviceQueues.graphics.submit({ submitInfo }, window.inFlightFences[window.currentFrame]);
+	deviceQueues.graphics.submit({ submitInfo }, window.inFlightFences[app.currentFrame]);
 }

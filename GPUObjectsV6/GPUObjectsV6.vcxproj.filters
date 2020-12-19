@@ -93,9 +93,6 @@
     <ClCompile Include="src\RenderEngine\vulkanAbstractions\Buffer.cpp">
       <Filter>Source Files\helping objects</Filter>
     </ClCompile>
-    <ClCompile Include="src\RenderEngine\vulkanAbstractions\GPUSelector.cpp">
-      <Filter>Source Files\application</Filter>
-    </ClCompile>
     <ClCompile Include="src\RenderEngine\vulkanAbstractions\Image.cpp">
       <Filter>Source Files\helping objects</Filter>
     </ClCompile>
@@ -179,6 +176,9 @@
     </ClCompile>
     <ClCompile Include="src\Application\ApplicationRendererBridge\Application.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\vulkanAbstractions\GPUSelector.cpp">
+      <Filter>Source Files\application</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

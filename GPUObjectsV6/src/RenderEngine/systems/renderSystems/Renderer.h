@@ -21,28 +21,24 @@ class Renderer
 {
 public:
 
-	Renderer(vk::Device& device, vk::PhysicalDevice& physicalDevice, WindowManager& window);
+	Renderer(Application& app, vk::Device device, vk::PhysicalDevice physicalDevice, VmaAllocator allocator, std::vector<WindowManager*>& windows, GPUQueues& deviceQueues, QueueFamilyIndices& queueFamilyIndices);
+	void createAllResources();
 	~Renderer();
 
-	void renderFrame();
-
-	void encodeDeferredPass();
-
-	void encodeGBufferPass();
-
-	void updateCameraUniformBuffer();
-
-
+	void renderFrame(WindowManager& window);
 	
 	// systems
 	TerrainSystem* terrainSystem;
 	WorldScene* world;
 
+	// handles
 	vk::Device device;
-	vk::PhysicalDevice& physicalDevice;
-	WindowManager& window;
-
+	vk::PhysicalDevice physicalDevice;
 	VmaAllocator allocator;
+	GPUQueues& deviceQueues;
+	QueueFamilyIndices& queueFamilyIndices;
+
+	std::vector<WindowManager*> windows;
 
 	std::vector<Buffer*> uniformBuffers;
 
@@ -77,18 +73,23 @@ private:
 
 	void makeGlobalMeshBuffers(const VkDeviceSize& vCount, const VkDeviceSize& indexCount);
 
-	void createDepthAttatchments();
-
 	void createDescriptorPoolAndSets();
 
 	void createUniformsAndDescriptors();
 
-	void updateDescriptors();
+	void updateDescriptors(WindowManager& window);
 
-	void createDynamicRenderCommands(vk::Device& device, WindowManager& window);
+	void createDynamicRenderCommands();
 
-	void submitFrameQueue(vk::CommandBuffer* buffers, uint32_t bufferCount);
+	void submitFrameQueue(WindowManager& window, vk::CommandBuffer* buffers, uint32_t bufferCount);
 
+
+
+	void encodeDeferredPass(WindowManager& window);
+
+	void encodeGBufferPass(WindowManager& window);
+
+	void updateCameraUniformBuffer(WindowManager& window);
 
 	// render resources
 
@@ -104,7 +105,6 @@ private:
 
 	// deferred pass
 
-	DeferredPass* deferredPass;
 	Buffer* deferredPassVertBuff;
 	size_t deferredPassBuffIndexOffset;
 
@@ -113,8 +113,14 @@ private:
 	std::vector<VkDescriptorSet> deferredDescriptorSets;
 
 	friend TerrainSystem;
+	friend Application;
+
 
 	Frustum* camFrustrom;
+
+	// handles
+
+	Application& app;
 
 };
 

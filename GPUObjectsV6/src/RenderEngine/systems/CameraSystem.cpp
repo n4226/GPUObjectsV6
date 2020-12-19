@@ -10,6 +10,7 @@ CameraSystem::CameraSystem()
 
 void CameraSystem::update()
 {
+	PROFILE_FUNCTION
 	// move around the world fast
 	//world->playerLLA = glm::dvec3(45 + sin(world->timef * 0.1f), 0, 10100 + -cos(world->timef * 0.5f) * 10'000);
 
@@ -107,6 +108,7 @@ void CameraSystem::update()
 
 void CameraSystem::movePlayerAlongCamPath()
 {
+	PROFILE_FUNCTION
 	//static const auto points = cameraPath.CalculateEvenlySpacedPoints(1000, 0.0001, true, Math::dEarthRad);
 	
 	

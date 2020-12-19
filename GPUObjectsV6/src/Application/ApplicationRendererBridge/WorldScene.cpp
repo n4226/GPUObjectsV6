@@ -2,17 +2,27 @@
 #include "WorldScene.h"
 #include "../../RenderEngine/systems/CameraSystem.h"
 #include "../../RenderEngine/systems/FloatingOriginSystem.h"
+#include "Application/ApplicationRendererBridge/Application.h"
 
-WorldScene::WorldScene(WindowManager& window) : 
-	window(window)
+WorldScene::WorldScene(Application& app) : 
+	app(app)
 {
 	PROFILE_FUNCTION
-	renderer = new Renderer(window.device, window.physicalDevice, window);
-	renderer->world = this;
-	terrainSystem = new TerrainSystem(renderer,&origin);
+		
+}
+
+void WorldScene::load()
+{
+	PROFILE_FUNCTION;
+	//renderer = new Renderer(window.device, window.physicalDevice, window);
+	//renderer->world = this;
+	terrainSystem = new TerrainSystem(app, *this, &origin);
 	terrainSystem->trackedTransform = &playerTrans;
 	terrainSystem->world = this;
-	renderer->terrainSystem = terrainSystem;
+
+	for (auto render : app.renderers)
+		render->terrainSystem = terrainSystem;
+
 	generalSystems = { new FloatingOriginSystem(), new CameraSystem() };
 
 	for (System* sys : generalSystems) {
@@ -30,7 +40,6 @@ WorldScene::~WorldScene()
 	PROFILE_FUNCTION
 
 	delete terrainSystem;
-	delete renderer;
 
 	for (System* sys : generalSystems) {
 		delete sys;
@@ -40,33 +49,13 @@ WorldScene::~WorldScene()
 
 void WorldScene::loadScene()
 {
-	PROFILE_FUNCTION
+	PROFILE_FUNCTION;
+
+
+
+
 }
 
-void WorldScene::startScene()
-{
-	loadScene();
-	while (!glfwWindowShouldClose(window.window)) {
-			runFullUpdateLoop();
-	}
-}
-
-void WorldScene::runFullUpdateLoop()
-{
-	PROFILE_FUNCTION
-	{
-		PROFILE_SCOPE("glfwPollEvents");
-		glfwPollEvents();
-	}
-	//drawView();
-
-	// update scene
-	updateScene();
-	// draw view
-	if (window.getDrawable() == true) return;
-	renderer->renderFrame();
-	window.presentDrawable();
-}
 
 
 void WorldScene::updateScene()
@@ -87,7 +76,7 @@ void WorldScene::updateScene()
 
 	if (frameNum == 2000) {
 		char** stats = new char*;
-		vmaBuildStatsString(renderer->allocator, stats,VK_TRUE);
+		vmaBuildStatsString(app.renderers[0]->allocator, stats,VK_TRUE);
 		//std::string statString(*stats);
 
 		{
@@ -97,7 +86,7 @@ void WorldScene::updateScene()
 			out << *stats;
 			out.close();
 		}
-		vmaFreeStatsString(renderer->allocator, *stats);
+		vmaFreeStatsString(app.renderers[0]->allocator, *stats);
 	}
 
 	for (System* sys : generalSystems) {
@@ -106,7 +95,8 @@ void WorldScene::updateScene()
 
 	terrainSystem->update();
 
-	window.camera.transform = playerTrans;
+	for (auto window : app.windows)
+		window->camera.transform = playerTrans;
 
 	frameNum += 1;
 }

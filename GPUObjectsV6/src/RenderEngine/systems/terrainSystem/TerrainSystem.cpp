@@ -1,14 +1,18 @@
 #include "pch.h"
 #include "TerrainSystem.h"
 #include "../renderSystems/Renderer.h"
+#include "Application/ApplicationRendererBridge/WorldScene.h"
+#include "Application/ApplicationRendererBridge/Application.h"
 #include <filesystem>
 
-TerrainSystem::TerrainSystem(Renderer* renderer, glm::dvec3* origin)
-	: tree(Math::dEarthRad), renderer(renderer), meshLoader(), origin(origin)
+TerrainSystem::TerrainSystem(Application& app, WorldScene& scene, glm::dvec3* origin)
+	: tree(Math::dEarthRad), app(app), scene(scene), meshLoader(), origin(origin)
 {
 	PROFILE_FUNCTION
 
-	meshLoader.renderer = renderer;
+	//TODO: fix for multi gpu to use multiple renderers
+
+	meshLoader.renderer = app.renderers[0];
 	meshLoader.terrainSystem = this;
 
 	CreateRenderResources();
@@ -25,7 +29,7 @@ TerrainSystem::~TerrainSystem()
 {
 	for (auto pool : cmdBufferPools)
 	{
-		renderer->device.destroyCommandPool(pool);
+		app.renderers[0]->device.destroyCommandPool(pool);
 	}
 }
 
@@ -34,9 +38,9 @@ void TerrainSystem::CreateRenderResources()
 	PROFILE_FUNCTION
 
 	VkHelpers::createPoolsAndCommandBufffers
-		(renderer->device, cmdBufferPools, commandBuffers, renderer->window.swapChainImageViews.size(), renderer->window.queueFamilyIndices.graphicsFamily.value(), vk::CommandBufferLevel::eSecondary);
+		(app.renderers[0]->device, cmdBufferPools, commandBuffers, app.maxSwapChainImages, app.renderers[0]->queueFamilyIndices.graphicsFamily.value(), vk::CommandBufferLevel::eSecondary);
 #if RenderMode == RenderModeCPU2
-	cmdBuffsUpToDate.resize(renderer->window.swapChainImageViews.size());
+	cmdBuffsUpToDate.resize(app.maxSwapChainImages);
 
 	for (auto val: cmdBuffsUpToDate) {
 		val = true;
@@ -51,11 +55,13 @@ void TerrainSystem::update()
 	processTree();
 }
 
-vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass)
+vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass, WindowManager& window)
 {
 	PROFILE_FUNCTION
 
-	uint32_t bufferIndex = renderer->window.currentSurfaceIndex;
+	uint32_t bufferIndex = window.currentSurfaceIndex;
+
+	auto renderer = app.renderers[0];
 
 		// if CPU mode 2 than only re encode commands for this surface's command buffer when changes occor otherwise just return the cmd buff for hte current surface
 #if RenderMode == RenderModeCPU2
@@ -70,22 +76,22 @@ vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass)
 		*cmdsValid = true;    
 		}
 		if (cmdBuffsUpToDate[bufferIndex] == true)
-			return &commandBuffers[renderer->window.currentSurfaceIndex];
+			return &commandBuffers[bufferIndex];
 		else
 			cmdBuffsUpToDate[bufferIndex] = true;
 	}
 
 #endif
 
-	renderer->window.device.resetCommandPool(cmdBufferPools[bufferIndex], {});
+	renderer->device.resetCommandPool(cmdBufferPools[bufferIndex], {});
 
-	vk::CommandBuffer* buffer = &commandBuffers[renderer->window.currentSurfaceIndex];
+	vk::CommandBuffer* buffer = &commandBuffers[bufferIndex];
 
 
 	vk::CommandBufferInheritanceInfo inheritanceInfo{};
-	inheritanceInfo.renderPass = renderer->window.renderPassManager->renderPass;
+	inheritanceInfo.renderPass = window.renderPassManager->renderPass;
 	inheritanceInfo.subpass = subpass;
-	inheritanceInfo.framebuffer = renderer->window.swapChainFramebuffers[renderer->window.currentSurfaceIndex];
+	inheritanceInfo.framebuffer = window.swapChainFramebuffers[bufferIndex];
 
 	vk::CommandBufferBeginInfo beginInfo{};
 	beginInfo.flags = vk::CommandBufferUsageFlagBits::eRenderPassContinue; // Optional
@@ -93,11 +99,11 @@ vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass)
 
 	buffer->begin(beginInfo);
 
-	buffer->bindPipeline(vk::PipelineBindPoint::eGraphics, renderer->window.pipelineCreator->vkItem);
+	buffer->bindPipeline(vk::PipelineBindPoint::eGraphics, window.pipelineCreator->vkItem);
 
 	// setup descriptor and buffer bindings
 
-	buffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, renderer->window.pipelineCreator->pipelineLayout, 0, { renderer->descriptorSets[renderer->window.currentSurfaceIndex] }, {});
+	buffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, window.pipelineCreator->pipelineLayout, 0, { renderer->descriptorSets[window.currentSurfaceIndex] }, {});
 
 	renderer->globalMeshBuffer->bindVerticiesIntoCommandBuffer(*buffer, 0);
 	renderer->globalMeshBuffer->bindIndiciesIntoCommandBuffer(*buffer);
@@ -116,7 +122,7 @@ vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass)
 				continue;
 			}
 #endif
-			buffer->pushConstants(renderer->window.pipelineCreator->pipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(DrawPushData), &it->second.drawData);
+			buffer->pushConstants(window.pipelineCreator->pipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(DrawPushData), &it->second.drawData);
 			buffer->drawIndexed(it->second.indexCount, 1, it->second.indIndex, it->second.vertIndex, 0);
 		}
 	}
@@ -237,7 +243,8 @@ void TerrainSystem::processTree()
 					meshLoader.drawChunk(chunk, {}, false);
 				}
 
-				writePendingDrawOobjects();
+				//TODO - fix
+				writePendingDrawOobjects(*app.renderers[0]);
 
 				for (TerrainQuadTreeNode* chunk : toDestroyDraw) {
 					meshLoader.removeDrawChunk(chunk);
@@ -313,27 +320,27 @@ void TerrainSystem::setActiveState(TerrainQuadTreeNode* node)
 	//TODO: fix this
 }
 
-void TerrainSystem::writePendingDrawOobjects()
+void TerrainSystem::writePendingDrawOobjects(Renderer& renderer)
 {
 	// copy from staging buffers to gpu ones - asynchronously
 
 	ResourceTransferer::Task vertexTask;
 
-	vertexTask.srcBuffer = renderer->globalMeshStagingBuffer->vertBuffer->vkItem;
-	vertexTask.dstBuffer = renderer->globalMeshBuffer->vertBuffer->vkItem;
+	vertexTask.srcBuffer = renderer.globalMeshStagingBuffer->vertBuffer->vkItem;
+	vertexTask.dstBuffer = renderer.globalMeshBuffer->vertBuffer->vkItem;
 
 
 	ResourceTransferer::Task indexTask;
 
-	indexTask.srcBuffer = renderer->globalMeshStagingBuffer->indexBuffer->vkItem;
-	indexTask.dstBuffer = renderer->globalMeshBuffer->indexBuffer->vkItem;
+	indexTask.srcBuffer = renderer.globalMeshStagingBuffer->indexBuffer->vkItem;
+	indexTask.dstBuffer = renderer.globalMeshBuffer->indexBuffer->vkItem;
 
 
 
 	ResourceTransferer::Task modelTask;
 
-	modelTask.srcBuffer = renderer->globalModelBufferStaging->vkItem;
-	modelTask.dstBuffer = renderer->globalModelBuffers[renderer->gpuActiveGlobalModelBuffer]->vkItem;
+	modelTask.srcBuffer = renderer.globalModelBufferStaging->vkItem;
+	modelTask.dstBuffer = renderer.globalModelBuffers[renderer.gpuActiveGlobalModelBuffer]->vkItem;
 
 	{
 		auto drawQueue = pendingDrawObjects.lock_shared();

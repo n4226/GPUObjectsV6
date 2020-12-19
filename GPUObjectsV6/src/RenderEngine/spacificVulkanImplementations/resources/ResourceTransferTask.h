@@ -1,6 +1,8 @@
 #pragma once
 #include "../../../pch.h"
 
+class Application;
+
 struct MarlSafeTicketLock {
 	/// <summary>
 	/// waits on the ticket
@@ -43,7 +45,7 @@ public:
 	void newTask(std::vector<Task>& tasks, std::function<void()> completionHandler,bool synchronus = false);
 
 protected:
-	friend WindowManager;
+	friend Application;
 	ResourceTransferer(vk::Device device, vk::Queue queue, uint32_t queueFamilyIndex);
 	~ResourceTransferer();
 private:

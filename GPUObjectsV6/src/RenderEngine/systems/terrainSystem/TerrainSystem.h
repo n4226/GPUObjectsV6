@@ -17,18 +17,21 @@ class TerrainSystem: public RenderSystem
 {
 public:
 
-	TerrainSystem(Renderer* renderer, glm::dvec3* origin);
+	TerrainSystem(Application& app, WorldScene& scene, glm::dvec3* origin);
 	~TerrainSystem();
 
 	void CreateRenderResources();
 
 	void update() override;
-	vk::CommandBuffer* renderSystem(uint32_t subpass) override;
+	vk::CommandBuffer* renderSystem(uint32_t subpass, WindowManager& window) override;
 
 	Transform* trackedTransform = nullptr;
 	glm::dvec3* origin = nullptr;
 
-	Renderer* renderer;
+	WorldScene& scene;
+	Application& app;
+
+	//Renderer* renderer;
 
 	const uint16_t lodLevels = 13;
 
@@ -69,7 +72,7 @@ private:
 
 	//updating descriptors
 
-	void writePendingDrawOobjects();
+	void writePendingDrawOobjects(Renderer& renderer);
 
 	//async resources
 	marl::Ticket::Queue ticketQueue;

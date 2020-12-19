@@ -1,25 +1,27 @@
 #include "ApplicationWindow.h"
 #include "pch.h"
 #include "../../RenderEngine/spacificVulkanImplementations/resources/ResourceTransferTask.h"
-
+#include "RenderEngine/systems/renderSystems/Renderer.h"
+#include "Application/ApplicationRendererBridge/Application.h"
 
 using namespace std;
 
-WindowManager::WindowManager()
+WindowManager::WindowManager(Application* app)
+    : app(*app)
 {
-    PROFILE_FUNCTION
+    PROFILE_FUNCTION;
 
 
     createWindow();
 
-    createInstance();
 
     createSurface();
 
-    createDevice();
 
-    createAllocator();
+}
 
+void WindowManager::finishInit()
+{
     createSwapchain();
 
     createSwapchainImageViews();
@@ -27,30 +29,23 @@ WindowManager::WindowManager()
     createFrameBufferImages();
 
     // make graphics pipeline 
-    
+
     renderPassManager = new RenderPassManager(device, albedoFormat, normalFormat, aoFormat, swapchainImageFormat, depthBufferFormat);
-    pipelineCreator = new TerrainPipeline(device, swapchainExtent,*renderPassManager);
+    pipelineCreator = new TerrainPipeline(device, swapchainExtent, *renderPassManager);
 
     pipelineCreator->createPipeline();
+    
+    //TODO: find better way to abstract use of multiple windows with different shaders 
+    // create deferred pipeline
+
+    deferredPass = new DeferredPass(device, { swapchainExtent }, *renderPassManager);
+
+    deferredPass->createPipeline();
 
     createFramebuffers();
 
     createSemaphores();
-
-    //TODO: Add swap chain recreation for window resizing suport
 }
-
-void WindowManager::createAllocator()
-{
-    VmaAllocatorCreateInfo allocatorInfo = {};
-    allocatorInfo.vulkanApiVersion = VK_API_VERSION_1_2;
-    allocatorInfo.physicalDevice = physicalDevice;
-    allocatorInfo.device = device;
-    allocatorInfo.instance = instance;
-
-    vmaCreateAllocator(&allocatorInfo, &allocator);
-}
-
 
 void WindowManager::recreateSwapchain()
 {
@@ -84,73 +79,11 @@ void WindowManager::recreateSwapchain()
 
 }
 
-void WindowManager::createDevice()
-{
-    PROFILE_FUNCTION
-    physicalDevice = GPUSelector::primaryGPU(instance, surface);
-
-    queueFamilyIndices = GPUSelector::gpuQueueFamilies(physicalDevice, surface);
-
-    const float queuePriority1 = 1.0f;
-    vk::DeviceQueueCreateInfo gfxQueueCreateInfo({}, queueFamilyIndices.graphicsFamily.value(), 1);
-    gfxQueueCreateInfo.pQueuePriorities = &queuePriority1;
-    vk::DeviceQueueCreateInfo transferQueueCreateInfo({}, queueFamilyIndices.resourceTransferFamily.value(), 1);
-    transferQueueCreateInfo.pQueuePriorities = &queuePriority1;
-
-
-    std::array<VkDeviceQueueCreateInfo, 2> queueCreateInfos = { VkDeviceQueueCreateInfo(gfxQueueCreateInfo), VkDeviceQueueCreateInfo(transferQueueCreateInfo) };
-
-
-    //vk::PhysicalDeviceFeatures deviceFeatures();
-    VkPhysicalDeviceFeatures deviceFeatures{};
-
-    VkPhysicalDeviceDescriptorIndexingFeatures desIndexingFeatures{};
-    desIndexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
-    desIndexingFeatures.pNext = nullptr;
-
-    desIndexingFeatures.descriptorBindingUpdateUnusedWhilePending = VK_TRUE;
-    // not suported by gtx 1080 ti
-    //desIndexingFeatures.descriptorBindingUniformBufferUpdateAfterBind = VK_TRUE;
-    desIndexingFeatures.descriptorBindingVariableDescriptorCount = VK_TRUE;
-    desIndexingFeatures.descriptorBindingPartiallyBound = VK_TRUE;
-
-    // devie extensions
-    const std::vector<const char*> extensionNames = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
-    vk::DeviceCreateFlags flags();
-
-    //vk::DeviceCreateInfo info(flags, 1, &queueCreateInfo, validationLayers.size(), validationLayers.data(), 1 ,extensionNames, &deviceFeatures);
-
-    VkDeviceCreateInfo createInfo{};
-    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    createInfo.queueCreateInfoCount = queueCreateInfos.size();
-    createInfo.pQueueCreateInfos = queueCreateInfos.data();
-
-    createInfo.pEnabledFeatures = &deviceFeatures;
-
-    createInfo.enabledLayerCount = validationLayers.size();
-    createInfo.ppEnabledLayerNames = validationLayers.data();
-
-    createInfo.enabledExtensionCount = extensionNames.size();
-    createInfo.ppEnabledExtensionNames = extensionNames.data();
-
-    // features
-    createInfo.pNext = &desIndexingFeatures;
-
-    device = physicalDevice.createDevice(vk::DeviceCreateInfo(createInfo), nullptr);
-
-
-    device.getQueue(queueFamilyIndices.graphicsFamily.value(),0,&deviceQueues.graphics);
-    device.getQueue(queueFamilyIndices.presentFamily.value(), 0,&deviceQueues.presentation);
-    device.getQueue(queueFamilyIndices.resourceTransferFamily.value(), 0,&deviceQueues.resourceTransfer);
-
-    //TODO put this in a better place
-    ResourceTransferer::shared = new ResourceTransferer(device, deviceQueues.resourceTransfer, queueFamilyIndices.resourceTransferFamily.value());
-}
 
 void WindowManager::createSwapchain()
 {
     PROFILE_FUNCTION
-    SwapChainSupportDetails swapChainSupport = GPUSelector::querySwapChainSupport(physicalDevice, surface);
+    SwapChainSupportDetails swapChainSupport = GPUSelector::querySwapChainSupport(renderer->physicalDevice, surface);
 
     VkSurfaceFormatKHR surfaceFormat = GPUSelector::chooseSwapSurfaceFormat(swapChainSupport.formats);
     vk::PresentModeKHR presentMode = GPUSelector::chooseSwapPresentMode(swapChainSupport.presentModes);
@@ -163,7 +96,7 @@ void WindowManager::createSwapchain()
     }
 
 
-    assert(queueFamilyIndices.graphicsFamily == queueFamilyIndices.presentFamily);
+    assert(renderer->queueFamilyIndices.graphicsFamily == renderer->queueFamilyIndices.presentFamily);
 
    /* vk::SwapchainCreateInfoKHR swapInfo = vk::SwapchainCreateInfoKHR(
         vk::SwapchainCreateFlagsKHR{}, surface, imageCount,
@@ -263,20 +196,20 @@ void WindowManager::createFrameBufferImages()
 
     createOptions.format = vk::Format(albedoFormat);
 
-    gbuffer_albedo_metallic = new Image(device, allocator, { swapchainExtent.width,swapchainExtent.height,1 }, createOptions, vk::ImageAspectFlagBits::eColor);
+    gbuffer_albedo_metallic = new Image(device, renderer->allocator, { swapchainExtent.width,swapchainExtent.height,1 }, createOptions, vk::ImageAspectFlagBits::eColor);
 
     createOptions.format = vk::Format(normalFormat);
 
-    gbuffer_normal_roughness = new Image(device, allocator, { swapchainExtent.width,swapchainExtent.height,1 }, createOptions, vk::ImageAspectFlagBits::eColor);
+    gbuffer_normal_roughness = new Image(device, renderer->allocator, { swapchainExtent.width,swapchainExtent.height,1 }, createOptions, vk::ImageAspectFlagBits::eColor);
 
     createOptions.format = vk::Format(aoFormat);
 
-    gbuffer_ao = new Image(device, allocator, { swapchainExtent.width,swapchainExtent.height,1 }, createOptions, vk::ImageAspectFlagBits::eColor);
+    gbuffer_ao = new Image(device, renderer->allocator, { swapchainExtent.width,swapchainExtent.height,1 }, createOptions, vk::ImageAspectFlagBits::eColor);
 
 
 
     { // Depth
-        depthBufferFormat = VkFormat(GPUSelector::findSupportedFormat(physicalDevice, { vk::Format::eD32Sfloat }, vk::ImageTiling::eOptimal, vk::FormatFeatureFlagBits::eDepthStencilAttachment));
+        depthBufferFormat = VkFormat(GPUSelector::findSupportedFormat(renderer->physicalDevice, { vk::Format::eD32Sfloat }, vk::ImageTiling::eOptimal, vk::FormatFeatureFlagBits::eDepthStencilAttachment));
 
 
         ImageCreationOptions depthOptions;
@@ -294,7 +227,7 @@ void WindowManager::createFrameBufferImages()
         depthOptions.format = vk::Format(depthBufferFormat);
 
 
-        depthImage = new Image(device, allocator, { swapchainExtent.width,swapchainExtent.height,1 }, depthOptions, vk::ImageAspectFlagBits::eDepth);
+        depthImage = new Image(device, renderer->allocator, { swapchainExtent.width,swapchainExtent.height,1 }, depthOptions, vk::ImageAspectFlagBits::eDepth);
     }
 
 
@@ -334,15 +267,15 @@ void WindowManager::createSemaphores()
 {
     PROFILE_FUNCTION
 
-    imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+    imageAvailableSemaphores.resize(app.MAX_FRAMES_IN_FLIGHT);
+    renderFinishedSemaphores.resize(app.MAX_FRAMES_IN_FLIGHT);
+    inFlightFences.resize(app.MAX_FRAMES_IN_FLIGHT);
     imagesInFlight.resize(swapChainImages.size(), VK_NULL_HANDLE);
 
     vk::SemaphoreCreateInfo semaphoreInfo{};
     vk::FenceCreateInfo fenceInfo{};
     fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+    for (size_t i = 0; i < app.MAX_FRAMES_IN_FLIGHT; i++) {
         imageAvailableSemaphores[i] = device.createSemaphore(semaphoreInfo);
         renderFinishedSemaphores[i] = device.createSemaphore(semaphoreInfo);
         inFlightFences[i] = device.createFence(fenceInfo);
@@ -353,7 +286,7 @@ void WindowManager::createSurface()
 {
     PROFILE_FUNCTION
     VkSurfaceKHR _surface;
-    auto result = glfwCreateWindowSurface(instance,window,nullptr,&_surface);
+    auto result = glfwCreateWindowSurface(app.instance,window,nullptr,&_surface);
 
     assert(result == VK_SUCCESS);
 
@@ -368,10 +301,8 @@ static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
 
 void WindowManager::createWindow()
 {
-    PROFILE_FUNCTION
-    glfwInit();
+    PROFILE_FUNCTION;
 
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
     auto windowConfig = configSystem.global().windows[0];
 
@@ -419,38 +350,6 @@ void WindowManager::makeWindwWithMode(ConfigSystem::Config::Window& winConfig, G
 }
 
 
-void WindowManager::createInstance()
-{
-    PROFILE_FUNCTION
-    auto appInfo = vk::ApplicationInfo(
-        "GPUObjectsV6",
-        VK_MAKE_VERSION(1,0,0),
-        "RenderKit",
-        VK_MAKE_VERSION(1,0,0),
-        VK_API_VERSION_1_2
-    );
-
-
-
-    uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions;
-
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-
-
-    vk::InstanceCreateInfo info = vk::InstanceCreateInfo();
-
-    info.pApplicationInfo = &appInfo;
-    info.enabledLayerCount = validationLayers.size();
-    info.ppEnabledLayerNames = validationLayers.data();
-    info.enabledExtensionCount = glfwExtensionCount;
-    info.ppEnabledExtensionNames = glfwExtensions;
-
-
-    instance = vk::createInstance(info);
-}
-
 
 void WindowManager::cleanupSwapchain()
 {
@@ -483,10 +382,11 @@ WindowManager::~WindowManager()
 
         device.waitIdle();
 
-    delete ResourceTransferer::shared;
+    delete deferredPass;
 
 
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+
+    for (size_t i = 0; i < app.MAX_FRAMES_IN_FLIGHT; i++) {
         device.destroySemaphore(imageAvailableSemaphores[i]);
         device.destroySemaphore(renderFinishedSemaphores[i]);
         device.destroyFence(inFlightFences[i]);
@@ -494,19 +394,22 @@ WindowManager::~WindowManager()
 
     cleanupSwapchain();
 
-    vmaDestroyAllocator(allocator);
+    vmaDestroyAllocator(renderer->allocator);
     
     device.destroy();
 
-    instance.destroySurfaceKHR(surface);
-    instance.destroy();
+    app.instance.destroySurfaceKHR(surface);
+    app.instance.destroy();
 
     destroyWindow();
 }
 
 
+
+
 void WindowManager::runWindowLoop()
 {
+    //TODO - posibly place run loop here on seperate threads
     PROFILE_FUNCTION
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -519,9 +422,9 @@ bool WindowManager::getDrawable()
 {
     PROFILE_FUNCTION
 
-    vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+    vkWaitForFences(device, 1, &inFlightFences[app.currentFrame], VK_TRUE, UINT64_MAX);
 
-    auto index = device.acquireNextImageKHR(swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], nullptr);
+    auto index = device.acquireNextImageKHR(swapChain, UINT64_MAX, imageAvailableSemaphores[app.currentFrame], nullptr);
     //cout << "current index = " << index.value << endl;
     currentSurfaceIndex = index.value;
 
@@ -541,7 +444,7 @@ bool WindowManager::getDrawable()
     }
 
     // Mark the image as now being in use by this frame
-    imagesInFlight[currentSurfaceIndex] = inFlightFences[currentFrame];
+    imagesInFlight[currentSurfaceIndex] = inFlightFences[app.currentFrame];
 
     return 0;
 }
@@ -553,7 +456,7 @@ void WindowManager::presentDrawable()
 
     vk::PresentInfoKHR presentInfo{};
 
-    std::vector<vk::Semaphore> signalSemaphores = { renderFinishedSemaphores[currentFrame] };
+    std::vector<vk::Semaphore> signalSemaphores = { renderFinishedSemaphores[app.currentFrame] };
 
     presentInfo.setWaitSemaphores(signalSemaphores);
 
@@ -564,7 +467,7 @@ void WindowManager::presentDrawable()
 
     presentInfo.pResults = nullptr; // Optional
 
-    auto result = deviceQueues.presentation.presentKHR(&presentInfo);
+    auto result = renderer->deviceQueues.presentation.presentKHR(&presentInfo);
 
     if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR || framebufferResized)
     {
@@ -576,7 +479,7 @@ void WindowManager::presentDrawable()
        // throw std::runtime_error("failed to present swap chain image");
     }
 
-    currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+    app.currentFrame = (app.currentFrame + 1) % app.MAX_FRAMES_IN_FLIGHT;
  }
 
 
