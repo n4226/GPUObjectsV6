@@ -100,6 +100,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Application\ApplicationRendererBridge\Application.cpp" />
     <ClCompile Include="src\Application\FileManager.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -204,6 +205,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Application\ApplicationRendererBridge\Application.h" />
     <ClInclude Include="src\Application\FileManager.h" />
     <ClInclude Include="src\Application\ConfigSystem.h" />
     <ClInclude Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\GBufferComputePipeline.h" />

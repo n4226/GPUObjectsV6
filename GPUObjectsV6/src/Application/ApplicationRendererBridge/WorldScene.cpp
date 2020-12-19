@@ -48,9 +48,7 @@ void WorldScene::startScene()
 	loadScene();
 	while (!glfwWindowShouldClose(window.window)) {
 			runFullUpdateLoop();
-		}
-
-	window.device.waitIdle();
+	}
 }
 
 void WorldScene::runFullUpdateLoop()

@@ -8,8 +8,6 @@
 
 
 
-
-
 TreeNodeDrawResaourceToCoppy TerrainMeshLoader::loadMeshPreDrawChunk(TerrainQuadTreeNode* node, bool inJob)
 {
 	// get  and encode mesh
