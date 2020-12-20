@@ -69,10 +69,17 @@ void WindowManager::recreateSwapchain()
 
     pipelineCreator->createPipeline();
 
+    deferredPass = new DeferredPass(device, swapchainExtent, *renderPassManager); 
+
+    deferredPass->createPipeline();
+
     createFrameBufferImages();
     createFramebuffers();
 
+
     //TODO: call renderer.updateDescriptors() somehow
+
+    renderer->windowSizeChanged(indexInRenderer);
 
     //TODO buffers might need to be recreated
     //createCommandBuffers();
@@ -364,6 +371,7 @@ void WindowManager::cleanupSwapchain()
 
 
     delete pipelineCreator;
+    delete deferredPass;
     delete renderPassManager;
 
 

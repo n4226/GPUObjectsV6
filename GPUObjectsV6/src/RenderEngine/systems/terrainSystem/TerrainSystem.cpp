@@ -146,6 +146,16 @@ double TerrainSystem::getRadius()
 	return tree.radius;
 }
 
+void TerrainSystem::invalidateDescriptors()
+{
+#if RenderMode == RenderModeCPU2
+	{
+		auto cmdsValid = drawCommandsValid.lock();
+		*cmdsValid = false;
+	}
+#endif
+}
+
 void TerrainSystem::processTree()
 {
 	PROFILE_FUNCTION

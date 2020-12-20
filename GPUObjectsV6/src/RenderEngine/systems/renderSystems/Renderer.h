@@ -21,7 +21,7 @@ class Renderer
 {
 public:
 
-	Renderer(Application& app, vk::Device device, vk::PhysicalDevice physicalDevice, VmaAllocator allocator, std::vector<WindowManager*>& windows, GPUQueues& deviceQueues, QueueFamilyIndices& queueFamilyIndices);
+	Renderer(Application& app, vk::Device device, vk::PhysicalDevice physicalDevice, VmaAllocator allocator, std::vector<WindowManager*> windows, GPUQueues& deviceQueues, QueueFamilyIndices& queueFamilyIndices);
 	void createAllResources();
 	~Renderer();
 
@@ -68,6 +68,9 @@ public:
 	Buffer* globalModelBufferStaging;
 
 	std::vector<Buffer*> threadLocalGlobalModelStagingBuffers;
+
+	void windowSizeChanged(size_t windowIndex);
+
 private:
 
 	void createRenderResources();
@@ -75,6 +78,10 @@ private:
 	void makeGlobalMeshBuffers(const VkDeviceSize& vCount, const VkDeviceSize& indexCount);
 
 	void createDescriptorPoolAndSets();
+
+	void allocateDescriptors();
+
+	void resetDescriptorPools();
 
 	void createUniformsAndDescriptors();
 

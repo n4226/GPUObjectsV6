@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "WorldScene.h"
 
+
 Application::Application()
 {
     startup();
@@ -35,6 +36,16 @@ void Application::startup()
 {
     PROFILE_FUNCTION;
     Instrumentor::Get().BeginSession("Launch", "instruments_Launch.profile");
+
+    {// configure main threaqd priority
+        auto nativeHandle = GetCurrentThread();
+        SetThreadPriority(nativeHandle, THREAD_PRIORITY_TIME_CRITICAL);
+        auto nativeProessHandle = GetCurrentProcess();
+        SetPriorityClass(nativeProessHandle, HIGH_PRIORITY_CLASS);
+        auto r = GetPriorityClass(nativeProessHandle);
+        printf("d"); 
+        //SetPriorityClass()
+    }
 
 
     {// Configure Marl
@@ -73,12 +84,21 @@ void Application::startup()
 
 
         auto deviceIndex = createDevice(windows.size() - 1);
+        
         createRenderer(deviceIndex);
         renderers[deviceIndex]->world = worldScene;
 
         window->device = devices[deviceIndex];
         window->renderer = renderers[deviceIndex];
         window->finishInit();
+
+        if (deviceIndex == devices.size() - 1) {
+            window->indexInRenderer = renderers[deviceIndex]->windows.size();
+            renderers[deviceIndex]->windows.push_back(window);
+
+            renderers[deviceIndex]->camFrustroms.emplace_back(windows[i]->camera.view());
+        }
+
 
         if (window->swapChainImages.size() > maxSwapChainImages) {
             maxSwapChainImages = window->swapChainImages.size();

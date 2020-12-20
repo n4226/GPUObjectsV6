@@ -3,7 +3,7 @@
 #include "../../../Application/ApplicationRendererBridge/WorldScene.h"
 #include "../../../Application/ApplicationRendererBridge/Application.h"
 
-Renderer::Renderer(Application& app, vk::Device device, vk::PhysicalDevice physicalDevice, VmaAllocator allocator, std::vector<WindowManager*>& windows, GPUQueues& deviceQueues, QueueFamilyIndices& queueFamilyIndices)
+Renderer::Renderer(Application& app, vk::Device device, vk::PhysicalDevice physicalDevice, VmaAllocator allocator, std::vector<WindowManager*> windows, GPUQueues& deviceQueues, QueueFamilyIndices& queueFamilyIndices)
 	: app(app), device(device), physicalDevice(physicalDevice), allocator(allocator), windows(windows), deviceQueues(deviceQueues), queueFamilyIndices(queueFamilyIndices)
 {
 	PROFILE_FUNCTION;
@@ -68,6 +68,17 @@ Renderer::~Renderer()
 	device.destroyDescriptorPool(descriptorPool);
 }
 
+void Renderer::windowSizeChanged(size_t windowIndex)
+{
+	resetDescriptorPools();
+	allocateDescriptors();
+
+	for (size_t i = 0; i < windows.size(); i++)
+		updateLoadTimeDescriptors(*windows[i]);
+
+	terrainSystem->invalidateDescriptors();
+}
+
 void Renderer::createRenderResources()
 {
 	PROFILE_FUNCTION;
@@ -82,7 +93,6 @@ void Renderer::createRenderResources()
 	 
 #pragma endregion
 
-	createDescriptorPoolAndSets();
 
 	
 
@@ -112,46 +122,8 @@ void Renderer::createRenderResources()
 
 	deferredPassVertBuff->unmapMemory();
 
-	// deferred pass
+	createDescriptorPoolAndSets();
 
-
-
-	{
-		// the total max number of this descriptor allocated - if 2 sets and each one has 2 of this descriptor than thes would have to be 4 in order to allocate both sets
-		VkDescriptorPoolSize inputAttachmentPoolSize{};
-		inputAttachmentPoolSize.type = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-		inputAttachmentPoolSize.descriptorCount = 3 * app.maxSwapChainImages;
-
-		VkDescriptorPoolSize uniformPoolSize{};
-		uniformPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		uniformPoolSize.descriptorCount = 1;// * window.swapChainImages.size();
-
-		std::array<VkDescriptorPoolSize, 2> poolSizes = { inputAttachmentPoolSize, uniformPoolSize };
-
-		VkDescriptorPoolCreateInfo poolInfo{};
-		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		poolInfo.poolSizeCount = poolSizes.size();
-		poolInfo.pPoolSizes = poolSizes.data();
-
-		poolInfo.maxSets = app.maxSwapChainImages * windows.size();
-
-		deferredDescriptorPool = device.createDescriptorPool({ poolInfo });
-
-		deferredDescriptorSets.resize(windows.size());
-		for (size_t i = 0; i < windows.size(); i++) {
-			std::vector<vk::DescriptorSetLayout> layouts(app.maxSwapChainImages, windows[i]->deferredPass->descriptorSetLayouts[0]);
-			vk::DescriptorSetAllocateInfo allocInfo{};
-			allocInfo.descriptorPool = deferredDescriptorPool;
-			allocInfo.descriptorSetCount = app.maxSwapChainImages;
-			allocInfo.pSetLayouts = layouts.data();
-
-			VkDescriptorSetAllocateInfo c_allocInfo = allocInfo;
-
-			deferredDescriptorSets[i].resize(app.maxSwapChainImages);
-
-			vkAllocateDescriptorSets(device, &c_allocInfo, deferredDescriptorSets[i].data());
-		}
-	}
 
 }
 
@@ -213,45 +185,106 @@ void Renderer::makeGlobalMeshBuffers(const VkDeviceSize& vCount, const VkDeviceS
 
 void Renderer::createDescriptorPoolAndSets()
 {
-	PROFILE_FUNCTION
+	PROFILE_FUNCTION;
 
-	VkDescriptorPoolSize globalUniformPoolSize{};
-	globalUniformPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	globalUniformPoolSize.descriptorCount = static_cast<uint32_t>(app.maxSwapChainImages);
+	{
+		VkDescriptorPoolSize globalUniformPoolSize{};
+		globalUniformPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		globalUniformPoolSize.descriptorCount = static_cast<uint32_t>(app.maxSwapChainImages);
 
-	// the total max number of this descriptor allocated - if 2 sets and each one has 2 of this descriptor than thes would have to be 4 in order to allocate both sets
-	VkDescriptorPoolSize modelUniformPoolSize{};
-	modelUniformPoolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-	modelUniformPoolSize.descriptorCount = static_cast<uint32_t>(app.maxSwapChainImages);
+		// the total max number of this descriptor allocated - if 2 sets and each one has 2 of this descriptor than thes would have to be 4 in order to allocate both sets
+		VkDescriptorPoolSize modelUniformPoolSize{};
+		modelUniformPoolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		modelUniformPoolSize.descriptorCount = static_cast<uint32_t>(app.maxSwapChainImages);
 
-	std::array<VkDescriptorPoolSize, 2> poolSizes = { globalUniformPoolSize, modelUniformPoolSize };
+		std::array<VkDescriptorPoolSize, 2> poolSizes = { globalUniformPoolSize, modelUniformPoolSize };
 
-	VkDescriptorPoolCreateInfo poolInfo{};
-	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolInfo.poolSizeCount = poolSizes.size();
-	poolInfo.pPoolSizes = poolSizes.data();
+		VkDescriptorPoolCreateInfo poolInfo{};
+		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		poolInfo.poolSizeCount = poolSizes.size();
+		poolInfo.pPoolSizes = poolSizes.data();
 
-	poolInfo.maxSets = static_cast<uint32_t>(app.maxSwapChainImages * windows.size());
+		poolInfo.maxSets = static_cast<uint32_t>(app.maxSwapChainImages * windows.size());
 
-	descriptorPool = device.createDescriptorPool({ poolInfo });
+		descriptorPool = device.createDescriptorPool({ poolInfo });
 
-
-	descriptorSets.resize(windows.size());
-
-	for (size_t i = 0; i < windows.size(); i++) {
-		std::vector<vk::DescriptorSetLayout> layouts(app.maxSwapChainImages, windows[i]->pipelineCreator->descriptorSetLayouts[0]);
-		vk::DescriptorSetAllocateInfo allocInfo{};
-		allocInfo.descriptorPool = descriptorPool;
-		allocInfo.descriptorSetCount = static_cast<uint32_t>(app.maxSwapChainImages);
-		allocInfo.pSetLayouts = layouts.data();
-
-		VkDescriptorSetAllocateInfo c_allocInfo = allocInfo;
-
-		descriptorSets[i].resize(app.maxSwapChainImages);
-
-		vkAllocateDescriptorSets(device, &c_allocInfo, descriptorSets[i].data());
 	}
 
+
+	// deferred pass
+
+	{
+		// the total max number of this descriptor allocated - if 2 sets and each one has 2 of this descriptor than thes would have to be 4 in order to allocate both sets
+		VkDescriptorPoolSize inputAttachmentPoolSize{};
+		inputAttachmentPoolSize.type = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+		inputAttachmentPoolSize.descriptorCount = 3 * app.maxSwapChainImages;
+
+		VkDescriptorPoolSize uniformPoolSize{};
+		uniformPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		uniformPoolSize.descriptorCount = 1;// * window.swapChainImages.size();
+
+		std::array<VkDescriptorPoolSize, 2> poolSizes = { inputAttachmentPoolSize, uniformPoolSize };
+
+		VkDescriptorPoolCreateInfo poolInfo{};
+		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		poolInfo.poolSizeCount = poolSizes.size();
+		poolInfo.pPoolSizes = poolSizes.data();
+
+		poolInfo.maxSets = app.maxSwapChainImages * windows.size();
+
+		deferredDescriptorPool = device.createDescriptorPool({ poolInfo });
+
+		
+	}
+
+
+
+	allocateDescriptors();
+}
+
+void Renderer::allocateDescriptors()
+{
+	{
+		descriptorSets.resize(windows.size());
+
+		for (size_t i = 0; i < windows.size(); i++) {
+			std::vector<vk::DescriptorSetLayout> layouts(app.maxSwapChainImages, windows[i]->pipelineCreator->descriptorSetLayouts[0]);
+			vk::DescriptorSetAllocateInfo allocInfo{};
+			allocInfo.descriptorPool = descriptorPool;
+			allocInfo.descriptorSetCount = static_cast<uint32_t>(app.maxSwapChainImages);
+			allocInfo.pSetLayouts = layouts.data();
+
+			VkDescriptorSetAllocateInfo c_allocInfo = allocInfo;
+
+			descriptorSets[i].resize(app.maxSwapChainImages);
+
+			vkAllocateDescriptorSets(device, &c_allocInfo, descriptorSets[i].data());
+		}
+	}
+
+
+	{
+		deferredDescriptorSets.resize(windows.size());
+		for (size_t i = 0; i < windows.size(); i++) {
+			std::vector<vk::DescriptorSetLayout> layouts(app.maxSwapChainImages, windows[i]->deferredPass->descriptorSetLayouts[0]);
+			vk::DescriptorSetAllocateInfo allocInfo{};
+			allocInfo.descriptorPool = deferredDescriptorPool;
+			allocInfo.descriptorSetCount = app.maxSwapChainImages;
+			allocInfo.pSetLayouts = layouts.data();
+
+			VkDescriptorSetAllocateInfo c_allocInfo = allocInfo;
+
+			deferredDescriptorSets[i].resize(app.maxSwapChainImages);
+
+			vkAllocateDescriptorSets(device, &c_allocInfo, deferredDescriptorSets[i].data());
+		}
+	}
+}
+
+void Renderer::resetDescriptorPools()
+{
+	device.resetDescriptorPool(descriptorPool);
+	device.resetDescriptorPool(deferredDescriptorPool);
 }
 
 void Renderer::createDynamicRenderCommands()
@@ -287,7 +320,10 @@ void Renderer::createUniformsAndDescriptors()
 	
 	// set up descriptors 
 
-	updateLoadTimeDescriptors(*windows[0]);
+
+
+	for (size_t i = 0; i < windows.size(); i++) 
+		updateLoadTimeDescriptors(*windows[i]);
 
 }
 
@@ -481,7 +517,7 @@ void Renderer::renderFrame(WindowManager& window)
 	// update descriptors to link drawable bound objects eg comd buffs to frame bound objets eg uniform buffers 
 
 
-	updateRunTimeDescriptors(window);
+	//updateRunTimeDescriptors(window);
 
 #pragma region CreateRootCMDBuffer
 

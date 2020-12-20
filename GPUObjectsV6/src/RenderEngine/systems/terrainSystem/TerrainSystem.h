@@ -37,6 +37,8 @@ public:
 
 	double getRadius();
 
+	void invalidateDescriptors();
+
 private:
 
 	// temp resources
