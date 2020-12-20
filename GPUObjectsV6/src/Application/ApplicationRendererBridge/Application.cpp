@@ -39,9 +39,9 @@ void Application::startup()
 
     {// configure main threaqd priority
         auto nativeHandle = GetCurrentThread();
-        SetThreadPriority(nativeHandle, THREAD_PRIORITY_TIME_CRITICAL);
+        //SetThreadPriority(nativeHandle, THREAD_PRIORITY_TIME_CRITICAL);
         auto nativeProessHandle = GetCurrentProcess();
-        SetPriorityClass(nativeProessHandle, HIGH_PRIORITY_CLASS);
+        SetPriorityClass(nativeProessHandle, REALTIME_PRIORITY_CLASS);
         auto r = GetPriorityClass(nativeProessHandle);
         printf("d"); 
         //SetPriorityClass()
@@ -103,9 +103,10 @@ void Application::startup()
         if (window->swapChainImages.size() > maxSwapChainImages) {
             maxSwapChainImages = window->swapChainImages.size();
         }
-
-        renderers[deviceIndex]->createAllResources();
     }
+
+    for (size_t i = 0; i < renderers.size(); i++)
+        renderers[i]->createAllResources();
 
 
     worldScene->load();

@@ -90,7 +90,7 @@ vec3 calculatePostAtmosphereicScatering(
                                           vec3 sunDirection
 ) {
 
-    return vec3(1,0,0.8);
+    return vec3(0,0,0.8);
 
 }
 
