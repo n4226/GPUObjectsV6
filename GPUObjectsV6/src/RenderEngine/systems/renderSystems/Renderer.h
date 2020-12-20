@@ -41,7 +41,7 @@ public:
 
 	std::vector<WindowManager*> windows;
 
-	std::vector<Buffer*> uniformBuffers;
+	std::vector<std::vector<Buffer*>> uniformBuffers;
 
 	// dindless vars
 

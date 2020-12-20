@@ -36,7 +36,8 @@ Renderer::~Renderer()
 
 	for (auto buffer : uniformBuffers)
 	{
-		delete buffer;
+		for (auto sbuffer : buffer)
+			delete sbuffer;
 	}
 
 	delete globalMeshStagingBuffer;
@@ -271,12 +272,17 @@ void Renderer::createUniformsAndDescriptors()
 
 	VkDeviceSize uniformBufferSize = sizeof(SceneUniforms) + sizeof(PostProcessEarthDatAndUniforms); //sizeof(TriangleUniformBufferObject);
 
-	uniformBuffers.resize(app.MAX_FRAMES_IN_FLIGHT);
 
 	BufferCreationOptions uniformOptions = { ResourceStorageType::cpuToGpu,{vk::BufferUsageFlagBits::eUniformBuffer}, vk::SharingMode::eExclusive };
 
+	uniformBuffers.resize(windows.size());
+
+
 	for (size_t i = 0; i < uniformBuffers.size(); i++) {
-		uniformBuffers[i] = new Buffer(device, allocator, uniformBufferSize, uniformOptions);
+		uniformBuffers[i].resize(app.MAX_FRAMES_IN_FLIGHT);
+
+		for (size_t e = 0; e < uniformBuffers[i].size(); e++)
+			uniformBuffers[i][e] = new Buffer(device, allocator, uniformBufferSize, uniformOptions);
 	}
 	
 	// set up descriptors 
@@ -288,6 +294,68 @@ void Renderer::createUniformsAndDescriptors()
 void Renderer::updateLoadTimeDescriptors(WindowManager& window)
 {
 	for (size_t i = 0; i < app.maxSwapChainImages; i++) {
+
+		// uniforms
+
+
+		VkDescriptorBufferInfo globalUniformBufferInfo{};
+		globalUniformBufferInfo.buffer = uniformBuffers[window.indexInRenderer][i]->vkItem;
+		globalUniformBufferInfo.offset = 0;
+		globalUniformBufferInfo.range = VK_WHOLE_SIZE;
+
+		VkDescriptorBufferInfo modelUniformBufferInfo{};
+		//TODO fix this to actuall non staging buffer ------------------------------------------------------------------------------------IMPORTANT USING STAGING BUFF HERE ASS ACTUAL BUFF
+		modelUniformBufferInfo.buffer = globalModelBufferStaging->vkItem;
+		modelUniformBufferInfo.offset = 0;
+		modelUniformBufferInfo.range = sizeof(ModelUniforms) * maxModelUniformDescriptorArrayCount;
+
+		VkWriteDescriptorSet globalUniformDescriptorWrite{};
+		globalUniformDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		globalUniformDescriptorWrite.dstSet = descriptorSets[window.indexInRenderer][i];
+		globalUniformDescriptorWrite.dstBinding = 0;
+		globalUniformDescriptorWrite.dstArrayElement = 0;
+
+		globalUniformDescriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		globalUniformDescriptorWrite.descriptorCount = 1;
+
+		globalUniformDescriptorWrite.pBufferInfo = &globalUniformBufferInfo;
+		globalUniformDescriptorWrite.pImageInfo = nullptr; // Optional
+		globalUniformDescriptorWrite.pTexelBufferView = nullptr; // Optional
+
+		VkWriteDescriptorSet modelUniformsDescriptorWrite{};
+		modelUniformsDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		modelUniformsDescriptorWrite.dstSet = descriptorSets[window.indexInRenderer][i];
+		modelUniformsDescriptorWrite.dstBinding = 1;
+		modelUniformsDescriptorWrite.dstArrayElement = 0;
+
+		modelUniformsDescriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		modelUniformsDescriptorWrite.descriptorCount = 1;
+
+		modelUniformsDescriptorWrite.pBufferInfo = &modelUniformBufferInfo;
+		modelUniformsDescriptorWrite.pImageInfo = nullptr; // Optional
+		modelUniformsDescriptorWrite.pTexelBufferView = nullptr; // Optional
+
+		// differed pass
+		VkWriteDescriptorSet post_globalUniformDescriptorWrite{};
+		post_globalUniformDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		post_globalUniformDescriptorWrite.dstSet = deferredDescriptorSets[window.indexInRenderer][i];
+		post_globalUniformDescriptorWrite.dstBinding = 3;
+		post_globalUniformDescriptorWrite.dstArrayElement = 0;
+
+		post_globalUniformDescriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		post_globalUniformDescriptorWrite.descriptorCount = 1;
+
+		post_globalUniformDescriptorWrite.pBufferInfo = &globalUniformBufferInfo;
+		post_globalUniformDescriptorWrite.pImageInfo = nullptr; // Optional
+		post_globalUniformDescriptorWrite.pTexelBufferView = nullptr; // Optional
+
+
+		device.updateDescriptorSets({ globalUniformDescriptorWrite, modelUniformsDescriptorWrite, post_globalUniformDescriptorWrite }, {});
+
+		// differed
+
+
+
 		std::array<VkDescriptorImageInfo, 3> inputAttachmentDescriptors{};
 		// albedo and normal
 		inputAttachmentDescriptors[0].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -348,65 +416,16 @@ void Renderer::updateLoadTimeDescriptors(WindowManager& window)
 
 
 		vkUpdateDescriptorSets(device, static_cast<uint32_t>(deferredInputDescriptorWrite.size()), deferredInputDescriptorWrite.data(), 0, nullptr);
+
+
+
 	}
 }
 
 void Renderer::updateRunTimeDescriptors(WindowManager& window)
 {
 
-		VkDescriptorBufferInfo globalUniformBufferInfo{};
-		globalUniformBufferInfo.buffer = uniformBuffers[world->app.currentFrame]->vkItem;
-		globalUniformBufferInfo.offset = 0;
-		globalUniformBufferInfo.range = VK_WHOLE_SIZE;
-
-		VkDescriptorBufferInfo modelUniformBufferInfo{};
-		//TODO fix this to actuall non staging buffer ------------------------------------------------------------------------------------IMPORTANT USING STAGING BUFF HERE ASS ACTUAL BUFF
-		modelUniformBufferInfo.buffer = globalModelBufferStaging->vkItem;
-		modelUniformBufferInfo.offset = 0;
-		modelUniformBufferInfo.range = sizeof(ModelUniforms) * maxModelUniformDescriptorArrayCount;
-
-		VkWriteDescriptorSet globalUniformDescriptorWrite{};
-		globalUniformDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		globalUniformDescriptorWrite.dstSet = descriptorSets[window.indexInRenderer][window.currentSurfaceIndex];
-		globalUniformDescriptorWrite.dstBinding = 0;
-		globalUniformDescriptorWrite.dstArrayElement = 0;
-
-		globalUniformDescriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		globalUniformDescriptorWrite.descriptorCount = 1;
-
-		globalUniformDescriptorWrite.pBufferInfo = &globalUniformBufferInfo;
-		globalUniformDescriptorWrite.pImageInfo = nullptr; // Optional
-		globalUniformDescriptorWrite.pTexelBufferView = nullptr; // Optional
-
-		VkWriteDescriptorSet modelUniformsDescriptorWrite{};
-		modelUniformsDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		modelUniformsDescriptorWrite.dstSet = descriptorSets[window.indexInRenderer][window.currentSurfaceIndex];
-		modelUniformsDescriptorWrite.dstBinding = 1;
-		modelUniformsDescriptorWrite.dstArrayElement = 0;
-
-		modelUniformsDescriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-		modelUniformsDescriptorWrite.descriptorCount = 1;
-
-		modelUniformsDescriptorWrite.pBufferInfo = &modelUniformBufferInfo;
-		modelUniformsDescriptorWrite.pImageInfo = nullptr; // Optional
-		modelUniformsDescriptorWrite.pTexelBufferView = nullptr; // Optional
-
-		// differed pass
-		VkWriteDescriptorSet post_globalUniformDescriptorWrite{};
-		post_globalUniformDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		post_globalUniformDescriptorWrite.dstSet = deferredDescriptorSets[window.indexInRenderer][window.currentSurfaceIndex];
-		post_globalUniformDescriptorWrite.dstBinding = 3;
-		post_globalUniformDescriptorWrite.dstArrayElement = 0;
-
-		post_globalUniformDescriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		post_globalUniformDescriptorWrite.descriptorCount = 1;
-
-		post_globalUniformDescriptorWrite.pBufferInfo = &globalUniformBufferInfo;
-		post_globalUniformDescriptorWrite.pImageInfo = nullptr; // Optional
-		post_globalUniformDescriptorWrite.pTexelBufferView = nullptr; // Optional
-
-
-		device.updateDescriptorSets({ globalUniformDescriptorWrite, modelUniformsDescriptorWrite, post_globalUniformDescriptorWrite }, {});
+		
 		//}
 
 		// deferred descriptors
@@ -543,7 +562,7 @@ void Renderer::encodeGBufferPass(WindowManager& window)
 
 
 	// exicute indirect commands
-	//////////////////////////////////////////////////////////////////////fix validation error
+	
 	cmdBuff.executeCommands({ 1, generatedTerrainCmds });
 }
 
@@ -572,32 +591,32 @@ void Renderer::updateCameraUniformBuffer()
 	PROFILE_FUNCTION;
 	// update uniform buffer
 
-	auto& camera = windows[0]->camera;
-
-	SceneUniforms uniforms;
-
-	uniforms.viewProjection = camera.viewProjection(windows[0]->swapchainExtent.width, windows[0]->swapchainExtent.height);
-
-	uniformBuffers[app.currentFrame]->mapMemory();
-	uniformBuffers[app.currentFrame]->tempMapAndWrite(&uniforms, 0, sizeof(uniforms),false);
-
-	PostProcessEarthDatAndUniforms postUniforms;
-
-	postUniforms.camFloatedGloabelPos = glm::vec4(camera.transform.position,1);
-	postUniforms.sunDir = glm::vec4(glm::normalize(Math::LlatoGeo(world->playerLLA,glm::dvec3(0),terrainSystem->getRadius())),1);
-	postUniforms.earthCenter = glm::vec4(static_cast<glm::vec3>(world->origin),1);
-	postUniforms.viewMat = camera.view();
-	postUniforms.invertedViewMat = glm::inverse(camera.view());
-
-	uniformBuffers[app.currentFrame]->tempMapAndWrite(&postUniforms, sizeof(uniforms), sizeof(postUniforms),false);
-	uniformBuffers[app.currentFrame]->unmapMemory();
-
-
-
 	for (size_t i = 0; i < windows.size(); i++)
 	{
+		auto& camera = windows[i]->camera;
+
+		SceneUniforms uniforms;
+
+		uniforms.viewProjection = camera.viewProjection(windows[i]->swapchainExtent.width, windows[i]->swapchainExtent.height);
+
+		uniformBuffers[i][windows[i]->currentSurfaceIndex]->mapMemory();
+		uniformBuffers[i][windows[i]->currentSurfaceIndex]->tempMapAndWrite(&uniforms, 0, sizeof(uniforms), false);
+
+		PostProcessEarthDatAndUniforms postUniforms;
+
+		postUniforms.camFloatedGloabelPos = glm::vec4(camera.transform.position, 1);
+		postUniforms.sunDir = glm::vec4(glm::normalize(Math::LlatoGeo(world->playerLLA, glm::dvec3(0), terrainSystem->getRadius())), 1);
+		postUniforms.earthCenter = glm::vec4(static_cast<glm::vec3>(world->origin), 1);
+		postUniforms.viewMat = camera.view();
+		postUniforms.invertedViewMat = glm::inverse(camera.view());
+
+		uniformBuffers[i][windows[i]->currentSurfaceIndex]->tempMapAndWrite(&postUniforms, sizeof(uniforms), sizeof(postUniforms), false);
+		uniformBuffers[i][windows[i]->currentSurfaceIndex]->unmapMemory();
+
+
 		camFrustroms[i] = std::move(Frustum(uniforms.viewProjection));
 	}
+
 	//camFrustrom = new Frustum(uniforms.viewProjection);
 
 
