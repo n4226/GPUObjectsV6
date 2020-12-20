@@ -25,7 +25,7 @@ public:
 	void createAllResources();
 	~Renderer();
 
-	void renderScene();
+	void beforeRenderScene();
 	void renderFrame(WindowManager& window);
 	
 	// systems

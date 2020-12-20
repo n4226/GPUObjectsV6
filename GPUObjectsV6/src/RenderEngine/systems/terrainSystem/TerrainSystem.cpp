@@ -44,10 +44,15 @@ void TerrainSystem::CreateRenderResources()
 			(app.renderers[0]->device, cmdBufferPools[i], commandBuffers[i], app.maxSwapChainImages, app.renderers[0]->queueFamilyIndices.graphicsFamily.value(), vk::CommandBufferLevel::eSecondary);
 
 #if RenderMode == RenderModeCPU2
-	cmdBuffsUpToDate.resize(app.maxSwapChainImages);
 
-	for (auto val: cmdBuffsUpToDate) {
-		val = true;
+	cmdBuffsUpToDate.resize(app.renderers[0]->windows.size());
+
+	for (size_t i = 0; i < cmdBuffsUpToDate.size(); i++) {
+
+		cmdBuffsUpToDate[i].resize(app.maxSwapChainImages);
+
+		for (auto sval: cmdBuffsUpToDate[i])
+			sval = true;
 	}
 #endif
 }
@@ -74,15 +79,16 @@ vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass, WindowManager& 
 		auto cmdsValid = drawCommandsValid.lock();
 
 		if (*cmdsValid == false) {
-			for (auto val : cmdBuffsUpToDate) {
-				val = false;
+			for (size_t i = 0; i < cmdBuffsUpToDate.size(); i++) {
+				for (auto sval : cmdBuffsUpToDate[i])
+					sval = false;
 			}
 		*cmdsValid = true;    
 		}
-		if (cmdBuffsUpToDate[bufferIndex] == true)
-			return &commandBuffers[bufferIndex];
+		if (cmdBuffsUpToDate[window.indexInRenderer][bufferIndex] == true)
+			return &commandBuffers[window.indexInRenderer][bufferIndex];
 		else
-			cmdBuffsUpToDate[bufferIndex] = true;
+			cmdBuffsUpToDate[window.indexInRenderer][bufferIndex] = true;
 	}
 
 #endif

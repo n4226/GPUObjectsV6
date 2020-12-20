@@ -137,6 +137,8 @@ void Application::runLoopIteration()
     // update scene
     worldScene->updateScene();
 
+    renderers[0]->beforeRenderScene();
+
     // draw view - this should be able to be done all in parallel
     for (size_t i = 0; i < windows.size(); i++)
     {

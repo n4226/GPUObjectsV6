@@ -417,7 +417,7 @@ void Renderer::updateRunTimeDescriptors(WindowManager& window)
 }
 
 
-void Renderer::renderScene()
+void Renderer::beforeRenderScene()
 {
 	updateCameraUniformBuffer();
 
@@ -533,6 +533,8 @@ void Renderer::renderFrame(WindowManager& window)
 
 void Renderer::encodeGBufferPass(WindowManager& window)
 {
+	PROFILE_FUNCTION;
+
 	auto& cmdBuff = dynamicCommandBuffers[window.indexInRenderer][window.currentSurfaceIndex];
 
 	// run terrain system draw
@@ -541,13 +543,14 @@ void Renderer::encodeGBufferPass(WindowManager& window)
 
 
 	// exicute indirect commands
-
+	//////////////////////////////////////////////////////////////////////fix validation error
 	cmdBuff.executeCommands({ 1, generatedTerrainCmds });
 }
 
 
 void Renderer::encodeDeferredPass(WindowManager& window)
 {
+	PROFILE_FUNCTION;
 	auto& cmdBuff = dynamicCommandBuffers[window.indexInRenderer][window.currentSurfaceIndex];
 
 	cmdBuff.bindPipeline(vk::PipelineBindPoint::eGraphics, window.deferredPass->vkItem);
@@ -566,7 +569,7 @@ void Renderer::encodeDeferredPass(WindowManager& window)
 
 void Renderer::updateCameraUniformBuffer()
 {
-
+	PROFILE_FUNCTION;
 	// update uniform buffer
 
 	auto& camera = windows[0]->camera;
@@ -593,7 +596,7 @@ void Renderer::updateCameraUniformBuffer()
 
 	for (size_t i = 0; i < windows.size(); i++)
 	{
-		camFrustroms.emplace_back(uniforms.viewProjection);
+		camFrustroms[i] = std::move(Frustum(uniforms.viewProjection));
 	}
 	//camFrustrom = new Frustum(uniforms.viewProjection);
 

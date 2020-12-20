@@ -53,7 +53,7 @@ private:
 
 #if RenderMode == RenderModeCPU2
 	libguarded::shared_guarded<bool> drawCommandsValid = libguarded::shared_guarded<bool>(false);
-	std::vector<bool> cmdBuffsUpToDate;
+	std::vector<std::vector<bool>> cmdBuffsUpToDate;
 #endif
 	libguarded::shared_guarded<std::map<TerrainQuadTreeNode*, TreeNodeDrawData>> pendingDrawObjects;
 
