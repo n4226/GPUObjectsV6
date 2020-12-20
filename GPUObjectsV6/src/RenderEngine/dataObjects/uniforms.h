@@ -15,10 +15,12 @@ struct SceneUniforms {
 struct PostProcessEarthDatAndUniforms {
     glm::mat4 invertedViewMat;
     glm::mat4 viewMat;
+    glm::mat4 projMat;
 
     glm::vec4 earthCenter;
     glm::vec4 sunDir;
     glm::vec4 camFloatedGloabelPos;
+    glm::ivec2 renderTargetSize;
 };
 
 struct ModelUniforms {

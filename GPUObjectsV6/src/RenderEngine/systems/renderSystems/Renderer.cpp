@@ -642,9 +642,12 @@ void Renderer::updateCameraUniformBuffer()
 
 		postUniforms.camFloatedGloabelPos = glm::vec4(camera.transform.position, 1);
 		postUniforms.sunDir = glm::vec4(glm::normalize(Math::LlatoGeo(world->playerLLA, glm::dvec3(0), terrainSystem->getRadius())), 1);
-		postUniforms.earthCenter = glm::vec4(static_cast<glm::vec3>(world->origin), 1);
+		postUniforms.earthCenter = glm::vec4(static_cast<glm::vec3>(-(world->origin)), 1);
 		postUniforms.viewMat = camera.view();
+		postUniforms.projMat = camera.projection(windows[i]->swapchainExtent.width, windows[i]->swapchainExtent.height);
 		postUniforms.invertedViewMat = glm::inverse(camera.view());
+		postUniforms.renderTargetSize.x = windows[i]->swapchainExtent.width;
+		postUniforms.renderTargetSize.y = windows[i]->swapchainExtent.height;
 
 		uniformBuffers[i][windows[i]->currentSurfaceIndex]->tempMapAndWrite(&postUniforms, sizeof(uniforms), sizeof(postUniforms), false);
 		uniformBuffers[i][windows[i]->currentSurfaceIndex]->unmapMemory();

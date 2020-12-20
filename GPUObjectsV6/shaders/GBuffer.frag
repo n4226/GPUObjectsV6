@@ -13,6 +13,11 @@
 
 //
 
+#define PI 3.1415926535897932384626433832795
+#define PI_2 1.57079632679489661923
+#define PI_4 0.785398163397448309616
+
+
 #define FLT_MAX 3.402823466e+38
 #define FLT_MIN 1.175494351e-38
 #define DBL_MAX 1.7976931348623158e+308
@@ -24,13 +29,31 @@ const float kInfinity = FLT_MAX;
 #define atmosphereRadius 6378137 + 60000
 
 // atm constants
-// thease are hight scales i believe
+// thease are hight scalese
 #define Hr float(7994)
 #define Hm float(1200)
 
-#define betaR float3(3.8e-6f, 13.5e-6f, 33.1e-6f)
-#define betaM float3(21e-6f)
+// some function of (lambda) - constant for each type of scatterings
+#define betaR vec3(3.8e-6f, 13.5e-6f, 33.1e-6f)
+#define betaM vec3(21e-6f)
 
+
+
+
+layout(binding = 3) uniform UniformBufferObject {
+// global uniforms
+    mat4 viewProjection;
+
+    // post uniforms
+    mat4 invertedViewMat;
+    mat4 viewMat;
+    mat4 projMat;
+
+    vec4 earthCenter;
+    vec4 sunDir;
+    vec4 camFloatedGloabelPos;
+    ivec2 renderTargetSize;
+} ubo;
 
 bool solveQuadratic(float a, float b, float c, out float x1, out float x2)
 {
@@ -76,21 +99,156 @@ bool raySphereIntersect(vec3 orig, vec3 dir, float radius, out float t0,out floa
 
 
 
+vec3 computeIncidentLight(
+                        vec3 orig,
+                        vec3 dir,
+                        float tmin,
+                        float tmax,
+                        vec3 sunDirection)
+{
+    float t0, t1;
+    if (!raySphereIntersect(orig, dir, atmosphereRadius, t0, t1) || t1 < 0) return vec3(0);
+    if (t0 > tmin && t0 > 0) tmin = t0;
+    if (t1 < tmax) tmax = t1;
+    uint numSamples = 4;//8;//16;
+    uint numSamplesLight = 4;// 8;
+    float segmentLength = (tmax - tmin) / numSamples;
+    float tCurrent = tmin;
+    vec3 sumR = vec3(0); // mie and rayleigh contribution
+    vec3 sumM = vec3(0); // mie and rayleigh contribution
+    float opticalDepthR = 0, opticalDepthM = 0;
+    float mu = dot(dir, sunDirection); // mu in the paper which is the cosine of the angle between the sun direction and the ray direction
+    float phaseR = 3.f / (16.f * PI) * (1 + mu * mu);
+    float g = 0.76f;
+    float phaseM = 3.f / (8.f * PI) * ((1.f - g * g) * (1.f + mu * mu)) / ((2.f + g * g) * pow(1.f + g * g - 2.f * g * mu, 1.5f));
 
 
 
+    for (uint i = 0; i < numSamples; ++i) {
+        vec3 samplePosition = orig + (tCurrent + segmentLength * 0.5f) * dir;
+        float height = length(samplePosition) - earthRadius;
+        // compute optical depth for light
+        float hr = exp(-height / Hr) * segmentLength;
+        float hm = exp(-height / Hm) * segmentLength;
+        opticalDepthR += hr;
+        opticalDepthM += hm;
+        // light optical depth
+        float t0Light, t1Light;
+        raySphereIntersect(samplePosition, sunDirection, atmosphereRadius, t0Light, t1Light);
+        // t1Light = time along sun ray to leaving atmosphere
+        float segmentLengthLight = t1Light / numSamplesLight, tCurrentLight = 0;
+        float opticalDepthLightR = 0, opticalDepthLightM = 0;
+        uint j;
+        for (j = 0; j < numSamplesLight; ++j) {
+            // samplePosition = current point on view ray
+            // tCurrentLight = the current time along sun ray; ([t0Light,t1Light] )- i believe'
+            // segmentLengthLight = the length of each section of the sun ray in this j loop
+            // 0.5 - because the math is done for the middle pint of each line segment of the ray calclulated in each loop - so sun dir is scalled to the middle of the line segment
+            // samplePositionLight = the point in the middle of the line semgnet calculated in this loop from the sun dir ray and described in the above comments.
+            // the samplePositionLight vecotor represtents the radius plus hight in the diagr
+            vec3 samplePositionLight = samplePosition + (tCurrentLight + segmentLengthLight * 0.5f) * sunDirection;
+            float heightLight = length(samplePositionLight) - earthRadius;
+            if (heightLight < 0) break;
+            opticalDepthLightR += exp(-heightLight / Hr) * segmentLengthLight;
+            opticalDepthLightM += exp(-heightLight / Hm) * segmentLengthLight;
+            tCurrentLight += segmentLengthLight;
+        }
+        if (j == numSamplesLight) {
+            vec3 tau = betaR * (opticalDepthR + opticalDepthLightR) + betaM * 1.1f * (opticalDepthM + opticalDepthLightM);
+            vec3 attenuation = exp(-tau);
+            sumR += attenuation * hr;
+            sumM += attenuation * hm;
+        }
+        tCurrent += segmentLength;
+    }
 
 
+
+    return (sumR * betaR * phaseR + sumM * betaM * phaseM) * 20;
+}
+
+
+
+//struct Ray {
+//    vec3 O; // Origin
+//    vec3 V; // Direction vector
+//};
+//
+//// Notes: GLUP.viewport = [x0,y0,width,height]
+//// clip-space coordinates are in [-1,1] (not [0,1]) !
+//
+//// Computes the ray that passes through the current fragment
+//// The ray is in world space.
+//Ray glup_primary_ray() {
+//    vec4 near = vec4(
+//    2.0 * ( (gl_FragCoord.x - 0) - 0.5),
+//    2.0 * ( (gl_FragCoord.y - 0) - 0.5),
+//        0.0,
+//        1.0
+//    );
+//    near = GLUP.inverse_modelviewprojection_matrix * near ;
+//    vec4 far = near + GLUP.inverse_modelviewprojection_matrix[2] ;
+//    near.xyz /= near.w ;
+//    far.xyz /= far.w ;
+//    return Ray(near.xyz, far.xyz-near.xyz) ;
+//}
 
 
 vec3 calculatePostAtmosphereicScatering(
                                           ivec2 textureSize,
-                                          vec3 camPos, // without floating origin  // world
+                                          vec2 textPosition,
+                                          vec3 camPos, // without floating origin  // world // in geo coordinates
                                           mat4x4 ViewMatrix,
                                           vec3 sunDirection
 ) {
 
-    return vec3(0,0,0.8);
+    // calculate origin(pos) and direction(dir)
+
+    vec3 orig = camPos;
+    
+//#warning remmber that this fov and other camera info is not checked in any way to e what is on the CPU so be carful
+
+// swift way
+
+//    float aspectRatio = textureSize.x / float(textureSize.y);
+//    float fov = 60;
+//    float angle = tan(fov * PI / 180 * 0.5f);
+//    
+//    //
+//    float rayx = (2 * textPosition.x - 1) * aspectRatio * angle;
+//    float rayy = (1 - textPosition.y * 2) * angle;
+//    
+//    vec3 dir = vec3(rayx, rayy, -1);
+//    //    dir = normalize(dir);
+//    dir = normalize((mat4(ViewMatrix) * vec4(dir,0)).xyz);
+//
+
+
+    vec4 reverseVec;
+
+    /* inverse perspective projection */
+    reverseVec = vec4(textPosition.xy * 2 - 1, 0.0, 1.0);
+    reverseVec = inverse(ubo.projMat) * reverseVec;
+
+    /* inverse modelview, without translation */
+    reverseVec.w = 0.0;
+    reverseVec = ubo.invertedViewMat * reverseVec;
+  
+    /* send */
+    vec3 dir = vec3(reverseVec);
+
+
+    // 
+
+    float t0, t1, tMax = kInfinity;
+    // if the view ray intersects earth set the max to be the distance/time till the surface
+    if (raySphereIntersect(orig, dir, earthRadius, t0, t1) && t1 > 0) {
+            tMax = max(0, t0);
+    }
+
+    return computeIncidentLight(orig,dir,0,tMax,sunDirection);
+
+    //return dir;//vec3(0,0,0.8) * (textPosition.x * 1);
 
 }
 
@@ -102,20 +260,6 @@ vec3 calculatePostAtmosphereicScatering(
 
 
 
-layout(binding = 3) uniform UniformBufferObject {
-// global uniforms
-    mat4 viewProjection;
-
-    // post uniforms
-    mat4 invertedViewMat;
-    mat4 viewMat;
-
-    vec4 earthCenter;
-    vec4 sunDir;
-    vec4 camFloatedGloabelPos;
-} ubo;
-
-
 
 layout (input_attachment_index = 0, set = 0, binding = 0) uniform subpassInput GBuffer_Albedo_Metallic;
 layout (input_attachment_index = 1, set = 0, binding = 1) uniform subpassInput GBuffer_Normal_Roughness;
@@ -124,15 +268,17 @@ layout (input_attachment_index = 2, set = 0, binding = 2) uniform subpassInput G
 
 
 layout(location = 0) out vec4 outColor;
+layout(location = 0) in vec2 inPos;
 
 void main() {
     
     vec4 albedo_metallic =   subpassLoad(GBuffer_Albedo_Metallic);
     vec4 normal_sroughness = subpassLoad(GBuffer_Normal_Roughness);
     vec4 ao =                subpassLoad(GBuffer_AO);
+    
 
     if (albedo_metallic.w == 0) {
-        albedo_metallic.xyz = calculatePostAtmosphereicScatering(ivec2(0,0),vec3(0),mat4(1),vec3(0,1,0));
+        albedo_metallic.xyz = calculatePostAtmosphereicScatering(ubo.renderTargetSize,inPos.xy * 0.5 + 0.5,ubo.camFloatedGloabelPos.xyz - ubo.earthCenter.xyz,ubo.viewMat,ubo.sunDir.xyz);
         albedo_metallic.w = 1;
     }
 

@@ -73,8 +73,17 @@
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;marl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>XCOPY "$(ProjectDir)shaders" "$(TargetDir)\shaders\" /S /Y</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>call cd $(ProjectDir)shaders
+call "compileShaders.bat"
+XCOPY "$(ProjectDir)shaders" "$(TargetDir)\shaders\" /S /Y</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>$(ProjectDir)shaders\noFIle.file</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
