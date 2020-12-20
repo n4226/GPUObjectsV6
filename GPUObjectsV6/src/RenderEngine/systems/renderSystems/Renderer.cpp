@@ -641,7 +641,10 @@ void Renderer::updateCameraUniformBuffer()
 		PostProcessEarthDatAndUniforms postUniforms;
 
 		postUniforms.camFloatedGloabelPos = glm::vec4(camera.transform.position, 1);
-		postUniforms.sunDir = glm::vec4(glm::normalize(Math::LlatoGeo(world->playerLLA, glm::dvec3(0), terrainSystem->getRadius())), 1);
+		glm::qua<glm::float32> sunRot = glm::angleAxis(glm::radians(45.f), glm::vec3(0, 1, 0));
+		postUniforms.sunDir = 
+			glm::angleAxis(glm::radians(45.f + sin(world->timef) * 0.f), glm::vec3(-1, 0, 0)) *
+			glm::vec4(glm::normalize(Math::LlatoGeo(world->initialPlayerLLA, glm::dvec3(0), terrainSystem->getRadius())), 1);
 		postUniforms.earthCenter = glm::vec4(static_cast<glm::vec3>(-(world->origin)), 1);
 		postUniforms.viewMat = camera.view();
 		postUniforms.projMat = camera.projection(windows[i]->swapchainExtent.width, windows[i]->swapchainExtent.height);

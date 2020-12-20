@@ -102,7 +102,8 @@ void WorldScene::updateScene()
 		auto camTrans = configSystem.global().cameras[i];
 
 		window->camera.transform = playerTrans;
-		window->camera.transform.position += camTrans.offset;
+		//window->camera.transform.rotation = glm::identity<glm::quat>();
+		window->camera.transform.position = glm::vec3(0);// += camTrans.offset;
 	}
 
 	frameNum += 1;

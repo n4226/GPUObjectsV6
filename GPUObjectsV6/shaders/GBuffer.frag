@@ -25,18 +25,33 @@
 
 const float kInfinity = FLT_MAX;
 
-#define earthRadius 6378137
+
+/////// default constants
+
+//#define earthRadius 6378137
+//#define atmosphereRadius 6378137 + 60000
+
+//// atm constants
+//// thease are hight scalese
+//#define Hr float(7994)
+//#define Hm float(1200)
+//
+//// some function of (lambda) - constant for each type of scatterings
+//#define betaR vec3(3.8e-6f, 13.5e-6f, 33.1e-6f)
+//#define betaM vec3(21e-6f)
+//
+
+#define earthRadius 6378137 * 0.9991f
 #define atmosphereRadius 6378137 + 60000
 
 // atm constants
 // thease are hight scalese
-#define Hr float(7994)
-#define Hm float(1200)
+#define Hr float(8e3)
+#define Hm float(1.2e3)
 
 // some function of (lambda) - constant for each type of scatterings
-#define betaR vec3(3.8e-6f, 13.5e-6f, 33.1e-6f)
+#define betaR vec3(5.5e-6, 13.0e-6, 22.4e-6)
 #define betaM vec3(21e-6f)
-
 
 
 
@@ -164,7 +179,7 @@ vec3 computeIncidentLight(
 
 
 
-    return (sumR * betaR * phaseR + sumM * betaM * phaseM) * 20;
+    return (sumR * betaR * phaseR + sumM * betaM * phaseM) * 22;
 }
 
 
