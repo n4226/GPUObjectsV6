@@ -37,11 +37,11 @@ const float kInfinity = FLT_MAX;
 //#define Hm float(1200)
 //
 //// some function of (lambda) - constant for each type of scatterings
-//#define betaR vec3(3.8e-6f, 13.5e-6f, 33.1e-6f)
-//#define betaM vec3(21e-6f)
+#define betaR vec3(3.8e-6f, 13.5e-6f, 33.1e-6f)
+#define betaM vec3(21e-6f)
 //
 
-#define earthRadius 6378137 * 0.9991f
+#define earthRadius 6378137
 #define atmosphereRadius 6378137 + 60000
 
 // atm constants
@@ -50,8 +50,8 @@ const float kInfinity = FLT_MAX;
 #define Hm float(1.2e3)
 
 // some function of (lambda) - constant for each type of scatterings
-#define betaR vec3(5.5e-6, 13.0e-6, 22.4e-6)
-#define betaM vec3(21e-6f)
+//#define betaR vec3(5.5e-6, 13.0e-6, 22.4e-6)
+//#define betaM vec3(21e-6f)
 
 
 
@@ -125,8 +125,8 @@ vec3 computeIncidentLight(
     if (!raySphereIntersect(orig, dir, atmosphereRadius, t0, t1) || t1 < 0) return vec3(0);
     if (t0 > tmin && t0 > 0) tmin = t0;
     if (t1 < tmax) tmax = t1;
-    uint numSamples = 4;//8;//16;
-    uint numSamplesLight = 4;// 8;
+    uint numSamples = 16;//8;//16;
+    uint numSamplesLight = 8;// 8;
     float segmentLength = (tmax - tmin) / numSamples;
     float tCurrent = tmin;
     vec3 sumR = vec3(0); // mie and rayleigh contribution
