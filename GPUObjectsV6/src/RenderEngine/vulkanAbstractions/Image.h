@@ -9,6 +9,7 @@ struct ImageCreationOptions {
 	ResourceStorageType storage;
 	vk::ImageUsageFlags usage;
 	vk::SharingMode sharingMode;// = vk::SharingMode::eExclusive;
+	std::vector<uint32_t> sharingQueueFamilieIndicies;
 
 	// image spacific
 	vk::ImageLayout layout;// = vk::ImageLayout::eUndefined;

@@ -20,16 +20,51 @@ private:
 class ResourceTransferer
 {
 public:
-	struct Task
+
+	enum TaskType
 	{
+		bufferTransfers = 0,
+		bufferToImageCopyWithTransition,
+		imageLayoutTransition
+	};
+
+	struct BufferTransferTask {
 		VkBuffer srcBuffer;
 		VkBuffer dstBuffer;
 		std::vector<vk::BufferCopy> regions;
-
-		// image suport comming soon
 	};
 
-	inline static ResourceTransferer* shared;
+	struct ImageLayoutTransitionTask {
+		vk::ImageLayout oldLayout;
+		vk::ImageLayout newLayout;
+		//vk::AccessFlags srcAccessMask;
+		//vk::AccessFlags dstAccessMask;
+		VkImage image;
+		vk::ImageAspectFlags imageAspectMask;
+	};
+
+	struct BufferToImageCopyWithTransitionTask
+	{
+		vk::ImageLayout oldLayout;
+		vk::ImageLayout finalLayout;
+		
+		VkBuffer buffer;
+		VkImage image;
+		vk::Extent3D imageSize;
+		vk::ImageAspectFlags imageAspectMask;
+	};
+
+	struct Task
+	{
+		//Task();
+		TaskType type;
+
+		BufferTransferTask bufferTransferTask;
+		ImageLayoutTransitionTask imageLayoutTransitonTask;
+		BufferToImageCopyWithTransitionTask bufferToImageCopyWithTransitionTask;
+	};
+
+	//inline static ResourceTransferer* shared;
 
 	/// <summary>
 	/// asynchronously performs a number of transfer tasks on the dedicated gpu transfer queue. 
@@ -44,8 +79,10 @@ public:
 	/// <param name="onDone">called on the job thread</param>
 	void newTask(std::vector<Task>& tasks, std::function<void()> completionHandler,bool synchronus = false);
 
+
+
 protected:
-	friend Application;
+	friend Renderer;
 	ResourceTransferer(vk::Device device, vk::Queue queue, uint32_t queueFamilyIndex);
 	~ResourceTransferer();
 private:
@@ -71,5 +108,11 @@ private:
 	/// </summary>
 	/// <param name="ticket"></param>
 	void performTask(std::vector<Task> tasks, marl::Ticket ticket, std::function<void()> completionHandler);
+
+	void performBufferTransferTask(ResourceTransferer::BufferTransferTask& t);
+
+
+	void performBufferToImageCopyWithTransitionTask(ResourceTransferer::BufferToImageCopyWithTransitionTask& t);
+	void performImageLayoutTransitionTask(ResourceTransferer::ImageLayoutTransitionTask& t);
 };
 

@@ -16,7 +16,6 @@ Application::~Application()
 
     delete worldScene;
 
-    delete ResourceTransferer::shared;
 
 
     //Remember to delete all of theme
@@ -41,7 +40,7 @@ void Application::startup()
         auto nativeHandle = GetCurrentThread();
         //SetThreadPriority(nativeHandle, THREAD_PRIORITY_TIME_CRITICAL);
         auto nativeProessHandle = GetCurrentProcess();
-        SetPriorityClass(nativeProessHandle, REALTIME_PRIORITY_CLASS);
+        SetPriorityClass(nativeProessHandle, HIGH_PRIORITY_CLASS);
         auto r = GetPriorityClass(nativeProessHandle);
         printf("d"); 
         //SetPriorityClass()
@@ -265,8 +264,7 @@ int Application::createDevice(int window)
 
 
     //TODO put this in a better place - fix for multi gpu - put this as a member of renderer so that each gpu has its own resource transferer
-    ResourceTransferer::shared = new ResourceTransferer(device, loc_deviceQueues.resourceTransfer, loc_queueFamilyIndices.resourceTransferFamily.value());
-
+    
     return devices.size() - 1;
 }
 

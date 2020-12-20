@@ -81,15 +81,6 @@
     <ClCompile Include="src\pch.cpp">
       <Filter>Header Files\pch</Filter>
     </ClCompile>
-    <ClCompile Include="src\RenderEngine\systems\terrainSystem\TerrainMeshLoader.cpp">
-      <Filter>Source Files\renderer\render systems\terrain system</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RenderEngine\systems\terrainSystem\TerrainQuadTree.cpp">
-      <Filter>Source Files\renderer\render systems\terrain system</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RenderEngine\systems\terrainSystem\TerrainQuadTreeNode.cpp">
-      <Filter>Source Files\renderer\render systems\terrain system</Filter>
-    </ClCompile>
     <ClCompile Include="src\RenderEngine\vulkanAbstractions\Buffer.cpp">
       <Filter>Source Files\helping objects</Filter>
     </ClCompile>
@@ -105,9 +96,6 @@
     <ClCompile Include="src\RenderEngine\vulkanAbstractions\vmaSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\RenderEngine\systems\terrainSystem\TerrainSystem.cpp">
-      <Filter>Source Files\renderer\render systems\terrain system</Filter>
-    </ClCompile>
     <ClCompile Include="src\Application\ApplicationRendererBridge\ApplicationWindow.cpp">
       <Filter>Source Files\application</Filter>
     </ClCompile>
@@ -120,23 +108,11 @@
     <ClCompile Include="src\RenderEngine\dataObjects\MeshBuffers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\RenderEngine\systems\CameraSystem.cpp">
-      <Filter>Source Files\application\scene systems</Filter>
-    </ClCompile>
     <ClCompile Include="src\Application\ConfigSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\RenderEngine\dataObjects\uniforms.cpp">
       <Filter>Source Files\renderer\layout objects</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RenderEngine\systems\renderSystems\Renderer.cpp">
-      <Filter>Source Files\renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RenderEngine\systems\renderSystems\RenderSystem.cpp">
-      <Filter>Source Files\renderer\render systems</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RenderEngine\systems\FloatingOriginSystem.cpp">
-      <Filter>Source Files\application\scene systems</Filter>
     </ClCompile>
     <ClCompile Include="src\Application\FileManager.cpp">
       <Filter>Source Files</Filter>
@@ -180,6 +156,33 @@
     <ClCompile Include="src\RenderEngine\vulkanAbstractions\GPUSelector.cpp">
       <Filter>Source Files\application</Filter>
     </ClCompile>
+    <ClCompile Include="src\RenderEngine\systems\renderSystems\Renderer.cpp">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\systems\renderSystems\RenderSystem.cpp">
+      <Filter>Source Files\renderer\render systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\systems\terrainSystem\TerrainMeshLoader.cpp">
+      <Filter>Source Files\renderer\render systems\terrain system</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\systems\terrainSystem\TerrainQuadTree.cpp">
+      <Filter>Source Files\renderer\render systems\terrain system</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\systems\terrainSystem\TerrainQuadTreeNode.cpp">
+      <Filter>Source Files\renderer\render systems\terrain system</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\systems\terrainSystem\TerrainSystem.cpp">
+      <Filter>Source Files\renderer\render systems\terrain system</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\systems\CameraSystem.cpp">
+      <Filter>Source Files\application\scene systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\systems\FloatingOriginSystem.cpp">
+      <Filter>Source Files\application\scene systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderEngine\systems\renderSystems\MaterialManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Instrumentor.h">
@@ -218,15 +221,6 @@
     <ClInclude Include="src\main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\RenderEngine\systems\terrainSystem\TerrainQuadTreeNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\RenderEngine\systems\terrainSystem\TerrainMeshLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\RenderEngine\systems\terrainSystem\TerrainQuadTree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\RenderEngine\vulkanAbstractions\Buffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -242,9 +236,6 @@
     <ClInclude Include="src\RenderEngine\vulkanAbstractions\vk_mem_alloc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\RenderEngine\systems\terrainSystem\TerrainSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Application\ApplicationRendererBridge\ApplicationWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -257,22 +248,10 @@
     <ClInclude Include="src\RenderEngine\dataObjects\MeshBuffers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\RenderEngine\systems\CameraSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Application\ConfigSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\RenderEngine\dataObjects\uniforms.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\RenderEngine\systems\renderSystems\Renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\RenderEngine\systems\renderSystems\RenderSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\RenderEngine\systems\FloatingOriginSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Application\FileManager.h">
@@ -312,6 +291,33 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Application\ApplicationRendererBridge\Application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\systems\renderSystems\Renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\systems\renderSystems\RenderSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\systems\terrainSystem\TerrainMeshLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\systems\terrainSystem\TerrainQuadTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\systems\terrainSystem\TerrainQuadTreeNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\systems\terrainSystem\TerrainSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\systems\CameraSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\systems\FloatingOriginSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\systems\renderSystems\MaterialManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

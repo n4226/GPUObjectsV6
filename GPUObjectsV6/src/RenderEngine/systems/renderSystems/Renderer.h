@@ -17,6 +17,8 @@
 #include "../../spacificVulkanImplementations/resources/ResourceTransferTask.h"
 #include "../../spacificVulkanImplementations/renderPipelines/GBufferComputePipeline.h"
 
+class MaterialManager;
+
 class Renderer
 {
 public:
@@ -32,6 +34,8 @@ public:
 	TerrainSystem* terrainSystem;
 	WorldScene* world;
 
+	MaterialManager* materialManager;
+
 	// handles
 	vk::Device device;
 	vk::PhysicalDevice physicalDevice;
@@ -40,6 +44,9 @@ public:
 	QueueFamilyIndices& queueFamilyIndices;
 
 	std::vector<WindowManager*> windows;
+
+
+
 
 	std::vector<std::vector<Buffer*>> uniformBuffers;
 
@@ -70,6 +77,8 @@ public:
 	std::vector<Buffer*> threadLocalGlobalModelStagingBuffers;
 
 	void windowSizeChanged(size_t windowIndex);
+
+	ResourceTransferer* resouceTransferer;
 
 private:
 

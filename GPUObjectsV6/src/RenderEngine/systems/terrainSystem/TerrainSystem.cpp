@@ -344,20 +344,20 @@ void TerrainSystem::writePendingDrawOobjects(Renderer& renderer)
 {
 	// copy from staging buffers to gpu ones - asynchronously
 
-	ResourceTransferer::Task vertexTask;
+	ResourceTransferer::BufferTransferTask vertexTask;
 
 	vertexTask.srcBuffer = renderer.globalMeshStagingBuffer->vertBuffer->vkItem;
 	vertexTask.dstBuffer = renderer.globalMeshBuffer->vertBuffer->vkItem;
 
 
-	ResourceTransferer::Task indexTask;
+	ResourceTransferer::BufferTransferTask indexTask;
 
 	indexTask.srcBuffer = renderer.globalMeshStagingBuffer->indexBuffer->vkItem;
 	indexTask.dstBuffer = renderer.globalMeshBuffer->indexBuffer->vkItem;
 
 
 
-	ResourceTransferer::Task modelTask;
+	ResourceTransferer::BufferTransferTask modelTask;
 
 	modelTask.srcBuffer = renderer.globalModelBufferStaging->vkItem;
 	modelTask.dstBuffer = renderer.globalModelBuffers[renderer.gpuActiveGlobalModelBuffer]->vkItem;
@@ -382,11 +382,11 @@ void TerrainSystem::writePendingDrawOobjects(Renderer& renderer)
 		}
 	}
 	
-	
+	auto taskType = ResourceTransferer::TaskType::bufferTransfers;
 
-	std::vector<ResourceTransferer::Task> tasks = { vertexTask,indexTask,modelTask };
+	std::vector<ResourceTransferer::Task> tasks = { {taskType,vertexTask},{taskType,indexTask},{taskType, modelTask} };
 
-	ResourceTransferer::shared->newTask(tasks, [&]() {
+	renderer.resouceTransferer->newTask(tasks, [&]() {
 		{
 			PROFILE_SCOPE("terrain system ResourceTransferer::shared->newTask completion callback")
 			{

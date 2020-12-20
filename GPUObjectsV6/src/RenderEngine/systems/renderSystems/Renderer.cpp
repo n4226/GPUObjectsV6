@@ -3,6 +3,8 @@
 #include "../../../Application/ApplicationRendererBridge/WorldScene.h"
 #include "../../../Application/ApplicationRendererBridge/Application.h"
 
+#include "MaterialManager.h"
+
 Renderer::Renderer(Application& app, vk::Device device, vk::PhysicalDevice physicalDevice, VmaAllocator allocator, std::vector<WindowManager*> windows, GPUQueues& deviceQueues, QueueFamilyIndices& queueFamilyIndices)
 	: app(app), device(device), physicalDevice(physicalDevice), allocator(allocator), windows(windows), deviceQueues(deviceQueues), queueFamilyIndices(queueFamilyIndices)
 {
@@ -13,6 +15,9 @@ Renderer::Renderer(Application& app, vk::Device device, vk::PhysicalDevice physi
 		windows[i]->indexInRenderer = i;
 		camFrustroms.emplace_back(windows[i]->camera.view());
 	}
+
+	resouceTransferer = new ResourceTransferer(device, deviceQueues.resourceTransfer, queueFamilyIndices.resourceTransferFamily.value());
+	materialManager = new MaterialManager(*this);
 }
 
 void Renderer::createAllResources()
@@ -21,11 +26,17 @@ void Renderer::createAllResources()
 	createUniformsAndDescriptors();
 
 	createDynamicRenderCommands();
+
+	materialManager->loadStatic();
 }
 
 Renderer::~Renderer()
 {
 	PROFILE_FUNCTION
+
+
+	delete materialManager;
+	delete resouceTransferer;
 
 	delete deferredPassVertBuff;
 	device.destroyDescriptorPool(deferredDescriptorPool);

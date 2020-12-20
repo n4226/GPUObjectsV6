@@ -33,6 +33,7 @@
 #include "../libGuarded/cs_shared_guarded.h"
 #include "../libGuarded/cs_rcu_guarded.h"
 
+#include <stb-master/stb_image.h>-
 
 // shared code static lib
 

@@ -28,6 +28,9 @@ Image::Image(vk::Device device, VmaAllocator allocator, vk::Extent3D size, Image
 	imageInfo.samples = vk::SampleCountFlagBits::e1;
 	imageInfo.flags = {};
 
+	if (options.sharingMode == vk::SharingMode::eConcurrent)
+		imageInfo.setQueueFamilyIndices(options.sharingQueueFamilieIndicies);
+
 	VkImageCreateInfo c_imageInfo = imageInfo;
 
 	// allocate
