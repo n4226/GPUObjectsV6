@@ -95,8 +95,15 @@ void WorldScene::updateScene()
 
 	terrainSystem->update();
 
-	for (auto window : app.windows)
+	for (size_t i = 0; i < app.windows.size(); i++)
+	{
+		auto& window = app.windows[i];
+
+		auto camTrans = configSystem.global().cameras[i];
+
 		window->camera.transform = playerTrans;
+		window->camera.transform.position += camTrans.offset;
+	}
 
 	frameNum += 1;
 }

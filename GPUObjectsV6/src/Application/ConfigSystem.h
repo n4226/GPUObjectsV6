@@ -25,8 +25,14 @@ public:
 			glm::ivec2 size;
 		};
 
-		std::vector<Window> windows;
+		struct Camera {
+			glm::vec3 offset;
+			glm::vec3 rotAxis;
+			glm::float32 rotAngleDeg;
+		};
 
+		std::vector<Window> windows;
+		std::vector<Camera> cameras;
 	};
 
 	Config& global();

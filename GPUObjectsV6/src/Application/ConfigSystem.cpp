@@ -27,6 +27,7 @@ void ConfigSystem::readFromDisk()
             std::istreambuf_iterator<char>());
         json jData = json::parse(str);
         config = Config::fromJson(jData);
+        //writeToDisk();
     }
     else {
         resetToDefault();
@@ -102,6 +103,24 @@ nlohmann::json ConfigSystem::Config::toJson()
     }
     j["windows"] = jwindows;
 
+
+    std::vector<json> jcams;
+    jcams.resize(cameras.size());
+
+    for (size_t i = 0; i < windows.size(); i++) {
+        jcams[i]["offset"]["x"] = cameras[i].offset.x;
+        jcams[i]["offset"]["y"] = cameras[i].offset.y;
+        jcams[i]["offset"]["z"] = cameras[i].offset.z;
+
+
+        jcams[i]["rotAxis"]["x"] = cameras[i].rotAxis.x;
+        jcams[i]["rotAxis"]["y"] = cameras[i].rotAxis.y;
+        jcams[i]["rotAxis"]["z"] = cameras[i].rotAxis.z;
+
+        jcams[i]["rotAngleDeg"] = cameras[i].rotAngleDeg;
+    }
+
+    j["cameras"] = jcams;
     return j;
 }
 
@@ -127,6 +146,36 @@ ConfigSystem::Config* ConfigSystem::Config::fromJson(nlohmann::json& j)
 
         config->windows[i].size.x =     jwins[i]["size"]["x"];
         config->windows[i].size.y =     jwins[i]["size"]["y"];
+    }
+
+
+    auto jcams = j["cameras"];
+    config->cameras.resize(jcams.size());
+
+    for (size_t i = 0; i < jcams.size(); i++) {
+        config->cameras[i].offset.x = jcams[i]["offset"]["x"];
+        config->cameras[i].offset.y = jcams[i]["offset"]["y"];
+        config->cameras[i].offset.z = jcams[i]["offset"]["z"];
+
+
+        config->cameras[i].rotAxis.x = jcams[i]["rotAxis"]["x"];
+        config->cameras[i].rotAxis.y = jcams[i]["rotAxis"]["y"];
+        config->cameras[i].rotAxis.z = jcams[i]["rotAxis"]["z"];
+
+
+        config->cameras[i].rotAngleDeg = jcams[i]["rotAngleDeg"];
+    }
+
+    if (config->cameras.size() < config->windows.size()) {
+        for (size_t i = config->cameras.size(); i < config->windows.size(); i++)
+        {
+            config->cameras.emplace_back();
+
+            config->cameras[i].offset = glm::vec3(0);
+            config->cameras[i].rotAxis = glm::vec3(0);
+            config->cameras[i].rotAngleDeg = 0;
+
+        }
     }
 
     return config;
