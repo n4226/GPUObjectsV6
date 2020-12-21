@@ -183,6 +183,9 @@
     <ClCompile Include="src\RenderEngine\systems\renderSystems\MaterialManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\RenderEngine\vulkanAbstractions\Sampler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Instrumentor.h">
@@ -318,6 +321,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\RenderEngine\systems\renderSystems\MaterialManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderEngine\vulkanAbstractions\Sampler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

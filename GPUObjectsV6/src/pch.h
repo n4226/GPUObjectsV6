@@ -53,10 +53,10 @@
 #include "environment.h"
 #include "RenderEngine/vulkanAbstractions/Buffer.h"
 #include "RenderEngine/vulkanAbstractions/Image.h"
+#include "RenderEngine/vulkanAbstractions/Sampler.h"
 #include "RenderEngine/dataObjects/uniforms.h"
 #include "RenderEngine/systems/renderSystems/RenderSystem.h"
 #include "Application/ConfigSystem.h"
-
 
 // stl
 #include <functional>

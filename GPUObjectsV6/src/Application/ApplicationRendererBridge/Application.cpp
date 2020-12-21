@@ -211,9 +211,10 @@ int Application::createDevice(int window)
 
     std::array<VkDeviceQueueCreateInfo, 2> queueCreateInfos = { VkDeviceQueueCreateInfo(gfxQueueCreateInfo), VkDeviceQueueCreateInfo(transferQueueCreateInfo) };
 
-
+    //TODO: add proper way of requesting and falling back on device features
     //vk::PhysicalDeviceFeatures deviceFeatures();
     VkPhysicalDeviceFeatures deviceFeatures{};
+    deviceFeatures.samplerAnisotropy = VK_TRUE;
 
     VkPhysicalDeviceDescriptorIndexingFeatures desIndexingFeatures{};
     desIndexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;

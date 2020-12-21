@@ -7,6 +7,9 @@
 MaterialManager::MaterialManager(Renderer& renderer)
 	: renderer(renderer)
 {
+	Sampler::CreateOptions options{};
+
+	matSampler = new Sampler(renderer.device,options);
 
 }
 
@@ -22,7 +25,7 @@ void MaterialManager::loadStatic()
 
 	renderer.resouceTransferer->newTask(pendingTasks, []() {
 
-		}, false);
+	}, false);
 	pendingTasks.clear();
 
 }

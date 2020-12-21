@@ -24,8 +24,11 @@ public:
 
 private:
 
+	Sampler* matSampler;
+
 	std::vector<Image*>  images;
 	std::vector<Buffer*> buffers;
+
 	std::vector<ResourceTransferer::Task> pendingTasks;
 
  	std::tuple<Buffer*,Image*> loadTex(const char* path);
