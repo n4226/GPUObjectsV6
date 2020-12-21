@@ -19,8 +19,9 @@ struct TreeNodeDrawData
 {
 	size_t vertIndex;
 	size_t vertcount;
-	size_t indIndex;
-	size_t indexCount;
+	std::vector<size_t> indIndicies;
+	std::vector<size_t> indexCounts;
+	size_t totalIndexCount;
 
 	DrawPushData drawData;
 

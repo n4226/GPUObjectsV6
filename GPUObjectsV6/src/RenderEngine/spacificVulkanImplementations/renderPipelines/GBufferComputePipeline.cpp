@@ -43,7 +43,7 @@
 void DeferredPass::createPipeline()
 {
 
-	std::array<VkDescriptorSetLayoutBinding, 4> setLayoutBindings{};
+	std::array<VkDescriptorSetLayoutBinding, 5> setLayoutBindings{};
 
 	// thses have same indicies as frame buffer and render pass attatchmetns
 
@@ -62,11 +62,16 @@ void DeferredPass::createPipeline()
 	setLayoutBindings[2].descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
 	setLayoutBindings[2].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-
     setLayoutBindings[3].binding = 3;
     setLayoutBindings[3].descriptorCount = 1;
-    setLayoutBindings[3].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    setLayoutBindings[3].descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
     setLayoutBindings[3].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+
+    setLayoutBindings[4].binding = 4;
+    setLayoutBindings[4].descriptorCount = 1;
+    setLayoutBindings[4].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    setLayoutBindings[4].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
 
 	VkDescriptorSetLayoutCreateInfo layoutInfo{};

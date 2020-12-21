@@ -15,24 +15,24 @@ Application::Application()
 Application::~Application()
 {
     Instrumentor::Get().BeginSession("Shutdown", "instruments_Shutdown.profile");
-
-    PROFILE_FUNCTION;
-
-
-    delete worldScene;
+    {
+        PROFILE_FUNCTION;
 
 
+        delete worldScene;
 
-    //Remember to delete all of theme
-    for(auto window : windows)
-        delete window;
-    for(auto renderer: renderers)
-        delete renderer;
 
-    scheduler->unbind();
 
-    glfwTerminate();
+        //Remember to delete all of theme
+        for (auto window : windows)
+            delete window;
+        for (auto renderer : renderers)
+            delete renderer;
 
+        scheduler->unbind();
+
+        glfwTerminate();
+    }
     Instrumentor::Get().EndSession();
 }
 
@@ -41,7 +41,7 @@ void Application::startup()
     PROFILE_FUNCTION;
 
 
-    if (0) {// configure main threaqd priority
+    {// configure main threaqd priority
         auto nativeHandle = GetCurrentThread();
         //SetThreadPriority(nativeHandle, THREAD_PRIORITY_TIME_CRITICAL);
         auto nativeProessHandle = GetCurrentProcess();
@@ -83,7 +83,7 @@ void Application::startup()
 
         window->camera.fov = 60;
         window->camera.zNear = 0.1;
-        window->camera.zFar = 1'000'000;
+        window->camera.zFar = 100'000;//1'000'000;
 
         windows.push_back(window);
 
@@ -120,13 +120,12 @@ void Application::startup()
 
 void Application::run()
 {
-    return;
     Instrumentor::Get().BeginSession("Run", "instruments_Run.profile");
+    {
+        PROFILE_FUNCTION;
 
-    PROFILE_FUNCTION;
-
-    runLoop();
-
+        runLoop();
+    }
     Instrumentor::Get().EndSession();
 }
 
@@ -135,6 +134,7 @@ void Application::runLoop()
 {
     worldScene->loadScene();
 
+    //worldScene->updateScene();
 
     while (shouldLoop()) {
         runLoopIteration();

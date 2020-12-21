@@ -209,6 +209,15 @@ size_t BinaryMeshSeirilizer::indiciesSize(size_t subMesh)
 	return (subMeshIndexCounts[subMesh]) * sizeof(glm::uint32);
 }
 
+size_t BinaryMeshSeirilizer::AllSubMeshIndiciesSize() {
+	size_t total = 0;
+
+	for (size_t i = 0; i < *subMeshCount; i++)
+	{
+		total += indiciesSize(i);
+	}
+	return total;
+}
 
 
 

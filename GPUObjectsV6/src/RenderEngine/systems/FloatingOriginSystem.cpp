@@ -29,12 +29,12 @@ void FloatingOriginSystem::update()
 
         auto objects = world->terrainSystem->drawObjects.lock();
 
-        std::vector<BindlessMeshBuffer::WriteLocation> copyReceipts;
+        std::vector<vk::BufferCopy> copyReceipts;
 
         for (std::pair<TerrainQuadTreeNode*, TreeNodeDrawData> drawData : *objects) {
             auto modelAddress = drawData.second.modelRecipt;
 
-            copyReceipts.push_back(modelAddress);
+            copyReceipts.emplace_back(modelAddress.offset,modelAddress.offset,modelAddress.size);
 
             //TODO: fix renderers[0]
             ModelUniforms* model = reinterpret_cast<ModelUniforms*>(reinterpret_cast<char*>(world->app.renderers[0]->globalModelBufferStaging->mappedData) + modelAddress.offset);
@@ -42,14 +42,18 @@ void FloatingOriginSystem::update()
         }
         
         //TODO: NEED TO COPY CHANGES i should have to copy these changes to the gpu buffer(s) but for some reason it's wokring on my drivers and there are no validation errors so i'm not going to spend time on it right now
-  /*      
+        
         ResourceTransferer::Task task;
 
-        task.srcBuffer = world->renderer->globalModelBufferStaging->vkItem;
-        task.dstBuffer = world->renderer->globalModelBuffers[world->renderer->gpuUnactiveGlobalModelBuffer]->vkItem;
-        
+        task.type = ResourceTransferer::TaskType::bufferTransfers;
+        task.bufferTransferTask.srcBuffer = world->app.renderers[0]->globalModelBufferStaging->vkItem;
+        task.bufferTransferTask.dstBuffer = world->app.renderers[0]->globalModelBuffers[world->app.renderers[0]->gpuUnactiveGlobalModelBuffer * 0]->vkItem;
+        task.bufferTransferTask.regions = copyReceipts;
 
-        ResourceTransferer::newTask(task);*/
+        std::vector<ResourceTransferer::Task> tasks = { task };
+
+        if (copyReceipts.size() > 0)
+            world->app.renderers[0]->resouceTransferer->newTask(tasks, []() {},false);
 
 
 

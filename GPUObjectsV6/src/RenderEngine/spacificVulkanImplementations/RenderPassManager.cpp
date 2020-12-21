@@ -213,13 +213,13 @@ void RenderPassManager::createMainRenderPass()
 		// vulkan will transfer image to this layout at start of subpass
 		gbuffer_ao_AttachmentRef.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-		//VkAttachmentReference gbuffer_depth_AttachmentRef{};
-		//gbuffer_depth_AttachmentRef.attachment = 3;
-		//// vulkan will transfer image to this layout at start of subpass
-		//gbuffer_depth_AttachmentRef.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		VkAttachmentReference gbuffer_depth_AttachmentRef{};
+		gbuffer_depth_AttachmentRef.attachment = 3;
+		// vulkan will transfer image to this layout at start of subpass
+		gbuffer_depth_AttachmentRef.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-		std::array<VkAttachmentReference, 3> inputAttachments = {
-			gbuffer_albdo_metallic_AttachmentRef, gbuffer_normal_roughness_AttachmentRef, gbuffer_ao_AttachmentRef// depth in deferred stage currently not avaliable, gbuffer_depth_AttachmentRef
+		std::array<VkAttachmentReference, 4> inputAttachments = {
+			gbuffer_albdo_metallic_AttachmentRef, gbuffer_normal_roughness_AttachmentRef, gbuffer_ao_AttachmentRef, gbuffer_depth_AttachmentRef
 		};
 
 

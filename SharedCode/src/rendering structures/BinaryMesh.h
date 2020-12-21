@@ -86,6 +86,7 @@ public:
 	size_t      tangentsSize();
 	size_t    bitangentsSize();
 	size_t      indiciesSize(size_t subMesh);
+	size_t AllSubMeshIndiciesSize();
 
 	void*         vertsPtr();
 	void*           uvsPtr();

@@ -107,6 +107,7 @@
     <ClInclude Include="src\math\Math.h" />
     <ClInclude Include="src\shared.h" />
     <ClInclude Include="src\math\triangulation\Triangulation.h" />
+    <ClInclude Include="src\StaticMaterialTable.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\math\path\Bezier.cpp" />
@@ -119,6 +120,7 @@
     <ClCompile Include="src\math\Math.cpp" />
     <ClCompile Include="src\shared.cpp" />
     <ClCompile Include="src\math\triangulation\Triangulation.cpp" />
+    <ClCompile Include="src\StaticMaterialTable.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -55,7 +55,7 @@ const float kInfinity = FLT_MAX;
 
 
 
-layout(binding = 3) uniform UniformBufferObject {
+layout(binding = 4) uniform UniformBufferObject {
 // global uniforms
     mat4 viewProjection;
 
@@ -330,8 +330,11 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 layout (input_attachment_index = 0, set = 0, binding = 0) uniform subpassInput GBuffer_Albedo_Metallic;
 layout (input_attachment_index = 1, set = 0, binding = 1) uniform subpassInput GBuffer_Normal_Roughness;
 layout (input_attachment_index = 2, set = 0, binding = 2) uniform subpassInput GBuffer_AO;
+layout (input_attachment_index = 3, set = 0, binding = 3) uniform subpassInput GBuffer_Depth;
 
-
+float remap(float value, float low1,float high1,float low2,float high2) {
+    return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
+}
 
 layout(location = 0) out vec4 outColor;
 layout(location = 0) in vec2 inPos;
@@ -340,10 +343,14 @@ void main() {
     
     vec4 albedo_metallic =   subpassLoad(GBuffer_Albedo_Metallic);
     vec4 normal_sroughness = subpassLoad(GBuffer_Normal_Roughness);
-    float ao =                subpassLoad(GBuffer_AO).x;
-    
+    float ao =               subpassLoad(GBuffer_AO).x;
+    float depth =            subpassLoad(GBuffer_Depth).x; 
 
-    albedo_metallic = normal_sroughness;
+    //albedo_metallic = normal_sroughness;
+
+    //depth = remap(depth,0.9993,1,0,1);
+    //albedo_metallic.xyz = vec3(depth);
+
 
     if (normal_sroughness.w == 0) {
         albedo_metallic.xyz = calculatePostAtmosphereicScatering(ubo.renderTargetSize,inPos.xy * 0.5 + 0.5,ubo.camFloatedGloabelPos.xyz - ubo.earthCenter.xyz,ubo.viewMat,ubo.sunDir.xyz);

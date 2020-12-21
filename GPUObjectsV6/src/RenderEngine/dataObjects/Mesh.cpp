@@ -289,7 +289,6 @@ void BindlessMeshBuffer::writeMeshToBuffer(VkDeviceAddress vertIndex, VkDeviceAd
 {
 	PROFILE_FUNCTION
 
-	//TODO: right now this just loads the first submesh	
 	if (mapandUnmap)
 	{
 		vertBuffer->mapMemory();
@@ -302,7 +301,7 @@ void BindlessMeshBuffer::writeMeshToBuffer(VkDeviceAddress vertIndex, VkDeviceAd
 	memcpy(static_cast<char*>(vertBuffer->mappedData) + tangentsOffset() + vertIndex * sizeof(glm::vec3)  , mesh->tangentsPtr()   , mesh->tangentsSize());
 	memcpy(static_cast<char*>(vertBuffer->mappedData) + bitangentsOffset() + vertIndex * sizeof(glm::vec3), mesh->bitangentsPtr() , mesh->bitangentsSize());
 
-	memcpy(static_cast<char*>(indexBuffer->mappedData) + indIndex * sizeof(glm::uint32), mesh->indiciesPtr(0), mesh->indiciesSize(0));
+	memcpy(static_cast<char*>(indexBuffer->mappedData) + indIndex * sizeof(glm::uint32), mesh->indiciesPtr(0), mesh->AllSubMeshIndiciesSize());
 
 	if (mapandUnmap)
 	{
@@ -328,7 +327,7 @@ BindlessMeshBuffer::WriteTransactionReceipt BindlessMeshBuffer::genrateWriteRece
 		location3,
 		location4,
 	};
-	report.indexLocation = { indIndex * sizeof(glm::uint32), mesh->indiciesSize(0) };
+	report.indexLocation = { indIndex * sizeof(glm::uint32), mesh->AllSubMeshIndiciesSize() };
 	return report;
 }
 

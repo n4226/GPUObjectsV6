@@ -104,9 +104,11 @@ void TerrainMeshLoader::drawChunk(TerrainQuadTreeNode* node, TreeNodeDrawResaour
 	BindlessMeshBuffer::WriteTransactionReceipt meshReceipt;
 
 	VkDeviceAddress vertIndex;
-	VkDeviceAddress indIndex;
+	// one per sub mesh
+	std::vector<VkDeviceAddress> indIndicies;
 	size_t vertCount;
-	size_t indCount;
+	std::vector<size_t> indCounts;
+	size_t totalIndCount;
 
 	//TreeNodeDrawResaourceToCoppy preLoadedMesh;
 
@@ -120,17 +122,27 @@ void TerrainMeshLoader::drawChunk(TerrainQuadTreeNode* node, TreeNodeDrawResaour
 		BinaryMeshSeirilizer& mesh = *preLoadedMesh.binMesh;
 
 		vertCount = *mesh.vertCount;
-		indCount = mesh.subMeshIndexCounts[0];
+		indCounts = std::vector<size_t>(mesh.subMeshIndexCounts, mesh.subMeshIndexCounts + *mesh.subMeshCount);
 
 		// these indicies are in vert count space - meaning 1 = 1 vert not 1 byte
 		vertIndex = renderer->gloablVertAllocator->alloc(vertCount);
-		indIndex = renderer->gloablIndAllocator->alloc(indCount);
+		indIndicies = {};
+		indIndicies.resize(indCounts.size());
+		indIndicies[0] = renderer->gloablIndAllocator->alloc(mesh.AllSubMeshIndiciesSize());
 
-		stagingMeshBuff->writeMeshToBuffer(vertIndex, indIndex, &mesh, !inJob);
+		glm::uint32 totalOffset = 0;
+		for (size_t i = 0; i < indCounts.size(); i++)
+		{
+			indIndicies[i] = indIndicies[0] + totalOffset;
+			totalOffset += mesh.indiciesSize(i);
+		}
+		totalIndCount = totalOffset;
+
+		stagingMeshBuff->writeMeshToBuffer(vertIndex, indIndicies[0], &mesh, !inJob);
 
 
 		//renderer->globalMeshStaging->vertBuffer->gpuCopyToOther(renderer->globalMesh->vertBuffer)
-		meshReceipt = stagingMeshBuff->genrateWriteReceipt(vertIndex, indIndex, &mesh);
+		meshReceipt = stagingMeshBuff->genrateWriteReceipt(vertIndex, indIndicies[0], &mesh);
 	}
 	else
 	{
@@ -138,17 +150,18 @@ void TerrainMeshLoader::drawChunk(TerrainQuadTreeNode* node, TreeNodeDrawResaour
 		auto mesh = preLoadedMesh.mesh;
 
 		vertCount = mesh->verts.size();
-		indCount = mesh->indicies.size();
-		
+		indCounts = { mesh->indicies.size() };
+		totalIndCount = indCounts[0];
+
 		// these indicies are in vert count space - meaning 1 = 1 vert not 1 byte
 		vertIndex = renderer->gloablVertAllocator->alloc(mesh->verts.size());
-		indIndex = renderer->gloablIndAllocator->alloc(mesh->indicies.size());
+		indIndicies = { renderer->gloablIndAllocator->alloc(mesh->indicies.size()) };
 
-		stagingMeshBuff->writeMeshToBuffer(vertIndex, indIndex, mesh, !inJob);
+		stagingMeshBuff->writeMeshToBuffer(vertIndex, indIndicies[0], mesh, !inJob);
 
 
 		//renderer->globalMeshStaging->vertBuffer->gpuCopyToOther(renderer->globalMesh->vertBuffer)
-		meshReceipt = stagingMeshBuff->genrateWriteReceipt(vertIndex, indIndex, mesh);
+		meshReceipt = stagingMeshBuff->genrateWriteReceipt(vertIndex, indIndicies[0], mesh);
 	}
 
 	// model 
@@ -171,10 +184,11 @@ void TerrainMeshLoader::drawChunk(TerrainQuadTreeNode* node, TreeNodeDrawResaour
 
 
 	TreeNodeDrawData drawData;
-	drawData.indIndex = indIndex;
+	drawData.indIndicies = indIndicies;
 	drawData.vertIndex = vertIndex;
 	drawData.vertcount = vertCount;
-	drawData.indexCount = indCount;
+	drawData.indexCounts = indCounts;
+	drawData.totalIndexCount = totalIndCount;
 	drawData.meshRecipt = meshReceipt;
 	drawData.modelRecipt = { modelIndex,modelAllocSize };
 
@@ -214,7 +228,7 @@ void TerrainMeshLoader::removeDrawChunk(TerrainQuadTreeNode* node, bool inJob)
 	//TODO: deallocate buffers here 
 
 	renderer->gloablVertAllocator->free(draw.vertIndex, draw.vertcount);
-	renderer->gloablIndAllocator->free(draw.indIndex, draw.indexCount);
+	renderer->gloablIndAllocator->free(draw.indIndicies[0], draw.totalIndexCount);
 
 }
 

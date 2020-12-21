@@ -430,7 +430,7 @@ void Renderer::updateLoadTimeDescriptors(WindowManager& window)
 		VkWriteDescriptorSet post_globalUniformDescriptorWrite{};
 		post_globalUniformDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		post_globalUniformDescriptorWrite.dstSet = deferredDescriptorSets[window.indexInRenderer][i];
-		post_globalUniformDescriptorWrite.dstBinding = 3;
+		post_globalUniformDescriptorWrite.dstBinding = 4;
 		post_globalUniformDescriptorWrite.dstArrayElement = 0;
 
 		post_globalUniformDescriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -449,7 +449,7 @@ void Renderer::updateLoadTimeDescriptors(WindowManager& window)
 
 
 
-		std::array<VkDescriptorImageInfo, 3> inputAttachmentDescriptors{};
+		std::array<VkDescriptorImageInfo, 4> inputAttachmentDescriptors{};
 		// albedo and normal
 		inputAttachmentDescriptors[0].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		inputAttachmentDescriptors[0].imageView = window.gbuffer_albedo_metallic->view;
@@ -465,10 +465,14 @@ void Renderer::updateLoadTimeDescriptors(WindowManager& window)
 		inputAttachmentDescriptors[2].imageView = window.gbuffer_ao->view;
 		inputAttachmentDescriptors[2].sampler = VK_NULL_HANDLE;
 
+		// depth
+		inputAttachmentDescriptors[3].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		inputAttachmentDescriptors[3].imageView = window.depthImage->view;
+		inputAttachmentDescriptors[3].sampler = VK_NULL_HANDLE;
 
 
 
-		std::array<VkWriteDescriptorSet, 3> deferredInputDescriptorWrite{};
+		std::array<VkWriteDescriptorSet, 4> deferredInputDescriptorWrite{};
 		deferredInputDescriptorWrite[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		deferredInputDescriptorWrite[0].dstSet = deferredDescriptorSets[window.indexInRenderer][i];
 		deferredInputDescriptorWrite[0].dstBinding = 0;
@@ -507,6 +511,17 @@ void Renderer::updateLoadTimeDescriptors(WindowManager& window)
 		deferredInputDescriptorWrite[2].pImageInfo = &inputAttachmentDescriptors[2]; // Optional
 		deferredInputDescriptorWrite[2].pTexelBufferView = nullptr; // Optional
 
+		deferredInputDescriptorWrite[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		deferredInputDescriptorWrite[3].dstSet = deferredDescriptorSets[window.indexInRenderer][i];
+		deferredInputDescriptorWrite[3].dstBinding = 3;
+		deferredInputDescriptorWrite[3].dstArrayElement = 0;
+									 
+		deferredInputDescriptorWrite[3].descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+		deferredInputDescriptorWrite[3].descriptorCount = 1;
+									 
+		deferredInputDescriptorWrite[3].pBufferInfo = nullptr;
+		deferredInputDescriptorWrite[3].pImageInfo = &inputAttachmentDescriptors[3]; // Optional
+		deferredInputDescriptorWrite[3].pTexelBufferView = nullptr; // Optional
 
 		vkUpdateDescriptorSets(device, static_cast<uint32_t>(deferredInputDescriptorWrite.size()), deferredInputDescriptorWrite.data(), 0, nullptr);
 

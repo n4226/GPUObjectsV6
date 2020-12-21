@@ -2,7 +2,7 @@
 #include "MaterialManager.h"
 #include "Application/FileManager.h"
 #include "Application/ApplicationRendererBridge/Application.h"
-
+#include "StaticMaterialTable.h"
 
 
 MaterialManager::MaterialManager(Renderer& renderer)
@@ -25,7 +25,14 @@ void MaterialManager::loadStatic()
 	// load each static material from disk into buffers then copy to images using resource transfer manager
 	
 	// load all mats
-	loadMat(matRootPath, "grass1");
+
+	for (auto mat : StaticMaterialTable::reverseEntries)
+	{
+		loadMat(matRootPath, mat.second.c_str());
+	}
+
+	//loadMat(matRootPath, "grass1");
+	//loadMat(matRootPath, "building1");
 
 
 
@@ -41,12 +48,18 @@ void MaterialManager::loadMat(std::string& matRootPath, const char* matFolder)
 {
 	PROFILE_FUNCTION;
 
-
-	auto al_index = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-albedo3.png").c_str()));
-	auto n_index  = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-normal1-ogl.png").c_str()));
-	auto m_index  = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-metal.psd").c_str()));
-	auto ao_index = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-ao.png").c_str()));
+	auto al_index = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-albedo3.jpg").c_str()));
+	auto n_index = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-normal1-ogl.jpg").c_str()));
+	//auto m_index  = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-metal.psd").c_str()));
+	//auto ao_index = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-ao.jpg").c_str()));
 	//auto [r_buffer, r_image] = loadTex((matRootPath + matFolder + "/" + matFolder + "-albedo3.png").c_str());
+
+
+	//auto al_index = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-albedo3.png").c_str()));
+	//auto n_index  = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-normal1-ogl.png").c_str()));
+	////auto m_index  = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-metal.psd").c_str()));
+	//auto ao_index = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-ao.png").c_str()));
+	////auto [r_buffer, r_image] = loadTex((matRootPath + matFolder + "/" + matFolder + "-albedo3.png").c_str());
 
 
 
@@ -90,19 +103,19 @@ std::tuple<Buffer*, Image*> MaterialManager::loadTex(const char* path)
 
 	int texWidth, texHeight, texChannels;
 
-	stbi_uc* pixels;
-	//mango::u32* pixels;
+	//stbi_uc* pixels;
+	mango::u32* pixels;
 	//{
 		//PROFILE_SCOPE("stbi_load");
-		pixels = stbi_load(path, &texWidth, &texHeight, &texChannels, STBI_default);
+		//pixels = stbi_load(path, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);//STBI_default);
 
 		// $(SolutionDir)Dependencies\mango - master\mango - master\build\vs2019\x64\Debug\mango.lib
 	
-		/*mango::Bitmap bitmap(path, mango::Format(32, mango::Format::UNORM, mango::Format::BGRA, 8, 8, 8, 8));
+		mango::Bitmap bitmap(path, mango::Format(32, mango::Format::UNORM, mango::Format::RGBA, 8, 8, 8, 8));
 		texWidth = bitmap.width;
 		texHeight = bitmap.height;
 		texChannels = 4;
-		pixels = bitmap.address<mango::u32>(0, 0);*/
+		pixels = bitmap.address<mango::u32>(0, 0);
 
 	//}
 
@@ -131,7 +144,8 @@ std::tuple<Buffer*, Image*> MaterialManager::loadTex(const char* path)
 	imageOptions.tilling = vk::ImageTiling::eOptimal;
 
 
-	imageOptions.format = vk::Format::eR8G8Unorm;
+	imageOptions.format = vk::Format::eR8G8B8A8Srgb;
+	//eR8G8Unorm;
 
 	vk::Extent3D imageSize = { static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight),1 };
 

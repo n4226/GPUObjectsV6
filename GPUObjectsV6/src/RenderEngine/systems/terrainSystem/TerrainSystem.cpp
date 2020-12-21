@@ -132,8 +132,13 @@ vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass, WindowManager& 
 				continue;
 			}
 #endif
-			buffer->pushConstants(window.pipelineCreator->pipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(DrawPushData), &it->second.drawData);
-			buffer->drawIndexed(it->second.indexCount, 1, it->second.indIndex, it->second.vertIndex, 0);
+			for (size_t i = 0; i < it->second.indexCounts.size(); i++)
+			{
+				auto indexCount = it->second.indexCounts[i];
+				auto indexOffset = it->second.indIndicies[i];
+				buffer->pushConstants(window.pipelineCreator->pipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(DrawPushData), &it->second.drawData);
+				buffer->drawIndexed(indexCount, 1, indexOffset, it->second.vertIndex, 0);
+			}
 		}
 	}
 	buffer->end();

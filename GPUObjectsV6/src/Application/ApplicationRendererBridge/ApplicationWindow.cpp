@@ -223,7 +223,7 @@ void WindowManager::createFrameBufferImages()
 
         depthOptions.sharingMode = vk::SharingMode::eExclusive;
         depthOptions.storage = ResourceStorageType::gpu;
-        depthOptions.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+        depthOptions.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eInputAttachment;
 
         depthOptions.type = vk::ImageType::e2D;
         depthOptions.layout = vk::ImageLayout::eUndefined;
