@@ -11,7 +11,14 @@ Image::Image(vk::Device device, VmaAllocator allocator, vk::Extent3D size, Image
 	vk::ImageCreateInfo imageInfo{};
 	imageInfo.imageType = options.type;
 	imageInfo.extent = size;
-	imageInfo.mipLevels = 1;
+	if (options.mipmaps && options.type == vk::ImageType::e2D) {
+		auto mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(imageInfo.extent.width, imageInfo.extent.height)))) + 1;
+		
+		imageInfo.mipLevels = mipLevels;
+		this->mipLevels = mipLevels;
+	}
+	else imageInfo.mipLevels = 1;
+
 	imageInfo.arrayLayers = 1;
 
 	imageInfo.format = options.format;
@@ -33,6 +40,7 @@ Image::Image(vk::Device device, VmaAllocator allocator, vk::Extent3D size, Image
 
 	VkImageCreateInfo c_imageInfo = imageInfo;
 
+
 	// allocate
 
 	VmaAllocationCreateInfo allocInfo;
@@ -48,7 +56,7 @@ Image::Image(vk::Device device, VmaAllocator allocator, vk::Extent3D size, Image
 
 	vmaCreateImage(allocator, &c_imageInfo, &allocInfo, &vkItem, &allocation, nullptr);
 
-	ImageViewCreationOptions viewOptions = { vk::ImageViewType::e2D, options.format, aspectFlags };
+	ImageViewCreationOptions viewOptions = { vk::ImageViewType::e2D, options.format, aspectFlags, mipLevels };
 
 	view = VkHelpers::createImageView(device, vkItem, viewOptions);
 }

@@ -16,12 +16,16 @@ struct ImageCreationOptions {
 	vk::ImageType type;
 	vk::ImageTiling tilling;// = vk::ImageTiling::eOptimal;
 	vk::Format format;
+
+	bool mipmaps = false;
+
 };
 
 struct ImageViewCreationOptions {
 	vk::ImageViewType type;
 	vk::Format format;
 	vk::ImageAspectFlags aspectFlags;
+	uint32_t mipLevels = 1;
 };
 
 class Image
@@ -35,6 +39,7 @@ public:
 	vk::Extent3D size;
 	VmaAllocation allocation = nullptr;
 	VkImage vkItem = nullptr;
+	uint32_t mipLevels = 1;
 
 	vk::ImageView view;
 

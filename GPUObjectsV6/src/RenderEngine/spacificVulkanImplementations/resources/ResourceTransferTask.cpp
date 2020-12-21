@@ -88,6 +88,10 @@ void ResourceTransferer::performTask(std::vector<Task> tasks, marl::Ticket ticke
 			case TaskType::bufferToImageCopyWithTransition:
 				performBufferToImageCopyWithTransitionTask(task.bufferToImageCopyWithTransitionTask);
 				break;
+
+			case TaskType::generateMipMaps:
+				performGenerateMipMapsTask(task.generateMipMapsTask);
+				break;
 			default:
 				break;
 			}
@@ -214,4 +218,15 @@ void ResourceTransferer::performImageLayoutTransitionTask(ResourceTransferer::Im
 		{},
 		{},
 		{ barrier });
+}
+
+void ResourceTransferer::performGenerateMipMapsTask(ResourceTransferer::GenerateMipMapsTask& t)
+{
+	ImageLayoutTransitionTask layoutTask;
+	layoutTask.image = t.image;
+	layoutTask.imageAspectMask = t.imageAspectMask;
+	layoutTask.oldLayout = t.oldLayout;
+	layoutTask.newLayout = vk::ImageLayout::eTransferDstOptimal;
+
+
 }

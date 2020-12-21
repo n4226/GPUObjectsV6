@@ -54,7 +54,7 @@ vk::ImageView VkHelpers::createImageView(vk::Device device, VkImage image, Image
 
 	createInfo.subresourceRange.aspectMask = VkImageAspectFlags(options.aspectFlags);
 	createInfo.subresourceRange.baseMipLevel = 0;
-	createInfo.subresourceRange.levelCount = 1;
+	createInfo.subresourceRange.levelCount = options.mipLevels;
 	createInfo.subresourceRange.baseArrayLayer = 0;
 	createInfo.subresourceRange.layerCount = 1;
 

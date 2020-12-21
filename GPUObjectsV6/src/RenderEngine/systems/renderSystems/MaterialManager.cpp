@@ -51,7 +51,7 @@ void MaterialManager::loadMat(std::string& matRootPath, const char* matFolder)
 	auto al_index = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-albedo3.jpg").c_str()));
 	auto n_index = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-normal1-ogl.jpg").c_str()));
 	//auto m_index  = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-metal.psd").c_str()));
-	//auto ao_index = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-ao.jpg").c_str()));
+	auto ao_index = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-ao.jpg").c_str()));
 	//auto [r_buffer, r_image] = loadTex((matRootPath + matFolder + "/" + matFolder + "-albedo3.png").c_str());
 
 
@@ -137,12 +137,13 @@ std::tuple<Buffer*, Image*> MaterialManager::loadTex(const char* path)
 	imageOptions.sharingMode = vk::SharingMode::eConcurrent;
 	imageOptions.sharingQueueFamilieIndicies = { renderer.queueFamilyIndices.graphicsFamily.value(), renderer.queueFamilyIndices.resourceTransferFamily.value() };
 	imageOptions.storage = ResourceStorageType::gpu;
-	imageOptions.usage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst;
+	imageOptions.usage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eTransferSrc;
 
 	imageOptions.type = vk::ImageType::e2D;
 	imageOptions.layout = vk::ImageLayout::eUndefined;
 	imageOptions.tilling = vk::ImageTiling::eOptimal;
 
+	imageOptions.mipmaps = true;
 
 	imageOptions.format = vk::Format::eR8G8B8A8Srgb;
 	//eR8G8Unorm;

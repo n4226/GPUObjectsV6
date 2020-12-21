@@ -25,7 +25,8 @@ public:
 	{
 		bufferTransfers = 0,
 		bufferToImageCopyWithTransition,
-		imageLayoutTransition
+		imageLayoutTransition,
+		generateMipMaps
 	};
 
 	struct BufferTransferTask {
@@ -54,6 +55,16 @@ public:
 		vk::ImageAspectFlags imageAspectMask;
 	};
 
+	struct GenerateMipMapsTask
+	{
+		VkImage image;
+		vk::ImageLayout oldLayout;
+		vk::ImageLayout finalLayout;
+
+		vk::Extent3D imageSize;
+		vk::ImageAspectFlags imageAspectMask;
+	};
+
 	struct Task
 	{
 		//Task();
@@ -62,6 +73,7 @@ public:
 		BufferTransferTask bufferTransferTask;
 		ImageLayoutTransitionTask imageLayoutTransitonTask;
 		BufferToImageCopyWithTransitionTask bufferToImageCopyWithTransitionTask;
+		GenerateMipMapsTask generateMipMapsTask;
 	};
 
 	//inline static ResourceTransferer* shared;
@@ -114,5 +126,6 @@ private:
 
 	void performBufferToImageCopyWithTransitionTask(ResourceTransferer::BufferToImageCopyWithTransitionTask& t);
 	void performImageLayoutTransitionTask(ResourceTransferer::ImageLayoutTransitionTask& t);
+	void performGenerateMipMapsTask(ResourceTransferer::GenerateMipMapsTask& t);
 };
 
