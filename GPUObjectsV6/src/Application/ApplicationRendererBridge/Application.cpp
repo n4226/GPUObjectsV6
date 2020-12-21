@@ -5,13 +5,18 @@
 
 Application::Application()
 {
+    Instrumentor::Get().BeginSession("Launch", "instruments_Launch.profile");
+
     startup();
+
+    Instrumentor::Get().EndSession();
 }
 
 Application::~Application()
 {
-    PROFILE_FUNCTION;
     Instrumentor::Get().BeginSession("Shutdown", "instruments_Shutdown.profile");
+
+    PROFILE_FUNCTION;
 
 
     delete worldScene;
@@ -34,15 +39,15 @@ Application::~Application()
 void Application::startup()
 {
     PROFILE_FUNCTION;
-    Instrumentor::Get().BeginSession("Launch", "instruments_Launch.profile");
 
-    {// configure main threaqd priority
+
+    if (0) {// configure main threaqd priority
         auto nativeHandle = GetCurrentThread();
         //SetThreadPriority(nativeHandle, THREAD_PRIORITY_TIME_CRITICAL);
         auto nativeProessHandle = GetCurrentProcess();
         SetPriorityClass(nativeProessHandle, HIGH_PRIORITY_CLASS);
         auto r = GetPriorityClass(nativeProessHandle);
-        printf("d"); 
+        //printf("d"); 
         //SetPriorityClass()
     }
 
@@ -62,6 +67,7 @@ void Application::startup()
 
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
     createInstance();
 
     worldScene = new WorldScene(*this);
@@ -110,14 +116,14 @@ void Application::startup()
 
     worldScene->load();
 
-    Instrumentor::Get().EndSession();
 }
 
 void Application::run()
 {
-    PROFILE_FUNCTION;
-
+    return;
     Instrumentor::Get().BeginSession("Run", "instruments_Run.profile");
+
+    PROFILE_FUNCTION;
 
     runLoop();
 
@@ -225,6 +231,8 @@ int Application::createDevice(int window)
     //desIndexingFeatures.descriptorBindingUniformBufferUpdateAfterBind = VK_TRUE;
     desIndexingFeatures.descriptorBindingVariableDescriptorCount = VK_TRUE;
     desIndexingFeatures.descriptorBindingPartiallyBound = VK_TRUE;
+
+    desIndexingFeatures.runtimeDescriptorArray = VK_TRUE;
 
     // devie extensions
     const std::vector<const char*> extensionNames = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };

@@ -169,6 +169,10 @@ void Renderer::makeGlobalMeshBuffers(const VkDeviceSize& vCount, const VkDeviceS
 
 	globalModelBufferStaging = new Buffer(device, allocator, sizeof(ModelUniforms) * maxModelUniformDescriptorArrayCount, options);
 
+	globalMaterialUniformBufferStaging = new Buffer(device, allocator, sizeof(MaterialUniforms) * maxMaterialTextureDescriptorArrayCount, options);
+
+
+
 	threadLocalGlobalModelStagingBuffers.resize(workerThreads);
 	for (size_t thread = 0; thread < workerThreads; thread++)
 	{
@@ -179,6 +183,9 @@ void Renderer::makeGlobalMeshBuffers(const VkDeviceSize& vCount, const VkDeviceS
 	options.storage = ResourceStorageType::gpu;
 
 	options.usage = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst;
+
+	globalMaterialUniformBuffer = new Buffer(device, allocator, sizeof(MaterialUniforms) * maxMaterialTextureDescriptorArrayCount, options);
+
 	globalModelBuffers = {
 		new Buffer(device, allocator, sizeof(ModelUniforms) * maxModelUniformDescriptorArrayCount, options),
 		new Buffer(device, allocator, sizeof(ModelUniforms) * maxModelUniformDescriptorArrayCount, options),
@@ -190,6 +197,7 @@ void Renderer::makeGlobalMeshBuffers(const VkDeviceSize& vCount, const VkDeviceS
 	gloablVertAllocator = new VaribleIndexAllocator(globalMeshBuffer->vCount);
 	gloablIndAllocator = new VaribleIndexAllocator(globalMeshBuffer->indexCount);
 
+	matUniformAllocator = new IndexAllocator(maxModelUniformDescriptorArrayCount, sizeof(MaterialUniforms));
 	globalModelBufferAllocator = new IndexAllocator(maxModelUniformDescriptorArrayCount, sizeof(ModelUniforms));
 }
 
@@ -204,11 +212,16 @@ void Renderer::createDescriptorPoolAndSets()
 		globalUniformPoolSize.descriptorCount = static_cast<uint32_t>(app.maxSwapChainImages);
 
 		// the total max number of this descriptor allocated - if 2 sets and each one has 2 of this descriptor than thes would have to be 4 in order to allocate both sets
-		VkDescriptorPoolSize modelUniformPoolSize{};
-		modelUniformPoolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-		modelUniformPoolSize.descriptorCount = static_cast<uint32_t>(app.maxSwapChainImages);
+		VkDescriptorPoolSize modelAndMatUniformPoolSize{};
+		modelAndMatUniformPoolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		modelAndMatUniformPoolSize.descriptorCount = static_cast<uint32_t>(app.maxSwapChainImages * 2);
 
-		std::array<VkDescriptorPoolSize, 2> poolSizes = { globalUniformPoolSize, modelUniformPoolSize };
+		VkDescriptorPoolSize materialTexturesPoolSize{};
+		materialTexturesPoolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		// not sure if this means array count - it might be array count 
+		materialTexturesPoolSize.descriptorCount = 1;
+
+		std::array<VkDescriptorPoolSize, 3> poolSizes = { globalUniformPoolSize, modelAndMatUniformPoolSize, materialTexturesPoolSize };
 
 		VkDescriptorPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -262,7 +275,7 @@ void Renderer::allocateDescriptors()
 			std::vector<vk::DescriptorSetLayout> layouts(app.maxSwapChainImages, windows[i]->pipelineCreator->descriptorSetLayouts[0]);
 			vk::DescriptorSetAllocateInfo allocInfo{};
 			allocInfo.descriptorPool = descriptorPool;
-			allocInfo.descriptorSetCount = static_cast<uint32_t>(app.maxSwapChainImages);
+			allocInfo.descriptorSetCount = static_cast<uint32_t>(layouts.size());
 			allocInfo.pSetLayouts = layouts.data();
 
 			VkDescriptorSetAllocateInfo c_allocInfo = allocInfo;
@@ -300,6 +313,7 @@ void Renderer::resetDescriptorPools()
 
 void Renderer::createDynamicRenderCommands()
 {
+	PROFILE_FUNCTION;
 	dynamicCommandPools.resize(windows.size());
 	dynamicCommandBuffers.resize(windows.size());
 	for (size_t i = 0; i < windows.size(); i++)
@@ -340,6 +354,10 @@ void Renderer::createUniformsAndDescriptors()
 
 void Renderer::updateLoadTimeDescriptors(WindowManager& window)
 {
+	PROFILE_FUNCTION;
+
+	//TODO: batch only one call to update descriptors but since this is only called at startup and swapchain recreation its okay for now
+
 	for (size_t i = 0; i < app.maxSwapChainImages; i++) {
 
 		// uniforms
@@ -350,12 +368,23 @@ void Renderer::updateLoadTimeDescriptors(WindowManager& window)
 		globalUniformBufferInfo.offset = 0;
 		globalUniformBufferInfo.range = VK_WHOLE_SIZE;
 
+
 		VkDescriptorBufferInfo modelUniformBufferInfo{};
 		//TODO fix this to actuall non staging buffer ------------------------------------------------------------------------------------IMPORTANT USING STAGING BUFF HERE ASS ACTUAL BUFF
-		modelUniformBufferInfo.buffer = globalModelBufferStaging->vkItem;
+		modelUniformBufferInfo.buffer = 
+			globalModelBuffers[0]->vkItem;
+			//globalModelBufferStaging->vkItem;
 		modelUniformBufferInfo.offset = 0;
-		modelUniformBufferInfo.range = sizeof(ModelUniforms) * maxModelUniformDescriptorArrayCount;
+		modelUniformBufferInfo.range = VK_WHOLE_SIZE;
 
+
+		VkDescriptorBufferInfo matUniformBufferInfo{};
+		//TODO fix this to actuall non staging buffer ------------------------------------------------------------------------------------IMPORTANT USING STAGING BUFF HERE ASS ACTUAL BUFF
+		matUniformBufferInfo.buffer = globalMaterialUniformBufferStaging->vkItem;
+		matUniformBufferInfo.offset = 0;
+		matUniformBufferInfo.range = VK_WHOLE_SIZE;
+		
+			
 		VkWriteDescriptorSet globalUniformDescriptorWrite{};
 		globalUniformDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		globalUniformDescriptorWrite.dstSet = descriptorSets[window.indexInRenderer][i];
@@ -382,6 +411,21 @@ void Renderer::updateLoadTimeDescriptors(WindowManager& window)
 		modelUniformsDescriptorWrite.pImageInfo = nullptr; // Optional
 		modelUniformsDescriptorWrite.pTexelBufferView = nullptr; // Optional
 
+
+		VkWriteDescriptorSet matUniformsDescriptorWrite{};
+		matUniformsDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		matUniformsDescriptorWrite.dstSet = descriptorSets[window.indexInRenderer][i];
+		matUniformsDescriptorWrite.dstBinding = 2;
+		matUniformsDescriptorWrite.dstArrayElement = 0;
+		
+		matUniformsDescriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		matUniformsDescriptorWrite.descriptorCount = 1;
+		
+		matUniformsDescriptorWrite.pBufferInfo = &matUniformBufferInfo;
+		matUniformsDescriptorWrite.pImageInfo = nullptr; // Optional
+		matUniformsDescriptorWrite.pTexelBufferView = nullptr; // Optional
+
+
 		// differed pass
 		VkWriteDescriptorSet post_globalUniformDescriptorWrite{};
 		post_globalUniformDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -397,7 +441,9 @@ void Renderer::updateLoadTimeDescriptors(WindowManager& window)
 		post_globalUniformDescriptorWrite.pTexelBufferView = nullptr; // Optional
 
 
-		device.updateDescriptorSets({ globalUniformDescriptorWrite, modelUniformsDescriptorWrite, post_globalUniformDescriptorWrite }, {});
+
+
+		device.updateDescriptorSets({ globalUniformDescriptorWrite, modelUniformsDescriptorWrite, matUniformsDescriptorWrite, post_globalUniformDescriptorWrite }, {});
 
 		// differed
 

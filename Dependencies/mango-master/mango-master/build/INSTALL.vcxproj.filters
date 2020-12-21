@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\code\visual studio\GPUObjectsV6\Dependencies\mango-master\mango-master\build\CMakeFiles\e95c543d8218245dabfd4dc7f5e23614\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{702A95C7-E6D6-3C12-BBF6-609263189D33}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

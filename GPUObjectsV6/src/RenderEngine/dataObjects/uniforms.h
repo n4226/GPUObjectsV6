@@ -27,7 +27,12 @@ struct ModelUniforms {
     glm::mat4 model;
 };
 
+struct MaterialUniforms {
+    glm::uint32_t baseTextureIndex;
+};
+
 struct DrawPushData
 {
     glm::uint32 modelIndex;
+    glm::uint32 matIndex;
 };

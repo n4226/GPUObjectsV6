@@ -9,6 +9,8 @@ void TerrainPipeline::createPipeline()
     // global uniforms - 
     // set = 0, binding = 0 -> viewProj
     // set = 0, binding = 1 -> modelMat - per opbject/instance
+    // set = 0, binding = 2 -> materialConstants - each draw call gets an index into this which has constants and texture indicies for that mat 
+    // set = 0, binding = 3 -> materialImages - mat constant has a base index into this descriptor arrey which for now will have 5 contiguous indices for each texture 
 
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
     uboLayoutBinding.binding = 0;
@@ -18,7 +20,7 @@ void TerrainPipeline::createPipeline()
     uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
 
 
-    // this is now one descripor to a large buffer where shaders will offset into proper model index
+    // this is now one descripor to a large buffer where shaders will offset into witrh a model index
 
     VkDescriptorSetLayoutBinding modelUniformLayoutBinding{};
     modelUniformLayoutBinding.binding = 1;
@@ -30,8 +32,35 @@ void TerrainPipeline::createPipeline()
     modelUniformLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
     modelUniformLayoutBinding.pImmutableSamplers = nullptr; // Optional
 
-    std::array< VkDescriptorSetLayoutBinding, 2> bindings = {
-        uboLayoutBinding, modelUniformLayoutBinding
+    // this is now one descripor to a large buffer where shaders will offset into with a mat index
+
+    VkDescriptorSetLayoutBinding materialUniformLayoutBinding{};
+    materialUniformLayoutBinding.binding = 2;
+    materialUniformLayoutBinding.descriptorType =
+        //VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    materialUniformLayoutBinding.descriptorCount = 1;
+    materialUniformLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    materialUniformLayoutBinding.pImmutableSamplers = nullptr; // Optional
+
+
+    // this is a descritpor array of all textures that can be used by (fragment) shaders
+    // i will be suing combined image samplers because that seems to be the best - might be slightly worse performance though but see https://stackoverflow.com/questions/60384671/combined-image-samplers-vs-seprate-sampled-image-and-sampler
+    VkDescriptorSetLayoutBinding materialTexturesLayoutBinding{};
+    materialTexturesLayoutBinding.binding = 3;
+    materialTexturesLayoutBinding.descriptorType =
+        //VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    // the max number of elements in this varible size array
+    materialTexturesLayoutBinding.descriptorCount = maxMaterialTextureDescriptorArrayCount;
+    materialTexturesLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    materialTexturesLayoutBinding.pImmutableSamplers = nullptr; // Optional
+
+
+
+
+    std::array< VkDescriptorSetLayoutBinding, 4> bindings = {
+        uboLayoutBinding, modelUniformLayoutBinding, materialUniformLayoutBinding, materialTexturesLayoutBinding
     };
 
     // this allows the adding of flags for each binding in the layout
@@ -39,13 +68,18 @@ void TerrainPipeline::createPipeline()
     bindingFlagsInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
     bindingFlagsInfo.pNext = nullptr;
 
-    std::array<VkDescriptorBindingFlags, 2> bindingFlags = { 
+    std::array<VkDescriptorBindingFlags, 4> bindingFlags = { 
         // global uniform
         VkDescriptorBindingFlags(),
         // model uniforms
+        VkDescriptorBindingFlags(),
+        // mat uniforms
+        VkDescriptorBindingFlags(),
+
+        // mat textures
         VkDescriptorBindingFlags(
             //vk::DescriptorBindingFlagBits::eUpdateAfterBind is not availabel on 1080 tifor uniform buffers
-            //vk::DescriptorBindingFlagBits::eVariableDescriptorCount | vk::DescriptorBindingFlagBits::ePartiallyBound | vk::DescriptorBindingFlagBits::eUpdateUnusedWhilePending
+            vk::DescriptorBindingFlagBits::eVariableDescriptorCount | vk::DescriptorBindingFlagBits::ePartiallyBound | vk::DescriptorBindingFlagBits::eUpdateUnusedWhilePending
         )
     };
 
@@ -203,7 +237,7 @@ void TerrainPipeline::createPipeline()
     dynamicState.pDynamicStates = dynamicStates;
 
     vk::PushConstantRange pushConstRange;
-    pushConstRange.stageFlags = vk::ShaderStageFlagBits::eVertex;
+    pushConstRange.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
     pushConstRange.offset = 0;
     pushConstRange.size = sizeof(DrawPushData);
 

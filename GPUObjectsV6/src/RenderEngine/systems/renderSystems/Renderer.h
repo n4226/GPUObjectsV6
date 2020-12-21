@@ -76,6 +76,12 @@ public:
 
 	std::vector<Buffer*> threadLocalGlobalModelStagingBuffers;
 
+	
+	IndexAllocator* matUniformAllocator;
+	Buffer* globalMaterialUniformBufferStaging;
+	Buffer* globalMaterialUniformBuffer;
+
+
 	void windowSizeChanged(size_t windowIndex);
 
 	ResourceTransferer* resouceTransferer;
@@ -132,6 +138,7 @@ private:
 	std::vector<std::vector<VkDescriptorSet>> deferredDescriptorSets;
 
 	friend TerrainSystem;
+	friend MaterialManager;
 	friend Application;
 
 

@@ -14,6 +14,8 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
+#include "mango/mango.hpp"
+
 #include "RenderEngine/vulkanAbstractions/vk_mem_alloc.h"
 
 

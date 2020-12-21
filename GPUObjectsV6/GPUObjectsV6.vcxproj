@@ -61,7 +61,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)DEBUG;</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)SharedCode\src;$(SolutionDir)Dependencies\marl-main\marl-main\include;C:\VulkanSDK\1.2.154.1\Include;C:\code\binary libraries\glm-master;C:\code\binary libraries\glfw-3.3.2.bin.WIN64\include;$(SolutionDir)MeshGenerator\src\Dependencies;$(projectDir)src;$(SolutionDir)Dependencies\stb-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)SharedCode\src;$(SolutionDir)Dependencies\marl-main\marl-main\include;C:\VulkanSDK\1.2.154.1\Include;C:\code\binary libraries\glm-master;C:\code\binary libraries\glfw-3.3.2.bin.WIN64\include;$(SolutionDir)MeshGenerator\src\Dependencies;$(projectDir)src;$(SolutionDir)Dependencies\stb-master;C:\code\visual studio\GPUObjectsV6\Dependencies\mango-master\mango-master\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -69,8 +69,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\code\binary libraries\glfw-3.3.2.bin.WIN64\lib-vc2019;C:\VulkanSDK\1.2.154.1\Lib;C:\code\visual studio\GPUObjectsV6\Dependencies\projects\marl main 2\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;marl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\code\binary libraries\glfw-3.3.2.bin.WIN64\lib-vc2019;C:\VulkanSDK\1.2.154.1\Lib;C:\code\visual studio\GPUObjectsV6\Dependencies\projects\marl main 2\Debug;C:\code\visual studio\GPUObjectsV6\Dependencies\mango-master\mango-master\build\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;marl.lib;mango.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>

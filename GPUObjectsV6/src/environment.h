@@ -54,7 +54,10 @@
 // constants 
 
 /// 100,000
-#define maxModelUniformDescriptorArrayCount 100000
+#define maxModelUniformDescriptorArrayCount 100'000
+
+/// 100,000
+#define maxMaterialTextureDescriptorArrayCount 100'000
 /// normally 10,000
 #define FLOATING_ORIGIN_SNAP_DISTANCE 100'000
 

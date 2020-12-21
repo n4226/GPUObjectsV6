@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\code\visual studio\GPUObjectsV6\Dependencies\mango-master\mango-master\source\mango\window\win32\win32_window.cpp">
+      <Filter>window</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\code\visual studio\GPUObjectsV6\Dependencies\mango-master\mango-master\source\mango\framebuffer\win32\d3d9_framebuffer.cpp">
+      <Filter>framebuffer</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\code\visual studio\GPUObjectsV6\Dependencies\mango-master\mango-master\include\mango\framebuffer\framebuffer.hpp">
+      <Filter>framebuffer</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\code\visual studio\GPUObjectsV6\Dependencies\mango-master\mango-master\build\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="framebuffer">
+      <UniqueIdentifier>{A4C0D441-C572-381D-863F-ED0ABCCD3BE7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="window">
+      <UniqueIdentifier>{D4A31B69-D701-38D2-87F9-DE34628C8972}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

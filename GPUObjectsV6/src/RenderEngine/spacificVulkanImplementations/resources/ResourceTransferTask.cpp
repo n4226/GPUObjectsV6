@@ -151,12 +151,12 @@ void ResourceTransferer::performBufferToImageCopyWithTransitionTask(ResourceTran
 
 
 
-	/*cmdBuffer.copyBufferToImage(
+	cmdBuffer.copyBufferToImage(
 		t.buffer,
 		t.image,
-		vk::ImageLayout::eTransferSrcOptimal,
+		vk::ImageLayout::eTransferDstOptimal,
 		{region}
-	);*/
+	);
 
 
 	layoutTask.oldLayout = layoutTask.newLayout;

@@ -23,7 +23,7 @@ public:
 
 		bool enableAnisotropy = true;
 		//TODO: ix defualt value
-		float maxAnisotropy = 8;
+		float maxAnisotropy = 16;
 
 		vk::BorderColor borderColor = vk::BorderColor::eFloatOpaqueBlack;
 		

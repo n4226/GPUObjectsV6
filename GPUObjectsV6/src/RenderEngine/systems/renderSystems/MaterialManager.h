@@ -33,6 +33,10 @@ private:
 
  	std::tuple<Buffer*,Image*> loadTex(const char* path);
 
+	glm::uint32 FinishLoadingTexture(std::tuple<Buffer*, Image*> texture);
+
+	void addTexToGlobal(Image* image, glm::uint32 imageIndex);
+
 	void addCopyToTasks(Buffer* buffer, Image* image);
 
 
