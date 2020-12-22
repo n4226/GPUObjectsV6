@@ -11,6 +11,8 @@ void groundCreator::createInto(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& osm, 
 void groundCreator::createChunkMesh(BinaryMeshSeirilizer::Mesh* mesh, const Box& frame)
 {
     mesh->indicies.push_back({});
+    mesh->attributes->subMeshMats.push_back(0);
+
     constexpr double radius = Math::dEarthRad;
 
     const glm::dvec3 center_geo = Math::LlatoGeo(glm::dvec3(frame.getCenter(), 0), {}, radius);
@@ -22,6 +24,11 @@ void groundCreator::createChunkMesh(BinaryMeshSeirilizer::Mesh* mesh, const Box&
     glm::uint32 vert = 0;
     const glm::uint32 startVertOfset = 0;
 
+
+    auto nonLLAFrameWidth =  Math::llaDistance(frame.start,glm::vec2(frame.start.x,frame.start.y + frame.size.y));
+    auto nonLLAFrameHeight = Math::llaDistance(frame.start,glm::vec2(frame.start.x + frame.size.x,frame.start.y));
+    
+            
     for (size_t x = 0; x <= resolution; x++)
     {
         for (size_t y = 0; y <= resolution; y++)
@@ -43,9 +50,11 @@ void groundCreator::createChunkMesh(BinaryMeshSeirilizer::Mesh* mesh, const Box&
 #else
             mesh->normals.emplace_back(static_cast<glm::vec3>(glm::normalize(geo_unCentered)));
 #endif
-            // chunk uvs
-            auto uvx = chunkStrideLat / frame.size.x;
-            auto uvy = chunkStrideLon / frame.size.y;
+
+
+            // chunk uvs    
+            auto uvx = (chunkStrideLat / frame.size.x) * nonLLAFrameHeight;
+            auto uvy = (chunkStrideLon / frame.size.y) * nonLLAFrameWidth;
             // world uvs
 //                    let uvx = (y.double - frame.origin.y) / resolution.double / (360 / frame.size.y) + ((frame.origin.y + 180) / 360)
 //                    let uvy = (x.double - frame.origin.x) / resolution.double / (180 / frame.size.x) + ((frame.origin.x + 90) / 180)

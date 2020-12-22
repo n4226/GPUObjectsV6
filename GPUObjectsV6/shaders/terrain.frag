@@ -30,7 +30,7 @@ layout(location = 1) out vec4 outNormal_Roughness;
 layout(location = 2) out float outAO;
 
 void main() {
-    vec2 finalUvs = uvs * 10;
+    vec2 finalUvs = uvs * 0.1;
     
     MaterialUniforms mat = materialUniform.data[drawData.matIndex];
 

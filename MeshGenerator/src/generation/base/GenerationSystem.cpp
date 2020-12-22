@@ -1,5 +1,6 @@
 #include "GenerationSystem.h"
 
+#include "rendering structures/BinaryMeshAttrributes.h"
 #include "../creators/buildingCreator.h"
 #include "../creators/groundCreator.h"
 
@@ -17,6 +18,7 @@
 
 
 const std::string outputDir = TERRAIN_DIR;//R"(./terrain/chunkMeshes/)";
+const std::string attrOutputDir = TERRAIN_ATTR_DIR;//R"(./terrain/chunkMeshes/)";
 
 GenerationSystem::GenerationSystem(std::vector<Box>&& chunks)
     : osmFetcher(),
@@ -32,6 +34,7 @@ void GenerationSystem::generate(bool onlyUseOSMCash)
     //for (Box& chunk : chunks) {
     std::for_each(std::execution::par, chunks.begin(), chunks.end(), [this,onlyUseOSMCash](Box& chunk) {
         auto file = outputDir + chunk.toString() + ".bmesh";
+        auto attrFile = attrOutputDir + chunk.toString() + ".bmattr";
         try {
 
             if (std::filesystem::exists(file)) {
@@ -39,7 +42,11 @@ void GenerationSystem::generate(bool onlyUseOSMCash)
                 return;
             }
 
+            BinaryMeshAttrributes binaryAttributes{};
             BinaryMeshSeirilizer::Mesh mesh;
+
+            mesh.attributes = &binaryAttributes;
+
             printf("going to get Osm for a chunk\n");
             osm::osm osmData = osmFetcher.fetchChunk(chunk,onlyUseOSMCash);
 
@@ -52,6 +59,7 @@ void GenerationSystem::generate(bool onlyUseOSMCash)
 
             BinaryMeshSeirilizer binaryMesh(mesh);
 
+
             // write to file
             printf("writing to mesh file\n");
             {
@@ -61,6 +69,9 @@ void GenerationSystem::generate(bool onlyUseOSMCash)
 
                 out.write(reinterpret_cast<char*>(binaryMesh.mesh), binaryMesh.meshLength);
                 out.close();
+
+                binaryAttributes.saveTo(attrFile );
+
                 printf("wrote to mesh file\n");
             }
         }

@@ -12,6 +12,7 @@ class TerrainSystem;
 struct TreeNodeDrawResaourceToCoppy
 {
 	BinaryMeshSeirilizer* binMesh = nullptr;
+	BinaryMeshAttrributes* binMeshAttributes = nullptr;
 	Mesh* mesh = nullptr;
 };
 
@@ -23,7 +24,7 @@ struct TreeNodeDrawData
 	std::vector<size_t> indexCounts;
 	size_t totalIndexCount;
 
-	DrawPushData drawData;
+	std::vector<DrawPushData> drawDatas;
 
 	//buffer recipts
 	BindlessMeshBuffer::WriteTransactionReceipt meshRecipt;

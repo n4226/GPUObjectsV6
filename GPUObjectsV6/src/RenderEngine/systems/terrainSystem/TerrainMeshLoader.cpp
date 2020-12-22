@@ -20,9 +20,34 @@ TreeNodeDrawResaourceToCoppy TerrainMeshLoader::loadMeshPreDrawChunk(TerrainQuad
 	if (std::filesystem::exists(file)) {
 		PROFILE_SCOPE("loading mesh from file")
 
-			auto mesh = new BinaryMeshSeirilizer(file.c_str());
+		auto mesh = new BinaryMeshSeirilizer(file.c_str());
 
 		meshStore.binMesh = mesh;
+
+		{
+			PROFILE_SCOPE("loading attributes from file")
+			
+			auto attributeFile = FileManager::getTerrainChunkAttributesDir() + node->frame.toString() + ".bmattr";
+
+			if (std::filesystem::exists(attributeFile)) {
+				auto att = new BinaryMeshAttrributes(attributeFile);
+				meshStore.binMeshAttributes = att;
+			}
+			else {
+				auto att = new BinaryMeshAttrributes();
+				
+				att->aabbRadius = glm::vec3(0);
+				
+				for (size_t i = 0; i < *mesh->subMeshCount; i++)
+				{
+					att->subMeshMats.push_back(0);
+				}
+
+				meshStore.binMeshAttributes = att;
+			}
+
+		}
+
 	}
 	else
 	{
@@ -192,8 +217,18 @@ void TerrainMeshLoader::drawChunk(TerrainQuadTreeNode* node, TreeNodeDrawResaour
 	drawData.meshRecipt = meshReceipt;
 	drawData.modelRecipt = { modelIndex,modelAllocSize };
 
-	drawData.drawData.modelIndex = static_cast<glm::uint32>(modelIndex / modelAllocSize);
-	drawData.drawData.matIndex = static_cast<glm::uint32>(1);
+	drawData.drawDatas.resize(indCounts.size());
+	for (size_t i = 0; i < indCounts.size(); i++)
+	{
+		//TODO: i don't like all this in the loop do something better for performance
+		uint32_t matIndex = 0;
+		if (preLoadedMesh.binMeshAttributes != nullptr && preLoadedMesh.binMeshAttributes->subMeshMats.size() > i) {
+			matIndex = preLoadedMesh.binMeshAttributes->subMeshMats[i];
+		}
+
+		drawData.drawDatas[i].modelIndex = static_cast<glm::uint32>(modelIndex / modelAllocSize);
+		drawData.drawDatas[i].matIndex = matIndex;
+	}
 
 
 	//TODO fix this to be precomputed 
@@ -257,6 +292,9 @@ Mesh* TerrainMeshLoader::createChunkMesh(const TerrainQuadTreeNode& chunk)
     glm::uint32 vert = 0;
     const glm::uint32 startVertOfset = 0;
 
+	auto nonLLAFrameWidth = Math::llaDistance(frame.start, glm::vec2(frame.start.x, frame.start.y + frame.size.y));
+	auto nonLLAFrameHeight = Math::llaDistance(frame.start, glm::vec2(frame.start.x + frame.size.x, frame.start.y));
+
     for (size_t x = 0; x <= resolution; x++)
     {
         for (size_t y = 0; y <= resolution; y++)
@@ -278,9 +316,13 @@ Mesh* TerrainMeshLoader::createChunkMesh(const TerrainQuadTreeNode& chunk)
 #else
             mesh->normals.emplace_back(static_cast<glm::vec3>(glm::normalize(geo_unCentered)));
 #endif
+			// scalled chunk uvs
+			auto uvx = (chunkStrideLat / frame.size.x) * nonLLAFrameHeight;
+			auto uvy = (chunkStrideLon / frame.size.y) * nonLLAFrameWidth;
+
             // chunk uvs
-            auto uvx = chunkStrideLat / frame.size.x;
-            auto uvy = chunkStrideLon / frame.size.y;
+            //auto uvx = chunkStrideLat / frame.size.x;
+            //auto uvy = chunkStrideLon / frame.size.y;
             // world uvs
 //                    let uvx = (y.double - frame.origin.y) / resolution.double / (360 / frame.size.y) + ((frame.origin.y + 180) / 360)
 //                    let uvy = (x.double - frame.origin.x) / resolution.double / (180 / frame.size.x) + ((frame.origin.x + 90) / 180)

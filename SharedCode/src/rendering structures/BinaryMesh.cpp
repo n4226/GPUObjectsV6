@@ -123,15 +123,16 @@ BinaryMeshSeirilizer::BinaryMeshSeirilizer(Mesh& originalMesh)
 
 	glm::vec3* bitangentStart = tangentStart + originalMesh.tangents.size();
 	memcpy(bitangentStart, originalMesh.bitangents.data(), originalMesh.bitangentsSize());
-
+	//start of mesh adr =  0x00000271181C3070 -- 2684759060592 decimal, end of mehs adress - 0x000002711847A278// indixies Start mem adr = 2684761404600 decimal
 	//indices
 	{
 		uint32_t* indiciesStart = reinterpret_cast<uint32_t*>(bitangentStart + originalMesh.bitangents.size());
+		// in bytes
 		size_t offset = 0;
 		for (std::vector<uint32_t>& subMesh : originalMesh.indicies)
 		{
 			size_t size = sizeof(uint32_t) * subMesh.size();
-			memcpy(indiciesStart + offset, subMesh.data(),size);
+			memcpy(indiciesStart + (offset / sizeof(uint32_t)), subMesh.data(),size);
 			offset += size;
 		}
 		assert((reinterpret_cast<char*>(indiciesStart) - reinterpret_cast<char*>(mesh)) + offset == meshLength);

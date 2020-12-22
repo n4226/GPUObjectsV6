@@ -4,6 +4,9 @@
 
 void buildingCreator::createInto(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& osm, const Box& frame)
 {
+	mesh.indicies.push_back({});
+	mesh.attributes->subMeshMats.push_back(1);
+	
 	//TODO: somehow prevent each creator from ahving to loop through all the elements in the osm data after eachother by combining them into one loop
 	for (osm::element& element : osm.elements) {
 		
@@ -22,6 +25,7 @@ void buildingCreator::createInto(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& osm
 
 void buildingCreator::addBuilding(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& osm, osm::element& building, const Box& frame)
 {
+
 	constexpr double radius = Math::dEarthRad;
 	const glm::dvec3 center_geo = Math::LlatoGeo(glm::dvec3(frame.getCenter(), 0), {}, radius);
 	double height;
@@ -97,10 +101,18 @@ void buildingCreator::addBuilding(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& os
 		mesh.bitangents.push_back(glm::vec3(0));
 		mesh.bitangents.push_back(glm::vec3(0));
 
+		// scalled uvs
+
 		mesh.uvs.push_back(glm::vec2(0,0));
-		mesh.uvs.push_back(glm::vec2(1,0));
-		mesh.uvs.push_back(glm::vec2(0,1));
-		mesh.uvs.push_back(glm::vec2(1,1));
+		mesh.uvs.push_back(glm::vec2(glm::distance(pos2,pos1),0));
+		mesh.uvs.push_back(glm::vec2(0,height));
+		mesh.uvs.push_back(glm::vec2(glm::distance(pos2, pos1),height));
+
+
+		//mesh.uvs.push_back(glm::vec2(0,0));
+		//mesh.uvs.push_back(glm::vec2(1,0));
+		//mesh.uvs.push_back(glm::vec2(0,1));
+		//mesh.uvs.push_back(glm::vec2(1,1));
 	
 		//TODO: later add wall inside detection
 

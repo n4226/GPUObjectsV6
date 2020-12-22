@@ -12,15 +12,15 @@
 int main() {
 
 
-	Triangulation::triangulate({});
+	//Triangulation::triangulate({});
 
 	glm::dvec2 desired(40.610319941413, -74.039182662964);
 
-	//GenerationSystem genSys(GenerationSystem::genreateChunksAround(desired,12, glm::ivec2(3,3)));
+	GenerationSystem genSys(GenerationSystem::genreateChunksAround(desired,12, glm::ivec2(3,3)));
 
-	GenerationSystem genSys(GenerationSystem::genreateChunksAround(desired,12, glm::ivec2(12,12)));
+	//GenerationSystem genSys(GenerationSystem::genreateChunksAround(desired,12, glm::ivec2(12,12)));
 	
-	//genSys.generate();
+	genSys.generate(true);
 
 
 	/*s{

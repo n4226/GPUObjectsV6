@@ -48,6 +48,9 @@
     <ClCompile Include="src\StaticMaterialTable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\rendering structures\BinaryMeshAttrributes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\shared.h">
@@ -84,6 +87,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\StaticMaterialTable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\rendering structures\BinaryMeshAttrributes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -96,6 +96,7 @@
     </PreLinkEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\rendering structures\BinaryMeshAttrributes.h" />
     <ClInclude Include="src\constants.h" />
     <ClInclude Include="src\math\path\Bezier.h" />
     <ClInclude Include="src\math\path\Path.h" />
@@ -110,6 +111,7 @@
     <ClInclude Include="src\StaticMaterialTable.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\rendering structures\BinaryMeshAttrributes.cpp" />
     <ClCompile Include="src\math\path\Bezier.cpp" />
     <ClCompile Include="src\math\path\Path.cpp" />
     <ClCompile Include="src\math\FrustrumMath.cpp" />

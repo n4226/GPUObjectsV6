@@ -2,6 +2,7 @@
 
 #include<glm/glm.hpp>
 #include <vector>
+#include "BinaryMeshAttrributes.h"
 
 
 
@@ -60,6 +61,8 @@ public:
 		size_t    indiciesOffset();
 
 		size_t    fullSize();
+
+		BinaryMeshAttrributes* attributes = nullptr;
 	};
 
 

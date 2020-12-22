@@ -34,7 +34,7 @@ namespace Triangulation {
 
 		igl::opengl::glfw::Viewer viewer;
 		//viewer.data().set_mesh(V, F);
-		//viewer.launch();
+		viewer.launch();
 
 		return {};
 	}
