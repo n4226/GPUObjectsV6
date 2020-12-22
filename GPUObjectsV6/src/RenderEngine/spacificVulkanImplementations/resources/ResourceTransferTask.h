@@ -40,6 +40,7 @@ public:
 		vk::ImageLayout newLayout;
 		//vk::AccessFlags srcAccessMask;
 		//vk::AccessFlags dstAccessMask;
+		uint32_t baseMipLevel = 0;
 		VkImage image;
 		vk::ImageAspectFlags imageAspectMask;
 	};
@@ -61,6 +62,7 @@ public:
 		vk::ImageLayout oldLayout;
 		vk::ImageLayout finalLayout;
 
+		uint32_t mipLevels;
 		vk::Extent3D imageSize;
 		vk::ImageAspectFlags imageAspectMask;
 	};
@@ -95,21 +97,18 @@ public:
 
 protected:
 	friend Renderer;
-	ResourceTransferer(vk::Device device, vk::Queue queue, uint32_t queueFamilyIndex);
+	ResourceTransferer(vk::Device device, Renderer& renderer);
 	~ResourceTransferer();
 private:
 
-	vk::CommandPool pool;
+	vk::CommandPool copyPool;
 	vk::CommandBuffer cmdBuffer;
 
 
-	/// <summary>
-	/// will need to change for multi gpu
-	/// </summary>
+	
 	vk::Device device;
-	vk::Queue queue;
-	uint32_t queueFamilyIndex;
-
+	Renderer& renderer;
+	
 	/// <summary>
 	/// marl sync primative
 	/// </summary>

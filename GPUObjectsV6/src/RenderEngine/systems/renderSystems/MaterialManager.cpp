@@ -82,12 +82,29 @@ void MaterialManager::addCopyToTasks(Buffer* buffer, Image* image)
 	layoutTask.buffer = buffer->vkItem;
 	layoutTask.image = image->vkItem;
 	layoutTask.oldLayout = vk::ImageLayout::eUndefined;
-	layoutTask.finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+	layoutTask.finalLayout = vk::ImageLayout::eTransferDstOptimal;
 	layoutTask.imageAspectMask = vk::ImageAspectFlagBits::eColor;
 	layoutTask.imageSize = image->size;
 
 	ResourceTransferer::Task task = { ResourceTransferer::TaskType::bufferToImageCopyWithTransition };
 	task.bufferToImageCopyWithTransitionTask = layoutTask;
+
+	pendingTasks.push_back(task);
+}
+
+void MaterialManager::addMipMapToTasks(Image* image)
+{
+	ResourceTransferer::GenerateMipMapsTask mipMapTask{};
+
+	mipMapTask.oldLayout = vk::ImageLayout::eTransferDstOptimal;
+	mipMapTask.finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+	mipMapTask.imageAspectMask = vk::ImageAspectFlagBits::eColor;
+	mipMapTask.imageSize = image->size;
+	mipMapTask.image = image->vkItem;
+	mipMapTask.mipLevels = image->mipLevels;
+
+	ResourceTransferer::Task task = { ResourceTransferer::TaskType::generateMipMaps };
+	task.generateMipMapsTask = mipMapTask;
 
 	pendingTasks.push_back(task);
 }
@@ -169,6 +186,7 @@ glm::uint32 MaterialManager::FinishLoadingTexture(std::tuple<Buffer*, Image*> te
 	buffers.push_back(buffer);
 
 	addCopyToTasks(buffer, image);
+	addMipMapToTasks(image);
 
 	auto index = images.size() - 1;
 

@@ -16,7 +16,7 @@ Renderer::Renderer(Application& app, vk::Device device, vk::PhysicalDevice physi
 		camFrustroms.emplace_back(windows[i]->camera.view());
 	}
 
-	resouceTransferer = new ResourceTransferer(device, deviceQueues.resourceTransfer, queueFamilyIndices.resourceTransferFamily.value());
+	resouceTransferer = new ResourceTransferer(device, *this);
 	materialManager = new MaterialManager(*this);
 }
 

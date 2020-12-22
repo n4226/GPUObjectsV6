@@ -38,6 +38,7 @@ private:
 	void addTexToGlobal(Image* image, glm::uint32 imageIndex);
 
 	void addCopyToTasks(Buffer* buffer, Image* image);
+	void addMipMapToTasks(Image* image);
 
 
 	Renderer& renderer;
