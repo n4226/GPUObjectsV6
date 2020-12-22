@@ -24,12 +24,14 @@ public:
 
 private:
 
-	Sampler* matSampler;
 
 	std::vector<Image*>  images;
 	std::vector<Buffer*> buffers;
 
-	std::vector<ResourceTransferer::Task> pendingTasks;
+	std::vector<Sampler*> samplers
+		;
+	std::vector<ResourceTransferer::Task> pendingTasks = {};
+	std::vector<ResourceTransferer::Task> pendingGFXTasks = {};
 
  	std::tuple<Buffer*,Image*> loadTex(const char* path);
 

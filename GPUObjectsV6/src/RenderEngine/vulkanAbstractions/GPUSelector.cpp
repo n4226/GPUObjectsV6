@@ -133,11 +133,11 @@ vk::SurfaceFormatKHR GPUSelector::chooseSwapSurfaceFormat(const std::vector<vk::
 
 vk::PresentModeKHR GPUSelector::chooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes) {
 	PROFILE_FUNCTION
-	/*for (const auto& availablePresentMode : availablePresentModes) {
+	for (const auto& availablePresentMode : availablePresentModes) {
 		if (availablePresentMode == vk::PresentModeKHR::eMailbox) {
 			return availablePresentMode;
 		}
-	}*/
+	}
 
 	return vk::PresentModeKHR::eFifo;
 }

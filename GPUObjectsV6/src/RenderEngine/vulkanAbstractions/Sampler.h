@@ -29,9 +29,10 @@ public:
 		
 		bool unnormalizedCoordinates = false;
 
-		// mip mapping comming soon - month: TBD, day: TBD, year: 2021 
-
-		//mipmapMode
+		vk::SamplerMipmapMode mipmapMode = vk::SamplerMipmapMode::eLinear;
+		float mipLodBias = 0.f;
+		float minLod = 0.f;
+		float maxLod = 0.f;
 
 	};
 

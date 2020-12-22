@@ -16,7 +16,7 @@ struct MaterialUniforms {
 
 layout(binding = 2) buffer a_MaterialUniforms {
     MaterialUniforms data[];
-};
+} materialUniform;
 
 
 layout(binding = 3) uniform sampler2D textures[];
@@ -32,10 +32,12 @@ layout(location = 2) out float outAO;
 void main() {
     vec2 finalUvs = uvs * 10;
     
-    vec3 color    = texture(textures[drawData.matIndex    ],finalUvs).xyz;
-    vec3 normal   = texture(textures[drawData.matIndex + 1],finalUvs).xyz;
-    float metallic = texture(textures[drawData.matIndex + 2],finalUvs).x;
-    float ao       = texture(textures[drawData.matIndex + 3],finalUvs).x;
+    MaterialUniforms mat = materialUniform.data[drawData.matIndex];
+
+    vec3 color     = texture(textures[mat.baseTextureIndex  ],finalUvs).xyz;
+    vec3 normal    = vec3(0);//texture(textures[mat.baseTextureIndex + 1],finalUvs).xyz;
+    float metallic = 0;//texture(textures[mat.baseTextureIndex + 2],finalUvs).x;
+    float ao       = 0;//texture(textures[mat.baseTextureIndex + 3],finalUvs).x;
 
     outAlbedo_Metallic = vec4(color, metallic);
     outNormal_Roughness = vec4(fragNormal, 1);

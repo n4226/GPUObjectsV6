@@ -58,7 +58,7 @@ Image::Image(vk::Device device, VmaAllocator allocator, vk::Extent3D size, Image
 
 	ImageViewCreationOptions viewOptions = { vk::ImageViewType::e2D, options.format, aspectFlags, mipLevels };
 
-	view = VkHelpers::createImageView(device, vkItem, viewOptions);
+	view = VkHelpers::createImageView	(device, vkItem, viewOptions);
 }
 
 Image::~Image()

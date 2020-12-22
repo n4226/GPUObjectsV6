@@ -193,7 +193,7 @@ void TerrainMeshLoader::drawChunk(TerrainQuadTreeNode* node, TreeNodeDrawResaour
 	drawData.modelRecipt = { modelIndex,modelAllocSize };
 
 	drawData.drawData.modelIndex = static_cast<glm::uint32>(modelIndex / modelAllocSize);
-	drawData.drawData.matIndex = static_cast<glm::uint32>(0);
+	drawData.drawData.matIndex = static_cast<glm::uint32>(1);
 
 
 	//TODO fix this to be precomputed 

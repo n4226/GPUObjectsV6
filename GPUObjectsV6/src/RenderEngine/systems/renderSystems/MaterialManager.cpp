@@ -8,11 +8,7 @@
 MaterialManager::MaterialManager(Renderer& renderer)
 	: renderer(renderer)
 {
-	Sampler::CreateOptions options{};
-
-	options.enableAnisotropy = true;
-
-	matSampler = new Sampler(renderer.device,options);
+	
 
 }
 
@@ -42,6 +38,12 @@ void MaterialManager::loadStatic()
 	}, true);
 	pendingTasks.clear();
 
+
+	renderer.resouceTransferer->newTask(pendingGFXTasks, []() {
+
+	}, true,true);
+	pendingGFXTasks.clear();
+
 }
 
 void MaterialManager::loadMat(std::string& matRootPath, const char* matFolder)
@@ -49,10 +51,20 @@ void MaterialManager::loadMat(std::string& matRootPath, const char* matFolder)
 	PROFILE_FUNCTION;
 
 	auto al_index = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-albedo3.jpg").c_str()));
-	auto n_index = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-normal1-ogl.jpg").c_str()));
-	//auto m_index  = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-metal.psd").c_str()));
-	auto ao_index = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-ao.jpg").c_str()));
-	//auto [r_buffer, r_image] = loadTex((matRootPath + matFolder + "/" + matFolder + "-albedo3.png").c_str());
+	////auto al_index1 = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-albedo3.jpg").c_str()));
+	////auto al_index2 = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-albedo3.jpg").c_str()));
+	
+	
+	//auto n_index = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-normal1-ogl.jpg").c_str()));
+	
+	
+	////auto m_index  = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-metal.psd").c_str()));
+	
+	
+	//auto ao_index = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-ao.jpg").c_str()));
+	
+	
+	////auto [r_buffer, r_image] = loadTex((matRootPath + matFolder + "/" + matFolder + "-albedo3.png").c_str());
 
 
 	//auto al_index = FinishLoadingTexture(loadTex((matRootPath + matFolder + "/" + matFolder + "-albedo3.png").c_str()));
@@ -69,7 +81,7 @@ void MaterialManager::loadMat(std::string& matRootPath, const char* matFolder)
 
 	auto index = renderer.matUniformAllocator->alloc();
 
-	renderer.globalMaterialUniformBufferStaging->tempMapAndWrite(&matInfor,0,sizeof(matInfor));
+	renderer.globalMaterialUniformBufferStaging->tempMapAndWrite(&matInfor,index,sizeof(matInfor));
 
 	//TODO: Transfer
 
@@ -85,6 +97,8 @@ void MaterialManager::addCopyToTasks(Buffer* buffer, Image* image)
 	layoutTask.finalLayout = vk::ImageLayout::eTransferDstOptimal;
 	layoutTask.imageAspectMask = vk::ImageAspectFlagBits::eColor;
 	layoutTask.imageSize = image->size;
+
+	layoutTask.mipLevelCount = image->mipLevels;
 
 	ResourceTransferer::Task task = { ResourceTransferer::TaskType::bufferToImageCopyWithTransition };
 	task.bufferToImageCopyWithTransitionTask = layoutTask;
@@ -106,7 +120,7 @@ void MaterialManager::addMipMapToTasks(Image* image)
 	ResourceTransferer::Task task = { ResourceTransferer::TaskType::generateMipMaps };
 	task.generateMipMapsTask = mipMapTask;
 
-	pendingTasks.push_back(task);
+	pendingGFXTasks.push_back(task);
 }
 
 std::tuple<Buffer*, Image*> MaterialManager::loadTex(const char* path)
@@ -120,25 +134,25 @@ std::tuple<Buffer*, Image*> MaterialManager::loadTex(const char* path)
 
 	int texWidth, texHeight, texChannels;
 
-	//stbi_uc* pixels;
-	mango::u32* pixels;
+	stbi_uc* pixels;
+	//mango::u32* pixels;
 	//{
 		//PROFILE_SCOPE("stbi_load");
-		//pixels = stbi_load(path, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);//STBI_default);
+		pixels = stbi_load(path, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);//STBI_default);
 
 		// $(SolutionDir)Dependencies\mango - master\mango - master\build\vs2019\x64\Debug\mango.lib
 	
-		mango::Bitmap bitmap(path, mango::Format(32, mango::Format::UNORM, mango::Format::RGBA, 8, 8, 8, 8));
+		/*mango::Bitmap bitmap(path, mango::Format(32, mango::Format::UNORM, mango::Format::RGBA, 8, 8, 8, 8));
 		texWidth = bitmap.width;
 		texHeight = bitmap.height;
 		texChannels = 4;
-		pixels = bitmap.address<mango::u32>(0, 0);
+		pixels = bitmap.address<mango::u32>(0, 0);*/
 
 	//}
 
 	assert(pixels != nullptr);
 
-	VkDeviceSize imageBufferSize = texWidth * texHeight * texChannels;
+	VkDeviceSize imageBufferSize = texWidth * texHeight * 4;// * texChannels;
 
 	
 
@@ -190,6 +204,18 @@ glm::uint32 MaterialManager::FinishLoadingTexture(std::tuple<Buffer*, Image*> te
 
 	auto index = images.size() - 1;
 
+
+	// make sampler
+
+	Sampler::CreateOptions options{};
+
+	options.enableAnisotropy = true;
+
+	options.maxLod = image->mipLevels, uint32_t(1);
+
+	samplers.push_back(new Sampler(renderer.device, options));
+
+
 	addTexToGlobal(image,index);
 
 	return index;
@@ -205,7 +231,7 @@ void MaterialManager::addTexToGlobal(Image* image, glm::uint32 imageIndex)
 	VkDescriptorImageInfo imageInfo{};
 	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 	imageInfo.imageView = image->view;
-	imageInfo.sampler = matSampler->vkItem;
+	imageInfo.sampler = samplers[imageIndex]->vkItem;
 
 
 	for (size_t window = 0; window < renderer.windows.size(); window++) {

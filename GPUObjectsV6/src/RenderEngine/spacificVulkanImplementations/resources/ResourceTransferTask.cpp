@@ -24,15 +24,22 @@ ResourceTransferer::ResourceTransferer(vk::Device device, Renderer& renderer)
 
 	vk::CommandPoolCreateInfo poolInfo{};
 
-	// TODO: this is temporary switch queue back to correct one
-	poolInfo.queueFamilyIndex = renderer.queueFamilyIndices.graphicsFamily.value();
+	poolInfo.queueFamilyIndex = renderer.queueFamilyIndices.resourceTransferFamily.value();
 	poolInfo.flags = vk::CommandPoolCreateFlags(); // Optional
 
 	copyPool = device.createCommandPool(poolInfo);
 
 	poolInfo.queueFamilyIndex = renderer.queueFamilyIndices.graphicsFamily.value();
 
-	VkHelpers::allocateCommandBuffers(device, copyPool, &cmdBuffer, 1);
+	gfxPool = device.createCommandPool(poolInfo);
+
+	VkHelpers::allocateCommandBuffers(device, copyPool, &copyCmdBuffer, 1);
+	VkHelpers::allocateCommandBuffers(device, gfxPool, &gfxCmdBuffer, 1);
+
+	vk::FenceCreateInfo fenceCreate{};
+
+	waitFence = device.createFence(fenceCreate);
+
 }
 
 ResourceTransferer::~ResourceTransferer()
@@ -43,7 +50,7 @@ ResourceTransferer::~ResourceTransferer()
 
 
 
-void ResourceTransferer::newTask(std::vector<Task>& tasks, std::function<void()> completionHandler,bool synchronus)
+void ResourceTransferer::newTask(std::vector<Task>& tasks, std::function<void()> completionHandler,bool synchronus,bool requiresGfxQueue)
 {
 	PROFILE_FUNCTION
 
@@ -51,15 +58,15 @@ void ResourceTransferer::newTask(std::vector<Task>& tasks, std::function<void()>
 	auto ticket = ticketQueue.take();
 	
 	if (synchronus)
-		performTask(tasks, ticket, completionHandler);
+		performTask(tasks, ticket, completionHandler,requiresGfxQueue);
 	else {
-		marl::schedule([tasks, ticket, completionHandler, this]() { performTask(tasks, ticket, completionHandler); });
+		marl::schedule([tasks, ticket, completionHandler, this,requiresGfxQueue]() { performTask(tasks, ticket, completionHandler,requiresGfxQueue); });
 
 	}
 }
 
 
-void ResourceTransferer::performTask(std::vector<Task> tasks, marl::Ticket ticket, std::function<void()> completionHandler)
+void ResourceTransferer::performTask(std::vector<Task> tasks, marl::Ticket ticket, std::function<void()> completionHandler , bool requiresGfxQueue)
 {
 	PROFILE_FUNCTION
 	{
@@ -69,12 +76,20 @@ void ResourceTransferer::performTask(std::vector<Task> tasks, marl::Ticket ticke
 
 		ticket.wait();
 
-		PROFILE_SCOPE("performTask Marl blocking")
+	PROFILE_SCOPE("performTask Marl blocking")
 
+		vk::CommandBuffer cmdBuffer;
 
+	if (requiresGfxQueue) {
+		cmdBuffer = gfxCmdBuffer;
+		device.resetCommandPool(gfxPool, {});
+	}
+	else {
+		cmdBuffer = copyCmdBuffer;
 		device.resetCommandPool(copyPool, {});
+	}
 
-		cmdBuffer.begin({ { vk::CommandBufferUsageFlagBits::eOneTimeSubmit } });
+	cmdBuffer.begin({ { vk::CommandBufferUsageFlagBits::eOneTimeSubmit } });
 
 		// perform tasks
 		for (Task& task : tasks) {
@@ -82,22 +97,22 @@ void ResourceTransferer::performTask(std::vector<Task> tasks, marl::Ticket ticke
 			switch (task.type)
 			{
 			case TaskType::bufferTransfers:
-				performBufferTransferTask(task.bufferTransferTask);
+				performBufferTransferTask(task.bufferTransferTask,cmdBuffer);
 				break;
 
 			case TaskType::imageLayoutTransition:
-				performImageLayoutTransitionTask(task.imageLayoutTransitonTask);
+				performImageLayoutTransitionTask(task.imageLayoutTransitonTask,cmdBuffer);
 				break;
 
 			case TaskType::bufferToImageCopyWithTransition:
-				performBufferToImageCopyWithTransitionTask(task.bufferToImageCopyWithTransitionTask);
+				performBufferToImageCopyWithTransitionTask(task.bufferToImageCopyWithTransitionTask,cmdBuffer);
 				break;
 
 			//Graphics Queue
 
 
 			case TaskType::generateMipMaps:
-				performGenerateMipMapsTask(task.generateMipMapsTask);
+				performGenerateMipMapsTask(task.generateMipMapsTask,cmdBuffer);
 				break;
 			default:
 				break;
@@ -112,11 +127,18 @@ void ResourceTransferer::performTask(std::vector<Task> tasks, marl::Ticket ticke
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &cmdBuffer;
 
-		renderer.deviceQueues.graphics.submit(submitInfo, nullptr);
+		if (requiresGfxQueue) {
+			renderer.deviceQueues.graphics.submit(submitInfo, waitFence);
+		}
+		else {
+			renderer.deviceQueues.resourceTransfer.submit(submitInfo, waitFence);
+		}
+
 
 		//TODO: find better way than blocking the resource transfer marl queue
 
-		renderer.deviceQueues.graphics.waitIdle();
+		device.waitForFences(waitFence, VK_TRUE, UINT64_MAX);
+		device.resetFences(waitFence);
 
 		ticket.done();
 	}
@@ -128,12 +150,12 @@ void ResourceTransferer::performTask(std::vector<Task> tasks, marl::Ticket ticke
 }
 
 
-void ResourceTransferer::performBufferTransferTask(ResourceTransferer::BufferTransferTask& t)
+void ResourceTransferer::performBufferTransferTask(ResourceTransferer::BufferTransferTask& t, vk::CommandBuffer cmdBuffer)
 {
 	cmdBuffer.copyBuffer(t.srcBuffer, t.dstBuffer, t.regions);
 }
 
-void ResourceTransferer::performBufferToImageCopyWithTransitionTask(ResourceTransferer::BufferToImageCopyWithTransitionTask& t)
+void ResourceTransferer::performBufferToImageCopyWithTransitionTask(ResourceTransferer::BufferToImageCopyWithTransitionTask& t, vk::CommandBuffer cmdBuffer)
 {
 
 	ImageLayoutTransitionTask layoutTask;
@@ -141,8 +163,10 @@ void ResourceTransferer::performBufferToImageCopyWithTransitionTask(ResourceTran
 	layoutTask.imageAspectMask = t.imageAspectMask;
 	layoutTask.oldLayout = t.oldLayout;
 	layoutTask.newLayout = vk::ImageLayout::eTransferDstOptimal;
+	layoutTask.baseMipLevel = 0;
+	layoutTask.mipLevelCount = t.mipLevelCount;
 
-	performImageLayoutTransitionTask(layoutTask);
+	performImageLayoutTransitionTask(layoutTask,cmdBuffer);
 
 	vk::BufferImageCopy region;
 
@@ -175,12 +199,12 @@ void ResourceTransferer::performBufferToImageCopyWithTransitionTask(ResourceTran
 		layoutTask.oldLayout = layoutTask.newLayout;
 		layoutTask.newLayout = t.finalLayout;
 
-		performImageLayoutTransitionTask(layoutTask);
+		performImageLayoutTransitionTask(layoutTask,cmdBuffer);
 
 	}
 }
 
-void ResourceTransferer::performImageLayoutTransitionTask(ResourceTransferer::ImageLayoutTransitionTask& t)
+void ResourceTransferer::performImageLayoutTransitionTask(ResourceTransferer::ImageLayoutTransitionTask& t, vk::CommandBuffer cmdBuffer)
 {
 	vk::ImageMemoryBarrier barrier{};
 	barrier.oldLayout = t.oldLayout;
@@ -192,7 +216,7 @@ void ResourceTransferer::performImageLayoutTransitionTask(ResourceTransferer::Im
 	barrier.image = t.image;
 	barrier.subresourceRange.aspectMask = t.imageAspectMask;
 	barrier.subresourceRange.baseMipLevel = t.baseMipLevel;
-	barrier.subresourceRange.levelCount = 1;
+	barrier.subresourceRange.levelCount = t.mipLevelCount;
 	barrier.subresourceRange.baseArrayLayer = 0;
 	barrier.subresourceRange.layerCount = 1;
 
@@ -238,22 +262,22 @@ void ResourceTransferer::performImageLayoutTransitionTask(ResourceTransferer::Im
 		{ barrier });
 }
 
-void ResourceTransferer::performGenerateMipMapsTask(ResourceTransferer::GenerateMipMapsTask& t)
+void ResourceTransferer::performGenerateMipMapsTask(ResourceTransferer::GenerateMipMapsTask& t, vk::CommandBuffer cmdBuffer)
 {
 	ImageLayoutTransitionTask layoutTask;
 	layoutTask.image = t.image;
 	layoutTask.imageAspectMask = t.imageAspectMask;
-	layoutTask.oldLayout = t.oldLayout;
-	layoutTask.newLayout = vk::ImageLayout::eTransferSrcOptimal;
 
 
 	int32_t mipWidth =  t.imageSize.width;
 	int32_t mipHeight = t.imageSize.height;
 
 	for (uint32_t i = 1; i < t.mipLevels; i++) {
+		layoutTask.oldLayout = t.oldLayout;
+		layoutTask.newLayout = vk::ImageLayout::eTransferSrcOptimal;
 		layoutTask.baseMipLevel = i - 1;
 
-		performImageLayoutTransitionTask(layoutTask);
+		performImageLayoutTransitionTask(layoutTask,cmdBuffer);
 	
 		vk::ImageBlit blit{};
 		blit.srcOffsets[0] = vk::Offset3D( 0, 0, 0 );
@@ -273,9 +297,9 @@ void ResourceTransferer::performGenerateMipMapsTask(ResourceTransferer::Generate
 
 
 		layoutTask.oldLayout = vk::ImageLayout::eTransferSrcOptimal;
-		layoutTask.newLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+		layoutTask.newLayout = t.finalLayout;
 
-		performImageLayoutTransitionTask(layoutTask);
+		performImageLayoutTransitionTask(layoutTask,cmdBuffer);
 
 		if (mipWidth > 1) mipWidth /= 2;
 		if (mipHeight > 1) mipHeight /= 2;
@@ -284,9 +308,9 @@ void ResourceTransferer::performGenerateMipMapsTask(ResourceTransferer::Generate
 
 	layoutTask.baseMipLevel = t.mipLevels - 1;
 	layoutTask.oldLayout = vk::ImageLayout::eTransferSrcOptimal;
-	layoutTask.newLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+	layoutTask.newLayout = t.finalLayout;
 
-	performImageLayoutTransitionTask(layoutTask);
+	//performImageLayoutTransitionTask(layoutTask,cmdBuffer);
 
 
 

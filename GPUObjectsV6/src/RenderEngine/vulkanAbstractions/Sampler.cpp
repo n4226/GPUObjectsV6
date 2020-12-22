@@ -20,10 +20,10 @@ Sampler::Sampler(vk::Device device, CreateOptions& options)
 
 	samplerInfo.unnormalizedCoordinates = options.unnormalizedCoordinates;
 
-	samplerInfo.mipmapMode = vk::SamplerMipmapMode::eLinear;
-	samplerInfo.mipLodBias = 0.0f;
-	samplerInfo.minLod = 0.0f;
-	samplerInfo.maxLod = 0.0f;
+	samplerInfo.mipmapMode = options.mipmapMode;
+	samplerInfo.mipLodBias = options.mipLodBias;
+	samplerInfo.minLod = options.minLod;
+	samplerInfo.maxLod = options.maxLod;
 
 	vkItem = device.createSampler(samplerInfo);
 

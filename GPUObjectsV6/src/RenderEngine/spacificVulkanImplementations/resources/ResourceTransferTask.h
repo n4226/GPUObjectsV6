@@ -41,6 +41,7 @@ public:
 		//vk::AccessFlags srcAccessMask;
 		//vk::AccessFlags dstAccessMask;
 		uint32_t baseMipLevel = 0;
+		uint32_t mipLevelCount = 1;
 		VkImage image;
 		vk::ImageAspectFlags imageAspectMask;
 	};
@@ -54,6 +55,8 @@ public:
 		VkImage image;
 		vk::Extent3D imageSize;
 		vk::ImageAspectFlags imageAspectMask;
+
+		uint32_t mipLevelCount = 1;
 	};
 
 	struct GenerateMipMapsTask
@@ -91,7 +94,7 @@ public:
 	/// </summary>
 	/// <param name="task"></param>
 	/// <param name="onDone">called on the job thread</param>
-	void newTask(std::vector<Task>& tasks, std::function<void()> completionHandler,bool synchronus = false);
+	void newTask(std::vector<Task>& tasks, std::function<void()> completionHandler,bool synchronus = false, bool requiresGfxQueue = false);
 
 
 
@@ -102,9 +105,11 @@ protected:
 private:
 
 	vk::CommandPool copyPool;
-	vk::CommandBuffer cmdBuffer;
+	vk::CommandBuffer copyCmdBuffer;
+	vk::CommandPool gfxPool;
+	vk::CommandBuffer gfxCmdBuffer;
 
-
+	vk::Fence waitFence;
 	
 	vk::Device device;
 	Renderer& renderer;
@@ -118,13 +123,13 @@ private:
 	/// exicuted on a marl thread
 	/// </summary>
 	/// <param name="ticket"></param>
-	void performTask(std::vector<Task> tasks, marl::Ticket ticket, std::function<void()> completionHandler);
-
-	void performBufferTransferTask(ResourceTransferer::BufferTransferTask& t);
+	void performTask(std::vector<Task> tasks, marl::Ticket ticket, std::function<void()> completionHandler, bool requiresGfxQueue);
 
 
-	void performBufferToImageCopyWithTransitionTask(ResourceTransferer::BufferToImageCopyWithTransitionTask& t);
-	void performImageLayoutTransitionTask(ResourceTransferer::ImageLayoutTransitionTask& t);
-	void performGenerateMipMapsTask(ResourceTransferer::GenerateMipMapsTask& t);
+	void performBufferTransferTask(ResourceTransferer::BufferTransferTask& t, vk::CommandBuffer cmdBuffer);
+
+	void performBufferToImageCopyWithTransitionTask(ResourceTransferer::BufferToImageCopyWithTransitionTask& t, vk::CommandBuffer cmdBuffer);
+	void performImageLayoutTransitionTask(ResourceTransferer::ImageLayoutTransitionTask& t, vk::CommandBuffer cmdBuffer);
+	void performGenerateMipMapsTask(ResourceTransferer::GenerateMipMapsTask& t,vk::CommandBuffer cmdBuffer);
 };
 
