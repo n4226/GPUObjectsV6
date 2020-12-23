@@ -1,6 +1,8 @@
+#include "pch.h"
 
 #include "IndexAllocator.h"
 #include <assert.h>
+
 
 IndexAllocator::IndexAllocator(size_t indexCount, size_t allocSize)
 	: totalSize(indexCount * allocSize), indexCount(indexCount), allocSize(allocSize)

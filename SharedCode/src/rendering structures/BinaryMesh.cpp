@@ -1,7 +1,9 @@
+#include "pch.h"
 #include "BinaryMesh.h"
 #include <assert.h>
 #include <numeric>
 #include <fstream>
+#include <glm/glm.hpp>
 
 size_t BinaryMeshSeirilizer::Mesh::vertsSize()
 {

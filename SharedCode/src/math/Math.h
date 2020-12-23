@@ -1,12 +1,6 @@
 #pragma once
 
-#define _USE_MATH_DEFINES
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-#include <glm/ext.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/rotate_vector.hpp>
+#include "pch.h"
 
 
 namespace Math {

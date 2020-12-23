@@ -4,6 +4,9 @@
 #include "../creators/buildingCreator.h"
 #include "../creators/groundCreator.h"
 
+#include "math/meshAlgs/Triangulation.h"
+#include "math/meshAlgs/MeshRendering.h"
+
 #include <iostream>
 #include <fstream>
 #include <thread>
@@ -82,6 +85,31 @@ void GenerationSystem::generate(bool onlyUseOSMCash)
     auto endTime = std::chrono::high_resolution_clock::now();
     auto time = std::chrono::duration<double>(endTime - startTime);
     printf("finished all chunks in %f seconds \n",time);
+}
+
+void GenerationSystem::debugChunk(size_t index)
+{
+    auto chunk = chunks[index];
+
+    BinaryMeshAttrributes binaryAttributes{};
+    BinaryMeshSeirilizer::Mesh mesh;
+
+    mesh.attributes = &binaryAttributes;
+
+    printf("going to get Osm for a chunk\n");
+    osm::osm osmData = osmFetcher.fetchChunk(chunk, false);
+
+
+    printf("Got Osm for a chunk\n");
+
+    for (icreator* creator : creators)
+        creator->createInto(mesh, osmData, chunk);
+
+    meshAlgs::displayMesh(mesh);
+    
+
+    //BinaryMeshSeirilizer binaryMesh(mesh);
+
 }
 
 std::vector<Box> GenerationSystem::genreateChunksAround(glm::dvec2 desired, int divided, glm::ivec2 formation)

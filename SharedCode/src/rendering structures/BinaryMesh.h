@@ -1,5 +1,7 @@
 #pragma once
 
+//#include "pch.h"
+
 #include<glm/glm.hpp>
 #include <vector>
 #include "BinaryMeshAttrributes.h"

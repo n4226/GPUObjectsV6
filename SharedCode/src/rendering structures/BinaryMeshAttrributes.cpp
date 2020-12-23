@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "BinaryMeshAttrributes.h"
 #include <iostream>
 #include <fstream>

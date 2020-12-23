@@ -1,8 +1,10 @@
+#include "pch.h"
 #include "VaribleIndexAllocator.h"
 
 #include <algorithm>
 #include <assert.h>
 #include <iostream>
+
 
 VaribleIndexAllocator::VaribleIndexAllocator(size_t size)
 	: totalSize(size)

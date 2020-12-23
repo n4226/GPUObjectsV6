@@ -7,7 +7,8 @@
 
 #include "generation/base/GenerationSystem.h"
 
-#include "math/triangulation/Triangulation.h"
+#include "math/meshAlgs/Triangulation.h"
+#include "math/meshAlgs/MeshRendering.h"
 
 int main() {
 
@@ -16,12 +17,18 @@ int main() {
 
 	glm::dvec2 desired(40.610319941413, -74.039182662964);
 
-	GenerationSystem genSys(GenerationSystem::genreateChunksAround(desired,12, glm::ivec2(3,3)));
+	GenerationSystem genSys(GenerationSystem::genreateChunksAround(desired, 12, glm::ivec2(3, 3)));
 
 	//GenerationSystem genSys(GenerationSystem::genreateChunksAround(desired,12, glm::ivec2(12,12)));
-	
-	genSys.generate(true);
 
+	//genSys.generate(true);
+
+	//genSys.debugChunk(0);
+
+	auto m = meshAlgs::triangulate({ { {-2,-2}, {2,-2}, {2,2}, {-2, 2 } } , { {-1,-1}, {1,-1}, {1,1}, {-1,1}, {-1,-1} } });
+		//({ { {-2,-2}, {2,-2}, {2,2}, {-2, 2 } } });
+
+	meshAlgs::displayMesh(*m);
 
 	/*s{
 		GenerationSystem genSys(GenerationSystem::genreateChunksAround(desired, 12, glm::ivec2(27, 27)));

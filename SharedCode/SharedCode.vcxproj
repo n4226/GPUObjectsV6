@@ -59,7 +59,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\dev\libigl\include;C:\code\binary libraries\glm-master;C:\dev\libigl\external\glad\include;$(SolutionDir)Dependencies\stb-master</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\libigl\include;C:\code\binary libraries\glm-master;C:\dev\libigl\external\glad\include;$(SolutionDir)Dependencies\stb-master;$(ProjectDir)src</AdditionalIncludeDirectories>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -96,6 +99,8 @@
     </PreLinkEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\math\meshAlgs\MeshRendering.h" />
+    <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\rendering structures\BinaryMeshAttrributes.h" />
     <ClInclude Include="src\constants.h" />
     <ClInclude Include="src\math\path\Bezier.h" />
@@ -107,10 +112,14 @@
     <ClInclude Include="src\math\Box.h" />
     <ClInclude Include="src\math\Math.h" />
     <ClInclude Include="src\shared.h" />
-    <ClInclude Include="src\math\triangulation\Triangulation.h" />
+    <ClInclude Include="src\math\meshAlgs\Triangulation.h" />
     <ClInclude Include="src\StaticMaterialTable.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\math\meshAlgs\MeshRendering.cpp" />
+    <ClCompile Include="src\pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="src\rendering structures\BinaryMeshAttrributes.cpp" />
     <ClCompile Include="src\math\path\Bezier.cpp" />
     <ClCompile Include="src\math\path\Path.cpp" />
@@ -121,7 +130,7 @@
     <ClCompile Include="src\math\Box.cpp" />
     <ClCompile Include="src\math\Math.cpp" />
     <ClCompile Include="src\shared.cpp" />
-    <ClCompile Include="src\math\triangulation\Triangulation.cpp" />
+    <ClCompile Include="src\math\meshAlgs\Triangulation.cpp" />
     <ClCompile Include="src\StaticMaterialTable.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

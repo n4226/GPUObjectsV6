@@ -1,7 +1,7 @@
 #include "Instrumentor.h"
 #include "pch.h"
 
-#define RDK_PROFILING 1
+#define RDK_PROFILING 0
 #define RDK_VALIDATION 1
 
 #if RDK_PROFILING
