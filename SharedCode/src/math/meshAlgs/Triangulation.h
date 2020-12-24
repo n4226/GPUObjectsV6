@@ -24,6 +24,8 @@ namespace meshAlgs
 	/// </summary>
 	std::pair<TriangulatedMesh*, bool> triangulate(std::vector<std::vector<glm::dvec2>>& polygon);
 
+	std::vector<std::vector<glm::dvec2>>* intersectionOf(std::vector<glm::dvec2>& polygon1, std::vector<glm::dvec2>& polygon2);
+
 	
 	Box bounds(std::vector<glm::dvec2>& points);
 

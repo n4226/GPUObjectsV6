@@ -23,7 +23,8 @@ int main() {
 
 	//genSys.generate(true);
 
-	genSys.debugChunk(0);
+	// first parm is chunk index and second is lod level
+	genSys.debugChunk(0,1);
 
 	//auto m = meshAlgs::triangulate({ { {-2,-2}, {2,-2}, {2,2}, {-2, 2} }, { {-1,-1}, {-1,1}, {1,1}, {1,-1}} });
 		//({ { {-2,-2}, {2,-2}, {2,2}, {-2, 2 } } });

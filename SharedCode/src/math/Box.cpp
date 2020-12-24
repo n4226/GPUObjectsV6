@@ -42,6 +42,16 @@ bool Box::containsAny(std::vector<glm::dvec2>& points) const
     return false;
 }
 
+bool Box::containsAny(std::vector<glm::dvec2>&& points) const
+{
+    for (size_t i = 0; i < points.size(); i++)
+    {
+        if (contains(points[i]))
+            return true;
+    }
+    return false;
+}
+
 bool Box::overlaps(Box other) const
 {
     /*if (start.x >= other.getEnd().x || other.start.x >= getEnd().x) return false;
@@ -66,6 +76,16 @@ bool Box::overlaps(Box other) const
 //    assert(false);
 //    return false;
 //}
+
+std::vector<glm::dvec2> Box::polygon() const
+{
+    return {
+        start,
+        glm::dvec2(start.x,getEnd().y),
+        getEnd(),
+        glm::dvec2(getEnd().x,start.y),
+    };
+}
 
 std::string Box::toString() const
 {

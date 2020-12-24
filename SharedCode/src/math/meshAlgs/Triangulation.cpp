@@ -18,6 +18,11 @@
 #include <iostream>
 #include <limits>
 
+
+#include <CGAL/Boolean_set_operations_2.h>
+
+//TODO ----------------------------------------------------------------------------------- CGAL WILL HAVE TO BE LICENSED FOR PROFIT ----------------------------------------------------------------------------------------------------------
+
 namespace meshAlgs {
 
 
@@ -40,7 +45,9 @@ namespace meshAlgs {
 	typedef CGAL::Constrained_Delaunay_triangulation_2<K, TDS, Itag>  CDT;
 	typedef CDT::Point                                                Point;
 	typedef CGAL::Polygon_2<K>                                        Polygon_2;
+	typedef CGAL::Polygon_with_holes_2<K>                             Polygon_with_holes_2;
 	typedef CDT::Face_handle                                          Face_handle;
+	typedef std::list<Polygon_with_holes_2>                           Pwh_list_2;
 
 
 	void makeLibiglMesh(const BinaryMeshSeirilizer::Mesh& mesh, size_t subMesh, Eigen::MatrixXd& verts, Eigen::MatrixXi& indicies)
@@ -223,6 +230,53 @@ namespace meshAlgs {
 
 		return { mesh, isCLock };
 
+	}
+
+	std::vector<std::vector<glm::dvec2>>* intersectionOf(std::vector<glm::dvec2>& polygon1, std::vector<glm::dvec2>& polygon2)
+	{
+		
+		Polygon_2 p1;
+		Polygon_2 p2;
+
+
+		p1.resize(polygon1.size());
+		p2.resize(polygon2.size());
+
+		for (size_t i = 0; i < polygon1.size(); i++)
+		{
+			p1[i] = Point(polygon1[i].x, polygon1[i].y);
+		}
+		for (size_t i = 0; i < polygon2.size(); i++)
+		{
+			p2[i] = Point(polygon2[i].x, polygon2[i].y);
+		}
+
+
+		// Compute the intersection of P and Q.
+		//Pwh_list_2                  intR;
+		std::vector<Polygon_with_holes_2>                  intR;
+
+		CGAL::intersection(p1, p2, std::back_inserter(intR));
+		//CGAL::join(p1, p2, unionR);
+
+
+		auto outPolygon = new std::vector<std::vector<glm::dvec2>>();
+
+		if (intR[0].is_unbounded()) {
+			throw std::runtime_error("not supported yet");
+		}
+
+		outPolygon->push_back({});
+		
+		for (auto vert = intR[0].outer_boundary().vertices_begin(); vert != intR[0].outer_boundary().vertices_end(); vert = std::next(vert)) {
+			(*outPolygon)[0].emplace_back(vert->x(),vert->y());
+		}
+
+		for (auto hit = intR[0].holes_begin(); hit != intR[0].holes_end(); ++hit) {
+
+		}
+
+		return outPolygon;
 	}
 
 	Box bounds(std::vector<glm::dvec2>& points)

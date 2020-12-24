@@ -4,11 +4,32 @@
 
 #include "math/meshAlgs/Triangulation.h"
 
-void buildingCreator::createInto(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& osm, const Box& frame)
+void buildingCreator::createInto(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& osm, const Box& frame, int lod)
 {
 	mesh.indicies.push_back({});
 	mesh.attributes->subMeshMats.push_back(1);
 	
+	//TODO: somehow prevent each creator from ahving to loop through all the elements in the osm data after eachother by combining them into one 
+	// TODO remove duplicate pointes if they fall on a streight 2d line after being clipped to the chunk -> this could be for objecy such as buildings or more commanly to grounds of different surfaces eg ocean and land
+	//
+	//for (osm::element& element : osm.elements) {
+	//	if (element.type == osm::type::way && element.tags.count("building") > 0) {
+	//		auto nodes = osm.nodesIn(element);
+
+	//		// first node IS duplicated - AT INDEX 0 AND INDEX SIZE - 1
+	//		std::vector<glm::dvec2> basePath(nodes.size());
+
+	//		std::transform(nodes.begin(), nodes.end(), basePath.begin(), [&](osm::element* element) {
+	//			return glm::dvec2(*element->lat, *element->lon);
+	//		});
+	//		auto bounds = new Box();
+	//		*bounds = meshAlgs::bounds(basePath);
+	//		buldingAABBS.emplace(bounds, &element);
+	//	}
+	//}
+
+
+
 	//TODO: somehow prevent each creator from ahving to loop through all the elements in the osm data after eachother by combining them into one loop
 	for (osm::element& element : osm.elements) {
 		
@@ -17,7 +38,7 @@ void buildingCreator::createInto(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& osm
 
 
 		if (element.type == osm::type::way && element.tags.count("building") > 0) {
-			addBuilding(mesh, osm, element, frame);
+			addBuilding(mesh, osm, element, frame,lod);
 		}
 
 	}
@@ -25,7 +46,7 @@ void buildingCreator::createInto(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& osm
 
 }
 
-void buildingCreator::addBuilding(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& osm, osm::element& building, const Box& frame)
+void buildingCreator::addBuilding(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& osm, osm::element& building, const Box& frame, int lod)
 {
 
 	constexpr double radius = Math::dEarthRad;
@@ -48,7 +69,14 @@ void buildingCreator::addBuilding(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& os
 	std::vector<glm::dvec2> basePath(nodes.size());
 
 	std::transform(nodes.begin(), nodes.end(), basePath.begin(), [&](osm::element* element) {
-		return glm::dvec2(*element->lat, *element->lon);
+		auto posLatLon = glm::dvec2(*element->lat, *element->lon);
+
+		/*posLatLon.x = glm::max(posLatLon.x, frame.start.x);
+		posLatLon.y = glm::max(posLatLon.y, frame.start.y);
+		posLatLon.x = glm::min(posLatLon.x, frame.getEnd().x);
+		posLatLon.y = glm::min(posLatLon.y, frame.getEnd().y);*/
+
+		return posLatLon;
 	});
 
 	auto bounds = meshAlgs::bounds(basePath);
@@ -59,6 +87,31 @@ void buildingCreator::addBuilding(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& os
 
 	if (!frame.contains(min) && !frame.contains(max))
 		return;
+
+
+
+	for (osm::element& element : osm.elements) {
+		if (element.type == osm::type::way && element.tags.count("building") > 0) {
+			auto nodes = osm.nodesIn(element);
+
+			// first node IS duplicated - AT INDEX 0 AND INDEX SIZE - 1
+			std::vector<glm::dvec2> basePath(nodes.size());
+
+			std::transform(nodes.begin(), nodes.end(), basePath.begin(), [&](osm::element* element) {
+				return glm::dvec2(*element->lat, *element->lon);
+			});
+			auto other_bounds = new Box();
+			*other_bounds = meshAlgs::bounds(basePath);
+			//buldingAABBS.emplace(bounds, &element);
+
+			if (lod > 0 && (bounds.containsAny(other_bounds->polygon()) || other_bounds->containsAny(bounds.polygon()))) {
+				return;
+			}
+
+		}
+	}
+
+
 
 	// roof
 	// creates a po.ygon with one set of points, the base points dropping the last point since it is just the first point
@@ -87,6 +140,7 @@ void buildingCreator::addBuilding(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& os
 		mesh.bitangents.push_back(glm::vec3(0));
 
 		auto uv = glm::vec2(((posLatLon - min) / (max - min)) * Math::llaDistance(min, max));
+		mesh.uvs.push_back(uv);
 	}
 
 	for (size_t i = 0; i < roofMesh->indicies[0].size(); i++)

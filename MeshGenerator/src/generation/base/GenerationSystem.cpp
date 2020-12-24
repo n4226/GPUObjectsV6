@@ -31,11 +31,11 @@ GenerationSystem::GenerationSystem(std::vector<Box>&& chunks)
 
 }
 
-void GenerationSystem::generate(bool onlyUseOSMCash)
+void GenerationSystem::generate(int lod, bool onlyUseOSMCash)
 {
     auto startTime = std::chrono::high_resolution_clock::now();
     //for (Box& chunk : chunks) {
-    std::for_each(std::execution::par, chunks.begin(), chunks.end(), [this,onlyUseOSMCash](Box& chunk) {
+    std::for_each(std::execution::par, chunks.begin(), chunks.end(), [this,onlyUseOSMCash,lod](Box& chunk) {
         auto file = outputDir + chunk.toString() + ".bmesh";
         auto attrFile = attrOutputDir + chunk.toString() + ".bmattr";
         try {
@@ -57,7 +57,7 @@ void GenerationSystem::generate(bool onlyUseOSMCash)
             printf("Got Osm for a chunk\n");
 
             for (icreator* creator : creators)
-                creator->createInto(mesh, osmData, chunk);
+                creator->createInto(mesh, osmData, chunk, lod);
 
 
             BinaryMeshSeirilizer binaryMesh(mesh);
@@ -87,7 +87,7 @@ void GenerationSystem::generate(bool onlyUseOSMCash)
     printf("finished all chunks in %f seconds \n",time);
 }
 
-void GenerationSystem::debugChunk(size_t index)
+void GenerationSystem::debugChunk(size_t index, int lod)
 {
     const auto& chunk = chunks[index];
 
@@ -103,7 +103,7 @@ void GenerationSystem::debugChunk(size_t index)
     printf("Got Osm for a chunk\n");
 
     for (icreator* creator : creators)
-        creator->createInto(mesh, osmData, chunk);
+        creator->createInto(mesh, osmData, chunk,lod);
     //mesh.indicies.erase(mesh.indicies.begin());
     meshAlgs::displayMesh(mesh);
     
