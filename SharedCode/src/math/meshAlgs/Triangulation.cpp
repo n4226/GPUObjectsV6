@@ -11,7 +11,25 @@
 #include <CGAL/Triangulation_2.h>
 #include <CGAL/Triangulation_vertex_base_with_info_2.h>
 
+#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/Constrained_Delaunay_triangulation_2.h>
+#include <CGAL/Triangulation_face_base_with_info_2.h>
+#include <CGAL/Polygon_2.h>
+#include <iostream>
+
+
 namespace meshAlgs {
+
+	//typedef CGAL::Exact_predicates_inexact_constructions_kernel       K;
+	//typedef CGAL::Triangulation_vertex_base_2<K>                      Vb;
+	//typedef CGAL::Triangulation_face_base_with_info_2<FaceInfo2, K>    Fbb;
+	//typedef CGAL::Constrained_triangulation_face_base_2<K, Fbb>        Fb;
+	//typedef CGAL::Triangulation_data_structure_2<Vb, Fb>               TDS;
+	//typedef CGAL::Exact_predicates_tag                                Itag;
+	//typedef CGAL::Constrained_Delaunay_triangulation_2<K, TDS, Itag>  CDT;
+	//typedef CDT::Point                                                Point;
+	//typedef CGAL::Polygon_2<K>                                        Polygon_2;
+	//typedef CDT::Face_handle                                          Face_handle;
 
 	void makeLibiglMesh(const BinaryMeshSeirilizer::Mesh& mesh, size_t subMesh, Eigen::MatrixXd& verts, Eigen::MatrixXi& indicies)
 	{
@@ -55,32 +73,97 @@ namespace meshAlgs {
 		}
 	}
 
+
+	struct FaceInfo2
+	{
+		FaceInfo2() {}
+		int nesting_level;
+		bool in_domain() {
+			return nesting_level % 2 == 1;
+		}
+	};
+
+	//static void 
+	//	mark_domains(CDT& ct,
+	//		Face_handle start,
+	//		int index,
+	//		std::list<CDT::Edge>& border)
+	//{
+	//	if (start->info().nesting_level != -1) {
+	//		return;
+	//	}
+	//	std::list<Face_handle> queue;
+	//	queue.push_back(start);
+	//	while (!queue.empty()) {
+	//		Face_handle fh = queue.front();
+	//		queue.pop_front();
+	//		if (fh->info().nesting_level == -1) {
+	//			fh->info().nesting_level = index;
+	//			for (int i = 0; i < 3; i++) {
+	//				CDT::Edge e(fh, i);
+	//				Face_handle n = fh->neighbor(i);
+	//				if (n->info().nesting_level == -1) {
+	//					if (ct.is_constrained(e)) border.push_back(e);
+	//					else queue.push_back(n);
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
+	////explore set of facets connected with non constrained edges,
+	////and attribute to each such set a nesting level.
+	////We start from facets incident to the infinite vertex, with a nesting
+	////level of 0. Then we recursively consider the non-explored facets incident
+	////to constrained edges bounding the former set and increase the nesting level by 1.
+	////Facets in the domain are those with an odd nesting level.
+	//static void
+	//	mark_domains(CDT& cdt)
+	//{
+	//	for (CDT::Face_handle f : cdt.all_face_handles()) {
+	//		f->info().nesting_level = -1;
+	//	}
+	//	std::list<CDT::Edge> border;
+	//	mark_domains(cdt, cdt.infinite_face(), 0, border);
+	//	while (!border.empty()) {
+	//		CDT::Edge e = border.front();
+	//		border.pop_front();
+	//		Face_handle n = e.first->neighbor(e.second);
+	//		if (n->info().nesting_level == -1) {
+	//			mark_domains(cdt, n, e.first->info().nesting_level + 1, border);
+	//		}
+	//	}
+	//}
+
 	BinaryMeshSeirilizer::Mesh* triangulate(std::vector<std::vector<glm::vec2>> polygon)
 	{
-		typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
-		typedef CGAL::Triangulation_vertex_base_with_info_2<uint32_t, K> Vb;
-		typedef CGAL::Triangulation_data_structure_2<Vb>                   Tds;
-		typedef CGAL::Triangulation_2<K,Tds>         Triangulation;
+		//typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
+		//typedef CGAL::Triangulation_vertex_base_with_info_2<uint32_t, K> Vb;
+		//typedef CGAL::Triangulation_data_structure_2<Vb>                   Tds;
+		/*typedef CGAL::Triangulation_2<K>         Triangulation;
 		typedef Triangulation::Point             Point; 
-		typedef Triangulation::Vertex_circulator Vertex_circulator;
+		typedef Triangulation::Vertex_circulator Vertex_circulator;*/
+
+
 
 
 		auto mesh = new BinaryMeshSeirilizer::Mesh{};
 
 
-		std::vector<std::pair<Point,uint32_t>> points = {};
-		points.resize(polygon[0].size());
-		for (size_t i = 0; i < polygon[0].size(); i++)
-		{
-		//std::transform(polygon[0].begin(), polygon[0].end(),points.begin(), [](glm::vec2 point) {
-			auto point = polygon[0][i];
-			points[i] = { Point(point.x, point.y), uint32_t(i)};
-			mesh->verts.emplace_back(point.x,point.y,0);
-		}//);
+		//std::vector<std::pair<Point,uint32_t>> points = {};
+		//std::vector<Point> points = {};
+		//points.resize(polygon[0].size());
+		//for (size_t i = 0; i < polygon[0].size(); i++)
+		//{
+		////std::transform(polygon[0].begin(), polygon[0].end(),points.begin(), [](glm::vec2 point) {
+		//	auto point = polygon[0][i];
+		//	//points[i] = { Point(point.x, point.y), uint32_t(i)};
+		//	points[i] = Point(point.x, point.y);
+		//	mesh->verts.emplace_back(point.x,point.y,0);
+		//}//);
 
-		Triangulation t;	
+		//Triangulation t;	
 
-		t.insert(points.begin(), points.end());
+		//t.insert(points.begin(), points.end());
 
 
 		/*Vertex_circulator vc = t.incident_vertices(t.infinite_vertex()),
@@ -98,19 +181,19 @@ namespace meshAlgs {
 		mesh->indicies.push_back({});
 
 
-		for (auto& vh : t.finite_face_handles()) {
-			auto p = {vh->vertex(0)->info(), vh->vertex(1)->info(),vh->vertex(2)->info() };
-			
-			mesh->indicies[0].push_back(vh->vertex(0)->info());
-			mesh->indicies[0].push_back(vh->vertex(1)->info());
-			mesh->indicies[0].push_back(vh->vertex(2)->info());
+		//for (auto& vh : t.finite_face_handles()) {
+		//	auto p = {vh->vertex(0)->info(), vh->vertex(1)->info(),vh->vertex(2)->info() };
+		//	
+		//	mesh->indicies[0].push_back(vh->vertex(0)->info());
+		//	mesh->indicies[0].push_back(vh->vertex(1)->info());
+		//	mesh->indicies[0].push_back(vh->vertex(2)->info());
 
-			//t.triangle(vh)[0].
-			
-			/*for (auto pz : p)
-				std::cout << pz << std::endl;
-			std::cout << std::endl;*/
-		}
+		//	//t.triangle(vh)[0].
+		//	
+		//	/*for (auto pz : p)
+		//		std::cout << pz << std::endl;
+		//	std::cout << std::endl;*/
+		//}
 
 		//for (auto& vh : t.finite_face_handles()) {
 		//	auto p = { vh->vertex(0),vh->vertex(1), vh->vertex(2) };

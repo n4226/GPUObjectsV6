@@ -28,6 +28,9 @@ osm::osm OsmFetcher::fetchChunk(Box frame, bool onlyUseOSMCash)
         printf("using osm cash to load osm\n");
         std::string str((std::istreambuf_iterator<char>(f)),
             std::istreambuf_iterator<char>());
+        if (str.substr(0, 5) == "<?xml") {
+            throw std::runtime_error("osm data not json");
+        }
         return osm::makeOSM(str);
     }
     else if (onlyUseOSMCash)

@@ -1,15 +1,27 @@
 #include "Instrumentor.h"
 #include "pch.h"
 
+
+
 #define RDK_PROFILING 0
-#define RDK_VALIDATION 1
+#define RDK_PROFILING_LITE 0
+#define RDK_VALIDATION 0
 
 #if RDK_PROFILING
 #define PROFILE_SCOPE(name) InstrumentationTimer timer##__line__(name);
 #define PROFILE_FUNCTION PROFILE_SCOPE(__FUNCSIG__)
-#else
+#define PROFILE_SCOPE_LEVEL2(name) InstrumentationTimer timer##__line__(name);
+#define PROFILE_FUNCTION_LEVEL2 PROFILE_SCOPE_LEVEL2(__FUNCSIG__)
+#elif RDK_PROFILING_LITE
 #define PROFILE_SCOPE(name)
 #define PROFILE_FUNCTION
+#define PROFILE_SCOPE_LEVEL2(name) InstrumentationTimer timer##__line__(name);
+#define PROFILE_FUNCTION_LEVEL2 PROFILE_SCOPE_LEVEL2(__FUNCSIG__)
+#else
+#define PROFILE_SCOPE(name)
+#define PROFILE_FUNCTION 
+#define PROFILE_SCOPE_LEVEL2(name)
+#define PROFILE_FUNCTION_LEVEL2
 #endif
 
 #if !NDEBUG && RDK_VALIDATION

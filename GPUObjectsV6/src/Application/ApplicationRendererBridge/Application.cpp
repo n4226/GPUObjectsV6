@@ -150,7 +150,7 @@ bool Application::shouldLoop() {
 
 void Application::runLoopIteration()
 {
-    PROFILE_FUNCTION;
+    PROFILE_FUNCTION_LEVEL2;
     {
 #if RDK_PROFILING
         std::string s = "loooooooooooooong string";

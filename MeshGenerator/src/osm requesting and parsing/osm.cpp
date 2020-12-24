@@ -20,7 +20,9 @@ namespace osm {
 
 	osm makeOSM(std::string& str)
 	{
-
+		if (str == "") {
+			throw std::runtime_error("empty");
+		}
 		Document j;
 
 		j.Parse(str.c_str());

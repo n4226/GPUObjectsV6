@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\code\visual studio\GPUObjectsV6\Dependencies\shapelib-master\shapelib-master\shpadd.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\code\visual studio\GPUObjectsV6\Dependencies\shapelib-master\shapelib-master\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{2F96F975-9AAE-39D1-B463-D61A59FE3E09}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

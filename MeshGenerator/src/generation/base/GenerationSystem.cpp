@@ -104,7 +104,7 @@ void GenerationSystem::debugChunk(size_t index)
 
     for (icreator* creator : creators)
         creator->createInto(mesh, osmData, chunk);
-
+    //mesh.indicies.erase(mesh.indicies.begin());
     meshAlgs::displayMesh(mesh);
     
 

@@ -1,0 +1,13 @@
+C:/code/visual studio/GPUObjectsV6/Dependencies/shapelib-master/shapelib-master/CMakeFiles/dbfadd.dir
+C:/code/visual studio/GPUObjectsV6/Dependencies/shapelib-master/shapelib-master/CMakeFiles/shp.dir
+C:/code/visual studio/GPUObjectsV6/Dependencies/shapelib-master/shapelib-master/CMakeFiles/shpcreate.dir
+C:/code/visual studio/GPUObjectsV6/Dependencies/shapelib-master/shapelib-master/CMakeFiles/dbfdump.dir
+C:/code/visual studio/GPUObjectsV6/Dependencies/shapelib-master/shapelib-master/CMakeFiles/shprewind.dir
+C:/code/visual studio/GPUObjectsV6/Dependencies/shapelib-master/shapelib-master/CMakeFiles/shpadd.dir
+C:/code/visual studio/GPUObjectsV6/Dependencies/shapelib-master/shapelib-master/CMakeFiles/shpdump.dir
+C:/code/visual studio/GPUObjectsV6/Dependencies/shapelib-master/shapelib-master/CMakeFiles/dbfcreate.dir
+C:/code/visual studio/GPUObjectsV6/Dependencies/shapelib-master/shapelib-master/CMakeFiles/shptreedump.dir
+C:/code/visual studio/GPUObjectsV6/Dependencies/shapelib-master/shapelib-master/CMakeFiles/INSTALL.dir
+C:/code/visual studio/GPUObjectsV6/Dependencies/shapelib-master/shapelib-master/CMakeFiles/ALL_BUILD.dir
+C:/code/visual studio/GPUObjectsV6/Dependencies/shapelib-master/shapelib-master/CMakeFiles/ZERO_CHECK.dir
+C:/code/visual studio/GPUObjectsV6/Dependencies/shapelib-master/shapelib-master/cmake/CMakeFiles/INSTALL.dir

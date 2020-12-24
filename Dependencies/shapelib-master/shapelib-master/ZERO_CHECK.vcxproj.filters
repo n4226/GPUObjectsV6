@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\code\visual studio\GPUObjectsV6\Dependencies\shapelib-master\shapelib-master\CMakeFiles\136495b81a6077e3a7cc55968266a2d8\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{350CE4AF-3410-3420-A76B-B4D0AD77BA14}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

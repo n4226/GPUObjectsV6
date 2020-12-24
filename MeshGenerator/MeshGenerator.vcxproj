@@ -59,12 +59,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Qt\5.15.2\mingw81_64\include;$(SolutionDir)Dependencies/rapidjson-master/rapidjson-master/include;$(ProjectDir)\src\dependencies;C:\Program Files\OpenSSL-Win64\include;$(SolutionDir)SharedCode\src;C:\code\binary libraries\glm-master;$(SolutionDir)Dependencies\HTTPRequest-master\HTTPRequest-master\include;C:\dev\libigl\include;C:\dev\libigl\external\glad\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Qt\5.15.2\mingw81_64\include;$(SolutionDir)Dependencies/rapidjson-master/rapidjson-master/include;$(ProjectDir)\src\dependencies;C:\Program Files\OpenSSL-Win64\include;$(SolutionDir)SharedCode\src;C:\code\binary libraries\glm-master;$(SolutionDir)Dependencies\HTTPRequest-master\HTTPRequest-master\include;C:\dev\libigl\include;C:\dev\libigl\external\glad\include;$(SolutionDir)Dependencies\marl-main\marl-main\include;C:\code\visual studio\GPUObjectsV6\Dependencies\shapelib-master</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>C:\code\visual studio\GPUObjectsV6\Dependencies\projects\marl main 2\Debug\marl.lib;shp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\code\visual studio\GPUObjectsV6\Dependencies\shapelib-master\shapelib-master\dll\Debug\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -86,6 +88,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\generation\ShapeFileSystem.cpp" />
     <ClCompile Include="src\generation\creator.cpp" />
     <ClCompile Include="src\generation\creators\buildingCreator.cpp" />
     <ClCompile Include="src\generation\creators\groundCreator.cpp" />
@@ -100,6 +103,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\generation\ShapeFileSystem.h" />
     <ClInclude Include="src\generation\creator.h" />
     <ClInclude Include="src\generation\creators\buildingCreator.h" />
     <ClInclude Include="src\generation\creators\groundCreator.h" />

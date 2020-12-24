@@ -36,6 +36,9 @@
     <ClCompile Include="src\generation\creator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\generation\ShapeFileSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\constants.h">
@@ -60,6 +63,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\generation\creators\groundCreator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\generation\ShapeFileSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
