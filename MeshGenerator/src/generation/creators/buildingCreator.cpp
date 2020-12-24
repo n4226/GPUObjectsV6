@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+#include "math/meshAlgs/Triangulation.h"
+
 void buildingCreator::createInto(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& osm, const Box& frame)
 {
 	mesh.indicies.push_back({});
@@ -42,12 +44,14 @@ void buildingCreator::addBuilding(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& os
 
 	auto nodes = osm.nodesIn(building);
 
+	// first node IS duplicated - AT INDEX 0 AND INDEX SIZE - 1
 	std::vector<glm::dvec2> basePath(nodes.size());
 
 	std::transform(nodes.begin(), nodes.end(), basePath.begin(), [&](osm::element* element) {
 		return glm::dvec2(*element->lat, *element->lon);
 	});
 
+	// TODO: make this find min and max a function
 	glm::dvec2 min = glm::dvec2(90,180);
 	glm::dvec2 max = glm::dvec2(-90,-180);
 
@@ -66,6 +70,7 @@ void buildingCreator::addBuilding(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& os
 	if (!frame.contains(min) && !frame.contains(max))
 		return;
 
+	// walls 
 	for (size_t i = 0; i < (basePath.size() - 1); i++)
 	{
 		auto localOff = static_cast<uint32_t>(mesh.verts.size());
@@ -131,6 +136,29 @@ void buildingCreator::addBuilding(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& os
 		mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 2);
 		mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 3);
 		mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 1);
+	}
+
+	//return;
+
+	// roof
+	// creates a po.ygon with one set of points, the base points dropping the last point since it is just the first point
+	std::vector<std::vector<glm::dvec2>> roofPoly = { std::vector<glm::dvec2>(basePath.begin(),std::prev(basePath.end())) };
+
+	auto roofMesh = meshAlgs::triangulate(roofPoly);
+
+	//TODO --- deal with duplicate verticies her this is important
+
+	startVertOfset = mesh.verts.size();
+
+	for (size_t i = 0; i < roofMesh->verts.size(); i++)
+	{
+		auto pos1 = Math::LlatoGeo(glm::dvec3(roofMesh->verts[i].x,roofMesh->verts[i].y,height), glm::dvec3(0), radius) - center_geo;
+		mesh.verts.push_back(pos1);
+	}
+
+	for (size_t i = 0; i < roofMesh->indicies[0].size(); i++)
+	{
+		mesh.indicies[mesh.indicies.size() - 1].push_back(roofMesh->indicies[0][i] + startVertOfset);
 	}
 
 }

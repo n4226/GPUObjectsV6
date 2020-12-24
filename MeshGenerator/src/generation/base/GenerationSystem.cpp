@@ -89,7 +89,7 @@ void GenerationSystem::generate(bool onlyUseOSMCash)
 
 void GenerationSystem::debugChunk(size_t index)
 {
-    auto chunk = chunks[index];
+    const auto& chunk = chunks[index];
 
     BinaryMeshAttrributes binaryAttributes{};
     BinaryMeshSeirilizer::Mesh mesh;

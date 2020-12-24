@@ -13,7 +13,7 @@ namespace meshAlgs
 	/// first polygon is base shape 
 	/// all other polygons are holes 
 	/// </summary>
-	BinaryMeshSeirilizer::Mesh* triangulate(std::vector<std::vector<glm::vec2>> polygon);
+	BinaryMeshSeirilizer::Mesh* triangulate(std::vector<std::vector<glm::dvec2>> polygon);
 
 
 	void makeLibiglMesh(const BinaryMeshSeirilizer::Mesh& mesh, size_t subMesh, Eigen::MatrixXd& verts, Eigen::MatrixXi& indicies);
