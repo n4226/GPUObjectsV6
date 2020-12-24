@@ -4,6 +4,7 @@
 #include <shapelib-master/shapefil.h>
 #include <array>
 #include <vector>
+#include "math/meshAlgs/Triangulation.h"
 
 class ShapeFileSystem
 {
@@ -14,6 +15,9 @@ public:
 
 	void getCoastlineInChunk(Box chunk);
 
+
+	std::vector<meshAlgs::TriangulatedMesh*> polygons;
+	std::vector<Box> polygonBounds;
 
 private:
 

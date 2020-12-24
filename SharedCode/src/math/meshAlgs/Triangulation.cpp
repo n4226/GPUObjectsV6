@@ -16,9 +16,10 @@
 #include <CGAL/Triangulation_face_base_with_info_2.h>
 #include <CGAL/Polygon_2.h>
 #include <iostream>
-
+#include <limits>
 
 namespace meshAlgs {
+
 
 	struct FaceInfo2
 	{
@@ -138,12 +139,13 @@ namespace meshAlgs {
 	}
 
 	// poly gons should not have the start and end point be the same eg start and end should be different will close the path automatically
-	BinaryMeshSeirilizer::Mesh* triangulate(std::vector<std::vector<glm::dvec2>> polygon)
+	//TODO - fix to export points in double not float
+	std::pair<TriangulatedMesh*,bool> triangulate(std::vector<std::vector<glm::dvec2>>& polygon)
 	{
 		// see : https://doc.cgal.org/latest/Triangulation_2/index.html#title30
 			// - File Triangulation_2 / polygon_triangulation.cpp
 
-		auto mesh = new BinaryMeshSeirilizer::Mesh{};
+		auto mesh = new TriangulatedMesh{};
 
 
 		std::vector<Polygon_2> cg_polygons = {};
@@ -187,7 +189,7 @@ namespace meshAlgs {
 		}
 
 		for (auto& point : newVerts) {
-			mesh->verts.emplace_back(point.x(), point.y(),0);
+			mesh->verts.emplace_back(point.x(), point.y());
 		}
 
 
@@ -214,134 +216,33 @@ namespace meshAlgs {
 			}
 		}
 
-		return mesh;
+		bool isCLock = false;
 
-		//Triangulation t;	
+		if (cg_polygons[0].is_simple())
+			isCLock = cg_polygons[0].is_clockwise_oriented();
 
-		//t.insert(points.begin(), points.end());
+		return { mesh, isCLock };
 
+	}
 
-		/*Vertex_circulator vc = t.incident_vertices(t.infinite_vertex()),
-			done(vc);*/
+	Box bounds(std::vector<glm::dvec2>& points)
+	{
+		glm::dvec2 min = glm::dvec2(std::numeric_limits<double>::max()); //glm::dvec2(90, 180);
+		glm::dvec2 max = glm::dvec2(std::numeric_limits<double>::min()); //glm::dvec2(-90, -180);
 
-		/*Vertex_circulator vc = t.incident_vertices(t.infinite_vertex()),
-			done(vc);
-		if (vc != 0) {
-			do {
-				std::cout << vc->point() << std::endl;
-			} while (++vc != done);
-		}*/
+		for (auto& pos : points) {
+			if (pos.x < min.x)
+				min.x = pos.x;
+			if (pos.y < min.y)
+				min.y = pos.y;
 
+			if (pos.x > max.x)
+				max.x = pos.x;
+			if (pos.y > max.y)
+				max.y = pos.y;
+		}
 
-
-
-		//for (auto& vh : t.finite_face_handles()) {
-		//	auto p = {vh->vertex(0)->info(), vh->vertex(1)->info(),vh->vertex(2)->info() };
-		//	
-		//	mesh->indicies[0].push_back(vh->vertex(0)->info());
-		//	mesh->indicies[0].push_back(vh->vertex(1)->info());
-		//	mesh->indicies[0].push_back(vh->vertex(2)->info());
-
-		//	//t.triangle(vh)[0].
-		//	
-		//	/*for (auto pz : p)
-		//		std::cout << pz << std::endl;
-		//	std::cout << std::endl;*/
-		//}
-
-		//for (auto& vh : t.finite_face_handles()) {
-		//	auto p = { vh->vertex(0),vh->vertex(1), vh->vertex(2) };
-		//	for (auto pz : p)
-		//		std::cout << *pz << std::endl;
-		//	std::cout << std::endl;
-		//}
-
-		//for (auto& vh : t.finite_vertex_handles()) {
-		//	/*auto p = { vh->index(vh->vertex(0)), vh->index(vh->vertex(1)), vh->index(vh->vertex(2)) };
-		//	for (auto pz : p)*/
-		//		std::cout << *vh;
-		//	std::cout << std::endl;
-		//}
-
-		//igl::opengl::glfw::Viewer viewer;
-		//viewer.data().set_mesh(V, F);
-		//viewer.launch();
-
-
-		// Input polygon
-
-		//// verticies
-		//Eigen::MatrixXd V;
-		//// edges 
-		//Eigen::MatrixXi E;
-		//// pointes inside of holes specified in edges
-		//Eigen::MatrixXd H;
-
-
-		//auto vertCount = 0;
-
-		//for (size_t p = 0; p < polygon.size(); p++)
-		//{
-		//	vertCount += polygon[p].size();
-		//}
-
-		//V.resize(vertCount, 2);
-		//E.resize(vertCount, 2);
-		//H.resize(glm::max(polygon.size() - 1,size_t(0)), 2);
-
-		//auto row = 0;
-		//for (size_t p = 0; p < polygon.size(); p++)
-		//{
-		//	for (size_t point = 0; point < polygon[p].size(); point++)
-		//	{
-
-		//		V(row, 0) = polygon[p][point].x;
-		//		V(row, 1) = polygon[p][point].y;
-
-		//		row++;
-		//	}
-		//}
-
-		//row = 0;
-		//for (size_t p = 0; p < polygon.size(); p++)
-		//{
-		//	for (size_t point = 0; point < polygon[p].size(); point++)
-		//	{
-		//		if (point == 0)
-		//			E(row, 0) = polygon.size() - 1;
-		//		else
-		//			E(row, 0) = point - 1;
-		//		E(row, 1) = point;
-
-		//	}
-		//}
-
-		////TODO fix this -- the average of a poly will not always be inside it
-
-		//for (size_t p = 1; p < polygon.size(); p++)
-		//{
-		//	glm::vec2 center = glm::vec2(0);
-		//	for (size_t point = 0; point < polygon[p].size(); point++)
-		//	{
-		//		center += polygon[p][point];
-		//	}
-		//	center /= polygon[p].size();
-
-		//	H(p - 1, 0) = center.x;
-		//	H(p - 1, 1) = center.y;
-		//}
-
-		//// Triangulated mesh
-		//Eigen::MatrixXd V2;
-		//Eigen::MatrixXi F2;
-
-		//igl::triangle::triangulate(V, E, H, "q0", V2, F2);
-
-		//auto m = new BinaryMeshSeirilizer::Mesh();
-
-		//makeMeshFromLibigl(*m, 0, V2, F2);
-
-		//return mesh;
+		return Box(min, max - min);
 	}
 
 	

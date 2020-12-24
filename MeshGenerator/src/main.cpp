@@ -13,7 +13,6 @@
 int main() {
 	shapeFileSystem = new ShapeFileSystem();
 
-	//Triangulation::triangulate({});
 
 	glm::dvec2 desired(40.610319941413, -74.039182662964);
 

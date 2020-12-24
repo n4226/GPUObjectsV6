@@ -51,24 +51,50 @@ void buildingCreator::addBuilding(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& os
 		return glm::dvec2(*element->lat, *element->lon);
 	});
 
-	// TODO: make this find min and max a function
-	glm::dvec2 min = glm::dvec2(90,180);
-	glm::dvec2 max = glm::dvec2(-90,-180);
+	auto bounds = meshAlgs::bounds(basePath);
 
-	for (auto& pos : basePath) {
-		if (pos.x < min.x)
-			min.x = pos.x;
-		if (pos.y < min.y)
-			min.y = pos.y;
+	glm::dvec2 min = bounds.start;
+	glm::dvec2 max = bounds.getEnd();
 
-		if (pos.x > max.x)
-			max.x = pos.x;
-		if (pos.y > max.y)
-			max.y = pos.y;
-	}
 
 	if (!frame.contains(min) && !frame.contains(max))
 		return;
+
+	// roof
+	// creates a po.ygon with one set of points, the base points dropping the last point since it is just the first point
+	std::vector<std::vector<glm::dvec2>> roofPoly = { std::vector<glm::dvec2>(basePath.begin(),std::prev(basePath.end())) };
+
+	auto [roofMesh, isCLockWise] = meshAlgs::triangulate(roofPoly);
+
+	//TODO --- deal with duplicate verticies her this is important
+
+	startVertOfset = mesh.verts.size();
+
+	for (size_t i = 0; i < roofMesh->verts.size(); i++)
+	{
+		auto posLatLon = roofMesh->verts[i];
+		auto posLLA = glm::dvec3(posLatLon.x, posLatLon.y, height);
+		auto pos1 = Math::LlatoGeo(posLLA, glm::dvec3(0), radius) - center_geo;
+		mesh.verts.push_back(pos1);
+
+		auto geo_unCentered = Math::LlatoGeo(posLLA, {}, radius);
+
+		auto normal = static_cast<glm::vec3>(glm::normalize(geo_unCentered));
+
+		mesh.normals.push_back(normal);
+
+		mesh.tangents.push_back(glm::vec3(0));
+		mesh.bitangents.push_back(glm::vec3(0));
+
+		auto uv = glm::vec2(((posLatLon - min) / (max - min)) * Math::llaDistance(min, max));
+	}
+
+	for (size_t i = 0; i < roofMesh->indicies[0].size(); i++)
+	{
+		mesh.indicies[mesh.indicies.size() - 1].push_back(roofMesh->indicies[0][i] + startVertOfset);
+	}
+
+
 
 	// walls 
 	for (size_t i = 0; i < (basePath.size() - 1); i++)
@@ -82,11 +108,14 @@ void buildingCreator::addBuilding(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& os
 		auto pos3 = Math::LlatoGeo(glm::dvec3(basePath[i], height), glm::dvec3(0), radius) - center_geo;
 		auto pos4 = Math::LlatoGeo(glm::dvec3(basePath[i + 1], height), glm::dvec3(0), radius) - center_geo;
 
-		
+
 
 		auto normal = glm::normalize(glm::cross(pos2 - pos3, pos2 - pos1));
-	
-		
+
+		if (isCLockWise) {
+			normal = -normal;
+		}
+
 		mesh.verts.push_back(glm::vec3(pos1));
 		mesh.verts.push_back(glm::vec3(pos2));
 		mesh.verts.push_back(glm::vec3(pos3));
@@ -108,57 +137,37 @@ void buildingCreator::addBuilding(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& os
 
 		// scalled uvs
 
-		mesh.uvs.push_back(glm::vec2(0,0));
-		mesh.uvs.push_back(glm::vec2(glm::distance(pos2,pos1),0));
-		mesh.uvs.push_back(glm::vec2(0,height));
-		mesh.uvs.push_back(glm::vec2(glm::distance(pos2, pos1),height));
+		mesh.uvs.push_back(glm::vec2(0, 0));
+		mesh.uvs.push_back(glm::vec2(glm::distance(pos2, pos1), 0));
+		mesh.uvs.push_back(glm::vec2(0, height));
+		mesh.uvs.push_back(glm::vec2(glm::distance(pos2, pos1), height));
 
 
 		//mesh.uvs.push_back(glm::vec2(0,0));
 		//mesh.uvs.push_back(glm::vec2(1,0));
 		//mesh.uvs.push_back(glm::vec2(0,1));
 		//mesh.uvs.push_back(glm::vec2(1,1));
-	
+
 		//TODO: later add wall inside detection
 
-		// wall side 1
-		mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 0);
-		mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 1);
-		mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 2);
-		mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 1);
-		mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 3);
-		mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 2);
-
-		// wall side 2
-		mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 2);
-		mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 1);
-		mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 0);
-		mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 2);
-		mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 3);
-		mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 1);
-	}
-
-	//return;
-
-	// roof
-	// creates a po.ygon with one set of points, the base points dropping the last point since it is just the first point
-	std::vector<std::vector<glm::dvec2>> roofPoly = { std::vector<glm::dvec2>(basePath.begin(),std::prev(basePath.end())) };
-
-	auto roofMesh = meshAlgs::triangulate(roofPoly);
-
-	//TODO --- deal with duplicate verticies her this is important
-
-	startVertOfset = mesh.verts.size();
-
-	for (size_t i = 0; i < roofMesh->verts.size(); i++)
-	{
-		auto pos1 = Math::LlatoGeo(glm::dvec3(roofMesh->verts[i].x,roofMesh->verts[i].y,height), glm::dvec3(0), radius) - center_geo;
-		mesh.verts.push_back(pos1);
-	}
-
-	for (size_t i = 0; i < roofMesh->indicies[0].size(); i++)
-	{
-		mesh.indicies[mesh.indicies.size() - 1].push_back(roofMesh->indicies[0][i] + startVertOfset);
+		if (!isCLockWise) {
+			// wall side 1
+			mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 0);
+			mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 1);
+			mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 2);
+			mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 1);
+			mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 3);
+			mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 2);
+		}
+		else {
+			// wall side 2
+			mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 2);
+			mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 1);
+			mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 0);
+			mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 2);
+			mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 3);
+			mesh.indicies[mesh.indicies.size() - 1].push_back(localOff + 1);
+		}
 	}
 
 }

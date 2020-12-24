@@ -4,6 +4,8 @@
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
 #include <ostream>
+#include <vector>
+
 
 struct Box
 {
@@ -16,6 +18,8 @@ struct Box
 	glm::dvec2 getCenter() const;
 
 	bool contains(glm::dvec2 point) const;
+	bool containsAny(std::vector<glm::dvec2>& points) const;
+	bool overlaps(Box other) const;
 	//bool contains(Box other);
 
 	std::string toString() const;

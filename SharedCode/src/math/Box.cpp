@@ -32,6 +32,34 @@ bool Box::contains(glm::dvec2 point) const
     return true;
 }
 
+bool Box::containsAny(std::vector<glm::dvec2>& points) const
+{
+    for (size_t i = 0; i < points.size(); i++)
+    {
+        if (contains(points[i])) 
+            return true;
+    }
+    return false;
+}
+
+bool Box::overlaps(Box other) const
+{
+    /*if (start.x >= other.getEnd().x || other.start.x >= getEnd().x) return false;
+
+    if (start.y <= other.getEnd().y || other.start.y <= getEnd().y) return false;
+
+    return true;*/
+
+    if (contains(other.start)) return true;
+    if (contains(other.getEnd())) return true;
+    //if (contains(other.start)) return true;
+   // if (contains(other.start)) return true;
+
+
+    return false;
+
+}
+
 
 //bool Box::contains(Box other)
 //{

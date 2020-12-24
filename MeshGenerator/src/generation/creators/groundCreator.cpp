@@ -2,9 +2,61 @@
 
 #include "math/Math.h"
 
+#include "../ShapeFileSystem.h"
+#include "math/meshAlgs/Triangulation.h"
+
+constexpr double radius = Math::dEarthRad;
+
 void groundCreator::createInto(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& osm, const Box& frame)
 {
     createChunkMesh(&mesh, frame);
+
+    const glm::dvec3 center_geo = Math::LlatoGeo(glm::dvec3(frame.getCenter(), 0), {}, radius);
+
+    for (size_t i = 0; i < shapeFileSystem->polygons.size(); i++)
+    {
+
+        auto bounds = shapeFileSystem->polygonBounds[i];//meshAlgs::bounds(poly.verts);
+        auto& poly = *shapeFileSystem->polygons[i];
+        
+
+        if (!frame.containsAny(poly.verts)) {
+            continue;
+        }
+
+            
+        auto startVertOfset = mesh.verts.size();
+
+        std::vector<std::vector<glm::dvec2>> polyVerts = { poly.verts };
+        auto roofMesh = meshAlgs::triangulate(polyVerts).first;
+
+
+        for (size_t i = 0; i < roofMesh->verts.size(); i++)
+        {
+            auto posLatLon = roofMesh->verts[i];
+            auto posLLA = glm::dvec3(posLatLon.x, posLatLon.y, 0);
+            auto pos1 = Math::LlatoGeo(posLLA, glm::dvec3(0), radius) - center_geo;
+            mesh.verts.push_back(pos1);
+
+            auto geo_unCentered = Math::LlatoGeo(posLLA, {}, radius);
+
+            auto normal = static_cast<glm::vec3>(glm::normalize(geo_unCentered));
+
+            mesh.normals.push_back(normal);
+
+            mesh.tangents.push_back(glm::vec3(0));
+            mesh.bitangents.push_back(glm::vec3(0));
+
+            auto uv = glm::vec2(((posLatLon - bounds.start) / (bounds.getEnd() - bounds.start)) * Math::llaDistance(bounds.start, bounds.getEnd()));
+        }
+
+        for (size_t i = 0; i < roofMesh->indicies[0].size(); i++)
+        {
+            mesh.indicies[mesh.indicies.size() - 1].push_back(roofMesh->indicies[0][i] + startVertOfset);
+        }
+
+    }
+
 }
 
 //TODO: right now this assumes it is the first creator to act on the mesh
@@ -13,7 +65,6 @@ void groundCreator::createChunkMesh(BinaryMeshSeirilizer::Mesh* mesh, const Box&
     mesh->indicies.push_back({});
     mesh->attributes->subMeshMats.push_back(0);
 
-    constexpr double radius = Math::dEarthRad;
 
     const glm::dvec3 center_geo = Math::LlatoGeo(glm::dvec3(frame.getCenter(), 0), {}, radius);
 
