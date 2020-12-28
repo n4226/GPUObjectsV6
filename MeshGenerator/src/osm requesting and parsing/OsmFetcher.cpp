@@ -7,6 +7,8 @@
 #include <codecvt>
 #include <fstream>
 
+#include <stdio.h>
+
 #include "../dependencies/httplib.h"
 #include "constants.h"
 
@@ -19,6 +21,9 @@ OsmFetcher::OsmFetcher()
 
 osm::osm OsmFetcher::fetchChunk(Box frame, bool onlyUseOSMCash)
 {
+    auto ticket = waitforServerQueue.take();
+
+
     auto file = cashDir + frame.toString() + ".osm";
 
     // check if in local cash if so return that
@@ -29,12 +34,17 @@ osm::osm OsmFetcher::fetchChunk(Box frame, bool onlyUseOSMCash)
         std::string str((std::istreambuf_iterator<char>(f)),
             std::istreambuf_iterator<char>());
         if (str.substr(0, 5) == "<?xml") {
+            remove(file.c_str());
             throw std::runtime_error("osm data not json");
         }
-        return osm::makeOSM(str);
+        return osm::    makeOSM(str);
     }
     else if (onlyUseOSMCash)
         throw std::runtime_error("not in osm cash");
+
+    ticket.wait();
+    defer(ticket.done());
+
     printf("fetching osm from server\n");
     //get from server 
 
@@ -70,6 +80,7 @@ osm::osm OsmFetcher::fetchChunk(Box frame, bool onlyUseOSMCash)
     printf("sleeping with json data\n");
 
     Sleep(8000);
+
 
     return parsedOsm;
 }

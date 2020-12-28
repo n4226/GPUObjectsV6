@@ -9,7 +9,7 @@ public:
 
 private:
 
-	std::map<Box*,osm::element*> buldingAABBS;
+	std::map<osm::element*, Box*> buldingAABBS;
 
 	void addBuilding(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& osm, osm::element& building, const Box& frame, int lod);
 

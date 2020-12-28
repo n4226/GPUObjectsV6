@@ -20,8 +20,8 @@ namespace osm {
 
 	osm makeOSM(std::string& str)
 	{
-		if (str == "") {
-			throw std::runtime_error("empty");
+		if (str == "" || str.substr(0, 5) == "<?xml") {
+			throw std::runtime_error("not json");
 		}
 		Document j;
 

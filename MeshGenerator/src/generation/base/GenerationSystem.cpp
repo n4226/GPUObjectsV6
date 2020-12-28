@@ -1,5 +1,10 @@
 #include "GenerationSystem.h"
 
+#include "marl/scheduler.h"
+#include "marl/task.h"
+#include "marl/waitgroup.h"
+#include "marl/defer.h"
+
 #include "rendering structures/BinaryMeshAttrributes.h"
 #include "../creators/buildingCreator.h"
 #include "../creators/groundCreator.h"
@@ -20,6 +25,7 @@
 
 
 
+
 const std::string outputDir = TERRAIN_DIR;//R"(./terrain/chunkMeshes/)";
 const std::string attrOutputDir = TERRAIN_ATTR_DIR;//R"(./terrain/chunkMeshes/)";
 
@@ -28,60 +34,81 @@ GenerationSystem::GenerationSystem(std::vector<Box>&& chunks)
     chunks(chunks), 
     creators({new groundCreator(),new buildingCreator()})
 {
-
 }
 
 void GenerationSystem::generate(int lod, bool onlyUseOSMCash)
 {
     auto startTime = std::chrono::high_resolution_clock::now();
     //for (Box& chunk : chunks) {
-    std::for_each(std::execution::par, chunks.begin(), chunks.end(), [this,onlyUseOSMCash,lod](Box& chunk) {
-        auto file = outputDir + chunk.toString() + ".bmesh";
-        auto attrFile = attrOutputDir + chunk.toString() + ".bmattr";
-        try {
 
-            if (std::filesystem::exists(file)) {
-                printf("skipping an already saved chunk chunk\n");
+    // Create a WaitGroup with an initial count of numTasks.
+    marl::WaitGroup finishedChunk(chunks.size());
+
+    //auto ticket = osmFetcher.waitforServerQueue.take();
+
+    for (size_t i = 0; i < chunks.size(); i++)
+    {
+        auto chunk = chunks[i];
+        marl::schedule([this, onlyUseOSMCash, lod, chunk,finishedChunk] {
+
+
+            //std::for_each(std::execution::par, chunks.begin(), chunks.end(), [this,onlyUseOSMCash,lod](Box& chunk) {
+
+            auto file = outputDir + chunk.toString() + ".bmesh";
+            auto attrFile = attrOutputDir + chunk.toString() + ".bmattr";
+            try {
+
+                if (std::filesystem::exists(file)) {
+                    printf("skipping an already saved chunk chunk\n");
+                    throw std::runtime_error("already made");
+                }
+
+                BinaryMeshAttrributes binaryAttributes{};
+                BinaryMeshSeirilizer::Mesh mesh;
+
+                mesh.attributes = &binaryAttributes;
+
+                printf("going to get Osm for a chunk\n");
+                osm::osm osmData = osmFetcher.fetchChunk(chunk, onlyUseOSMCash);
+
+
+                printf("Got Osm for a chunk\n");
+
+                for (icreator* creator : creators)
+                    creator->createInto(mesh, osmData, chunk, lod);
+
+
+                BinaryMeshSeirilizer binaryMesh(mesh);
+
+
+                // write to file
+                printf("writing to mesh file\n");
+                {
+
+                    std::ofstream out;
+                    out.open(file, std::fstream::out | std::fstream::binary);
+
+                    out.write(reinterpret_cast<char*>(binaryMesh.mesh), binaryMesh.meshLength);
+                    out.close();
+
+                    binaryAttributes.saveTo(attrFile);
+
+                    printf("wrote to mesh file\n");
+                }
+            }
+            catch (...) {
+                finishedChunk.done();
                 return;
             }
 
-            BinaryMeshAttrributes binaryAttributes{};
-            BinaryMeshSeirilizer::Mesh mesh;
+            finishedChunk.done();
 
-            mesh.attributes = &binaryAttributes;
+        });
 
-            printf("going to get Osm for a chunk\n");
-            osm::osm osmData = osmFetcher.fetchChunk(chunk,onlyUseOSMCash);
+    }
 
+    finishedChunk.wait();
 
-            printf("Got Osm for a chunk\n");
-
-            for (icreator* creator : creators)
-                creator->createInto(mesh, osmData, chunk, lod);
-
-
-            BinaryMeshSeirilizer binaryMesh(mesh);
-
-
-            // write to file
-            printf("writing to mesh file\n");
-            {
-
-                std::ofstream out;
-                out.open(file, std::fstream::out | std::fstream::binary);
-
-                out.write(reinterpret_cast<char*>(binaryMesh.mesh), binaryMesh.meshLength);
-                out.close();
-
-                binaryAttributes.saveTo(attrFile );
-
-                printf("wrote to mesh file\n");
-            }
-        }
-        catch (...) {
-            return;
-        }
-    });
     auto endTime = std::chrono::high_resolution_clock::now();
     auto time = std::chrono::duration<double>(endTime - startTime);
     printf("finished all chunks in %f seconds \n",time);

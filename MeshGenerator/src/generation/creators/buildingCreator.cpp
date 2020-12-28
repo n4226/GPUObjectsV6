@@ -12,21 +12,21 @@ void buildingCreator::createInto(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& osm
 	//TODO: somehow prevent each creator from ahving to loop through all the elements in the osm data after eachother by combining them into one 
 	// TODO remove duplicate pointes if they fall on a streight 2d line after being clipped to the chunk -> this could be for objecy such as buildings or more commanly to grounds of different surfaces eg ocean and land
 	//
-	//for (osm::element& element : osm.elements) {
-	//	if (element.type == osm::type::way && element.tags.count("building") > 0) {
-	//		auto nodes = osm.nodesIn(element);
+	for (osm::element& element : osm.elements) {
+		if (element.type == osm::type::way && element.tags.count("building") > 0) {
+			auto nodes = osm.nodesIn(element);
 
-	//		// first node IS duplicated - AT INDEX 0 AND INDEX SIZE - 1
-	//		std::vector<glm::dvec2> basePath(nodes.size());
+			// first node IS duplicated - AT INDEX 0 AND INDEX SIZE - 1
+			std::vector<glm::dvec2> basePath(nodes.size());
 
-	//		std::transform(nodes.begin(), nodes.end(), basePath.begin(), [&](osm::element* element) {
-	//			return glm::dvec2(*element->lat, *element->lon);
-	//		});
-	//		auto bounds = new Box();
-	//		*bounds = meshAlgs::bounds(basePath);
-	//		buldingAABBS.emplace(bounds, &element);
-	//	}
-	//}
+			std::transform(nodes.begin(), nodes.end(), basePath.begin(), [&](osm::element* element) {
+				return glm::dvec2(*element->lat, *element->lon);
+			});
+			auto bounds = new Box();
+			*bounds = meshAlgs::bounds(basePath);
+			buldingAABBS.emplace(&element, bounds);
+		}
+	}
 
 
 
@@ -90,26 +90,18 @@ void buildingCreator::addBuilding(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& os
 
 
 
-	for (osm::element& element : osm.elements) {
-		if (element.type == osm::type::way && element.tags.count("building") > 0) {
-			auto nodes = osm.nodesIn(element);
+	//for (osm::element& element : osm.elements) {
+	//	if (element.type == osm::type::way && element.tags.count("building") > 0) {
+	//		
+	//		if (buldingAABBS.count(&element) > 0) {
+	//			auto other_bounds = buldingAABBS.at(&element);
 
-			// first node IS duplicated - AT INDEX 0 AND INDEX SIZE - 1
-			std::vector<glm::dvec2> basePath(nodes.size());
-
-			std::transform(nodes.begin(), nodes.end(), basePath.begin(), [&](osm::element* element) {
-				return glm::dvec2(*element->lat, *element->lon);
-			});
-			auto other_bounds = new Box();
-			*other_bounds = meshAlgs::bounds(basePath);
-			//buldingAABBS.emplace(bounds, &element);
-
-			if (lod > 0 && (bounds.containsAny(other_bounds->polygon()) || other_bounds->containsAny(bounds.polygon()))) {
-				return;
-			}
-
-		}
-	}
+	//			if (lod > 0 && (bounds.containsAny(other_bounds->polygon()) || other_bounds->containsAny(bounds.polygon()))) {
+	//				return;
+	//			}
+	//		}
+	//	}
+	//}
 
 
 
