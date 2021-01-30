@@ -39,6 +39,168 @@
     <ClCompile Include="src\generation\ShapeFileSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\generation\creators\RoadCreator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\bench.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\comparison\libtess2\bucketalloc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\comparison\libtess2\dict.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\comparison\libtess2\geom.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\comparison\libtess2\mesh.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\comparison\libtess2\priorityq.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\comparison\libtess2\sweep.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\comparison\libtess2\tess.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\bad_diagonals.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\bad_hole.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\boxy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\building.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\collinear_diagonal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\degenerate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\dude.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\eberly_3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\eberly_6.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\empty_square.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\hilbert.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\hole_touching_outer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\hourglass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\issue107.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\issue111.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\issue119.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\issue131.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\issue16.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\issue17.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\issue29.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\issue34.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\issue35.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\issue45.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\issue52.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\issue83.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\outside_ring.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\rain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\self_touching.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\shared_points.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\simplified_us_border.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\steiner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\touching2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\touching3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\touching4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\touching_holes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\water.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\water2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\water3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\water3b.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\water4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\water_huge.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\fixtures\water_huge2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\tap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\earcut-hpp\test\viz.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\constants.h">
@@ -48,9 +210,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\osm requesting and parsing\osm.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dependencies\httplib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\generation\base\GenerationSystem.h">
@@ -66,6 +225,48 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\generation\ShapeFileSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\generation\creators\RoadCreator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dependencies\earcut-hpp\include\mapbox\earcut.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dependencies\earcut-hpp\test\comparison\earcut.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dependencies\earcut-hpp\test\comparison\libtess2\bucketalloc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dependencies\earcut-hpp\test\comparison\libtess2\dict.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dependencies\earcut-hpp\test\comparison\libtess2\geom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dependencies\earcut-hpp\test\comparison\libtess2\mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dependencies\earcut-hpp\test\comparison\libtess2\priorityq.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dependencies\earcut-hpp\test\comparison\libtess2\sweep.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dependencies\earcut-hpp\test\comparison\libtess2\tess.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dependencies\earcut-hpp\test\comparison\libtess2\tesselator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dependencies\earcut-hpp\test\comparison\libtess2.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dependencies\earcut-hpp\test\fixtures\geometries.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dependencies\earcut-hpp\test\tap.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -147,7 +147,19 @@ namespace osm {
 	void osm::createCacheStructure()
 	{
 		for (element& e : elements) {
-			elementMap[e.id] = &e;
+			switch (e.type)
+			{
+			case type::node:
+				node_elementMap[e.id] = &e;
+
+			case type::way:
+				way_elementMap[e.id] = &e;
+
+			case type::relation:
+				relation_elementMap[e.id] = &e;
+			default:
+				break;
+			}
 		}
 	}
 
@@ -159,7 +171,7 @@ namespace osm {
 		results.resize(e.nodes.size());
 
 		std::transform(e.nodes.begin(), e.nodes.end(), results.begin(), [&](int64_t id) {
-			auto result = elementMap.find(id)->second;
+			auto result = node_elementMap.find(id)->second;
 			return result;
 		});
 		return results;

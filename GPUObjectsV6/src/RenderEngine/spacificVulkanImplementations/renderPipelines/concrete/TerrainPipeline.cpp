@@ -274,11 +274,64 @@ void TerrainPipeline::createPipeline()
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
     pipelineInfo.basePipelineIndex = -1; // Optional
 
+    //MARK ---------------- NV_DEVICE_GENERATED_COMMANDS extension
+
+#if RenderMode == RenderModeGPU
+
+    VkGraphicsShaderGroupCreateInfoNV shaderaInfo{};
+
+    shaderaInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_SHADER_GROUP_CREATE_INFO_NV;
+
+    shaderaInfo.pNext = nullptr;
+
+    shaderaInfo.stageCount = 0;// shaderStages.size();
+    shaderaInfo.pStages = nullptr;//shaderStages.data();
+
+    shaderaInfo.pVertexInputState = &vertexInputInfo;
+    shaderaInfo.pTessellationState = nullptr;
+
+    vk::GraphicsPipelineShaderGroupsCreateInfoNV cp_nvCommandsInfo{};
+
+    VkGraphicsPipelineShaderGroupsCreateInfoNV nvCommandsInfo = cp_nvCommandsInfo;
+
+    //nvCommandsInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_SHADER_GROUPS_CREATE_INFO_NV;
+    nvCommandsInfo.pNext = nullptr;
+
+    nvCommandsInfo.groupCount = 1;
+    nvCommandsInfo.pGroups = &shaderaInfo;
+
+    nvCommandsInfo.pipelineCount = 0;
+    nvCommandsInfo.pPipelines = (VkPipeline*)&shaderaInfo;
+
+    pipelineInfo.pNext = &nvCommandsInfo;
+
+
+
+
+
+    // create the nv layout
+
+    {
+
+        vk::IndirectCommandsLayoutCreateInfoNV layoutInfo{};
+
+        layoutInfo.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+        layoutInfo.flags = {};
+
+
+
+    }
+
+#endif
+
     auto result = device.createGraphicsPipeline(vk::PipelineCache(nullptr), pipelineInfo, nullptr);
+    //VkPipeline* pipeline = nullptr;
+    //auto result = vkCreateGraphicsPipelines(device, nullptr, 1, &pipelineInfo, nullptr, pipeline);
 
     vkItem = result.value;
 
-    assert(result.result == vk::Result::eSuccess);
+    //assert(result.result == vk::Result::eSuccess);
+    //assert(result == VK_SUCCESS);
 
     // destroy transient objects 
 

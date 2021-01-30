@@ -32,8 +32,9 @@ void WindowManager::finishInit()
 
     renderPassManager = new RenderPassManager(device, albedoFormat, normalFormat, aoFormat, swapchainImageFormat, depthBufferFormat);
     pipelineCreator = new TerrainPipeline(device, swapchainExtent, *renderPassManager);
-
+    
     pipelineCreator->createPipeline();
+    gpuGenPipe = new GPUGenCommandsPipeline(app,device, *pipelineCreator);
     
     //TODO: find better way to abstract use of multiple windows with different shaders 
     // create deferred pipeline
@@ -68,6 +69,7 @@ void WindowManager::recreateSwapchain()
     pipelineCreator = new TerrainPipeline(device, swapchainExtent, *renderPassManager);
 
     pipelineCreator->createPipeline();
+    gpuGenPipe = new GPUGenCommandsPipeline(app, device, *pipelineCreator);
 
     deferredPass = new DeferredPass(device, swapchainExtent, *renderPassManager); 
 

@@ -61,7 +61,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)DEBUG;</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)SharedCode\src;$(SolutionDir)Dependencies\marl-main\marl-main\include;C:\VulkanSDK\1.2.154.1\Include;C:\code\binary libraries\glm-master;C:\code\binary libraries\glfw-3.3.2.bin.WIN64\include;$(SolutionDir)MeshGenerator\src\Dependencies;$(projectDir)src;$(SolutionDir)Dependencies\stb-master;C:\code\visual studio\GPUObjectsV6\Dependencies\mango-master\mango-master\include;C:\dev\libigl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)SharedCode\src;$(SolutionDir)Dependencies\marl-main\marl-main\include;C:\VulkanSDK\1.2.154.1\Include;C:\code\binary libraries\glm-master;C:\code\binary libraries\glfw-3.3.2.bin.WIN64\include;$(SolutionDir)MeshGenerator\Dependencies;$(projectDir)src;$(SolutionDir)Dependencies\stb-master;C:\code\visual studio\GPUObjectsV6\Dependencies\mango-master\mango-master\include;C:\dev\libigl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -109,6 +109,7 @@ XCOPY "$(ProjectDir)shaders" "$(TargetDir)\shaders\" /S /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\concrete\gpuDriven\GPUGenCommandsPipeline.cpp" />
     <ClCompile Include="src\RenderEngine\vulkanAbstractions\Sampler.cpp" />
     <ClCompile Include="src\RenderEngine\systems\renderSystems\MaterialManager.cpp" />
     <ClCompile Include="src\Application\ApplicationRendererBridge\Application.cpp" />
@@ -216,6 +217,7 @@ XCOPY "$(ProjectDir)shaders" "$(TargetDir)\shaders\" /S /Y</Command>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\RenderEngine\spacificVulkanImplementations\renderPipelines\concrete\gpuDriven\GPUGenCommandsPipeline.h" />
     <ClInclude Include="src\RenderEngine\vulkanAbstractions\Sampler.h" />
     <ClInclude Include="src\RenderEngine\systems\renderSystems\MaterialManager.h" />
     <ClInclude Include="src\Application\ApplicationRendererBridge\Application.h" />

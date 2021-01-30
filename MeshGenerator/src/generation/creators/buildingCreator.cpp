@@ -7,7 +7,7 @@
 void buildingCreator::createInto(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& osm, const Box& frame, int lod)
 {
 	mesh.indicies.push_back({});
-	mesh.attributes->subMeshMats.push_back(1);
+	mesh.attributes->subMeshMats.push_back(2);
 	
 	//TODO: somehow prevent each creator from ahving to loop through all the elements in the osm data after eachother by combining them into one 
 	// TODO remove duplicate pointes if they fall on a streight 2d line after being clipped to the chunk -> this could be for objecy such as buildings or more commanly to grounds of different surfaces eg ocean and land
@@ -147,7 +147,7 @@ void buildingCreator::addBuilding(BinaryMeshSeirilizer::Mesh& mesh, osm::osm& os
 	{
 		auto localOff = static_cast<uint32_t>(mesh.verts.size());
 
-		auto pos1 = Math::LlatoGeo(glm::dvec3(basePath[i], 0), glm::dvec3(0), radius) - center_geo;
+		auto pos1 = Math::LlatoGeo(glm::dvec3(basePath[i]    , 0), glm::dvec3(0), radius) - center_geo;
 		auto pos2 = Math::LlatoGeo(glm::dvec3(basePath[i + 1], 0), glm::dvec3(0), radius) - center_geo;
 
 

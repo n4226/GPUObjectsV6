@@ -9,6 +9,7 @@
 #include "../../RenderEngine/dataObjects/Camera.h"
 #include "../../RenderEngine/spacificVulkanImplementations/renderPipelines/concrete/TrianglePipeline.h"
 #include "../../RenderEngine/spacificVulkanImplementations/renderPipelines/concrete/TerrainPipeline.h"
+#include "../../RenderEngine/spacificVulkanImplementations/renderPipelines/concrete/gpuDriven/GPUGenCommandsPipeline.h"
 #include "../../RenderEngine/spacificVulkanImplementations/renderPipelines/GBufferComputePipeline.h"
 #include "../../environment.h"
 
@@ -33,6 +34,7 @@ public:
 
 	RenderPassManager* renderPassManager;
 	GraphicsPipeline* pipelineCreator;
+	GPUGenCommandsPipeline* gpuGenPipe;
 
 	//// window spacific - will keep here after refactor
 

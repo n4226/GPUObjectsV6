@@ -16,8 +16,8 @@ public:
 
 	// holding objects
 
-	WorldScene* worldScene;
-	marl::Scheduler* scheduler;
+		WorldScene* worldScene;
+		marl::Scheduler* scheduler;
 
 	// vulkan and render objects
 

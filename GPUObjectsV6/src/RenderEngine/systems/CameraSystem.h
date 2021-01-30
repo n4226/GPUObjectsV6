@@ -13,7 +13,7 @@ private:
 	void movePlayerAlongCamPath();
 
 
-	const double speed = 100; // in meters / second
+	const double speed = 300; // in meters / second
 
 	size_t currentSegment = 0;
 	double currentSegmentTime = 0;

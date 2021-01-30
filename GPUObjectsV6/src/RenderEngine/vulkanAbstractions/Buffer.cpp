@@ -137,6 +137,16 @@ void Buffer::gpuCopyToOther(Buffer& destination, vk::CommandBuffer& buffer)
 
 }
 
+VkDeviceAddress Buffer::getGPUAdress()
+{
+	
+	vk::BufferDeviceAddressInfo info{};
+
+	info.buffer = vkItem;
+
+	return device.getBufferAddress(info);
+}
+
 
 Buffer::~Buffer()
 {

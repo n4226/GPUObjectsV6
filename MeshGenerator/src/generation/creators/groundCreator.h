@@ -14,6 +14,6 @@ private:
 
 	void drawMultPolygonInChunk(std::vector<std::vector<glm::dvec2>>& polygon, BinaryMeshSeirilizer::Mesh& mesh, const Box& frame);
 
-	std::vector<std::vector<glm::dvec2>>* createLandPolygonChunkMesh(BinaryMeshSeirilizer::Mesh& mesh, const Box& frame);
+	std::vector<std::vector<glm::dvec2>>* createLandPolygonChunkMesh(BinaryMeshSeirilizer::Mesh& mesh, const Box& frame, bool draw);
 };
 

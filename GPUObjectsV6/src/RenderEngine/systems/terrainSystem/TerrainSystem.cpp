@@ -118,6 +118,22 @@ vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass, WindowManager& 
 	renderer->globalMeshBuffer->bindVerticiesIntoCommandBuffer(*buffer, 0);
 	renderer->globalMeshBuffer->bindIndiciesIntoCommandBuffer(*buffer);
 
+#if RenderMode == RenderModeGPU
+
+	// execute compute pass to genrerate commands 
+
+
+	// optinally olptimise commands 
+
+	auto optimized = VK_FALSE;
+
+
+
+	// execute those commands
+
+	//buffer->executeGeneratedCommandsNV(optimized, );
+#else
+
 	// encode draws
 	{
 
@@ -145,6 +161,9 @@ vk::CommandBuffer* TerrainSystem::renderSystem(uint32_t subpass, WindowManager& 
 			}
 		}
 	}
+
+#endif
+
 	buffer->end();
 
 	return buffer;

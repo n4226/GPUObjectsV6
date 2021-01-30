@@ -18,6 +18,7 @@
 #include <iostream>
 #include <limits>
 
+#include "earcut-hpp/include/mapbox/earcut.hpp"
 
 #include <CGAL/Boolean_set_operations_2.h>
 
@@ -230,6 +231,47 @@ namespace meshAlgs {
 
 		return { mesh, isCLock };
 
+	}
+
+	TriangulatedMesh* triangulateEarcut(std::vector<std::vector<glm::dvec2>>& polygon)
+	{
+		
+		// The number type to use for tessellation
+		using Coord = double;
+
+		// The index type. Defaults to uint32_t, but you can also pass uint16_t if you know that your
+		// data won't have more than 65536 vertices.
+		using N = uint32_t;
+
+		// Create array
+		using Point = std::array<Coord, 2>;
+
+		std::vector<std::vector<Point>> epolygon = {};
+		std::vector<Point> unstructuredPolygon = {};
+
+		for (auto& path : polygon) {
+			epolygon.push_back({});
+			for (auto& point : path) {
+				epolygon[epolygon.size() - 1].push_back({ point.x,point.y });
+				unstructuredPolygon.push_back({ point.x,point.y });
+			}
+		}
+
+		std::vector<N> indices = mapbox::earcut<N>(epolygon);
+
+		auto result = new TriangulatedMesh();
+
+		for (size_t i = 0; i < unstructuredPolygon.size(); i++)
+		{
+			result->verts.emplace_back(unstructuredPolygon[i][0], unstructuredPolygon[i][1]);
+		}
+
+		result->indicies.push_back({});
+		for (size_t i = 0; i < indices.size(); i++)
+		{
+			result->indicies[0].emplace_back(indices[i]);
+		}
+		return result;
 	}
 
 	std::vector<std::vector<glm::dvec2>>* intersectionOf(std::vector<glm::dvec2>& polygon1, std::vector<glm::dvec2>& polygon2)

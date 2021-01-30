@@ -235,7 +235,10 @@ int Application::createDevice(int window)
     desIndexingFeatures.runtimeDescriptorArray = VK_TRUE;
 
     // devie extensions
-    const std::vector<const char*> extensionNames = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+    const std::vector<const char*> extensionNames = {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+        VK_NV_DEVICE_GENERATED_COMMANDS_EXTENSION_NAME
+    };
     vk::DeviceCreateFlags flags();
 
     //vk::DeviceCreateInfo info(flags, 1, &queueCreateInfo, validationLayers.size(), validationLayers.data(), 1 ,extensionNames, &deviceFeatures);

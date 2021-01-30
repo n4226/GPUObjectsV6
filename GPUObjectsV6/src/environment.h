@@ -4,8 +4,8 @@
 
 
 #define RDK_PROFILING 0
-#define RDK_PROFILING_LITE 0
-#define RDK_VALIDATION 0
+#define RDK_PROFILING_LITE 1
+#define RDK_VALIDATION 1
 
 #if RDK_PROFILING
 #define PROFILE_SCOPE(name) InstrumentationTimer timer##__line__(name);
@@ -45,6 +45,7 @@
 #define RenderModeGPU  2
 
 #define RenderMode RenderModeCPU2
+//#define RenderMode RenderModeGPU
 
 
 

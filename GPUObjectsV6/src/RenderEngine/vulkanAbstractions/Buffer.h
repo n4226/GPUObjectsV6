@@ -67,7 +67,7 @@ public:
 
 	void gpuCopyToOther(Buffer& destination, vk::CommandBuffer& buffer);
 	
-
+	VkDeviceAddress getGPUAdress();
 
 private:
 	bool memoryMapped = false;

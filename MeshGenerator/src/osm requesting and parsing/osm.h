@@ -43,7 +43,9 @@ namespace osm {
 
         std::vector<element*> nodesIn(element e);
 
-        std::unordered_map<uint64_t, element*> elementMap;
+        std::unordered_map<uint64_t, element*> node_elementMap;
+        std::unordered_map<uint64_t, element*> way_elementMap;
+        std::unordered_map<uint64_t, element*> relation_elementMap;
     };
 
     osm makeOSM(std::string& str);

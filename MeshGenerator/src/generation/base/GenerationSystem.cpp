@@ -8,6 +8,7 @@
 #include "rendering structures/BinaryMeshAttrributes.h"
 #include "../creators/buildingCreator.h"
 #include "../creators/groundCreator.h"
+#include "../creators/RoadCreator.h"
 
 #include "math/meshAlgs/Triangulation.h"
 #include "math/meshAlgs/MeshRendering.h"
@@ -32,7 +33,11 @@ const std::string attrOutputDir = TERRAIN_ATTR_DIR;//R"(./terrain/chunkMeshes/)"
 GenerationSystem::GenerationSystem(std::vector<Box>&& chunks)
     : osmFetcher(),
     chunks(chunks), 
-    creators({new groundCreator(),new buildingCreator()})
+    creators({
+    new groundCreator(),
+    new buildingCreator(),
+    new RoadCreator(),
+    })
 {
 }
 

@@ -59,7 +59,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Qt\5.15.2\mingw81_64\include;$(SolutionDir)Dependencies/rapidjson-master/rapidjson-master/include;$(ProjectDir)\src\dependencies;C:\Program Files\OpenSSL-Win64\include;$(SolutionDir)SharedCode\src;C:\code\binary libraries\glm-master;$(SolutionDir)Dependencies\HTTPRequest-master\HTTPRequest-master\include;C:\dev\libigl\include;C:\dev\libigl\external\glad\include;$(SolutionDir)Dependencies\marl-main\marl-main\include;C:\code\visual studio\GPUObjectsV6\Dependencies\shapelib-master</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Qt\5.15.2\mingw81_64\include;$(SolutionDir)Dependencies/rapidjson-master/rapidjson-master/include;$(ProjectDir)\src\dependencies;C:\Program Files\OpenSSL-Win64\include;$(SolutionDir)SharedCode\src;C:\code\binary libraries\glm-master;$(SolutionDir)Dependencies\HTTPRequest-master\HTTPRequest-master\include;C:\dev\libigl\include;C:\dev\libigl\external\glad\include;$(SolutionDir)Dependencies\marl-main\marl-main\include;C:\code\visual studio\GPUObjectsV6\Dependencies\shapelib-master;$(ProjectDir)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -88,6 +88,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\generation\creators\RoadCreator.cpp" />
     <ClCompile Include="src\generation\ShapeFileSystem.cpp" />
     <ClCompile Include="src\generation\creator.cpp" />
     <ClCompile Include="src\generation\creators\buildingCreator.cpp" />
@@ -103,12 +104,25 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\dependencies\earcut-hpp\include\mapbox\earcut.hpp" />
+    <ClInclude Include="src\dependencies\earcut-hpp\test\comparison\earcut.hpp" />
+    <ClInclude Include="src\dependencies\earcut-hpp\test\comparison\libtess2.hpp" />
+    <ClInclude Include="src\dependencies\earcut-hpp\test\comparison\libtess2\bucketalloc.h" />
+    <ClInclude Include="src\dependencies\earcut-hpp\test\comparison\libtess2\dict.h" />
+    <ClInclude Include="src\dependencies\earcut-hpp\test\comparison\libtess2\geom.h" />
+    <ClInclude Include="src\dependencies\earcut-hpp\test\comparison\libtess2\mesh.h" />
+    <ClInclude Include="src\dependencies\earcut-hpp\test\comparison\libtess2\priorityq.h" />
+    <ClInclude Include="src\dependencies\earcut-hpp\test\comparison\libtess2\sweep.h" />
+    <ClInclude Include="src\dependencies\earcut-hpp\test\comparison\libtess2\tess.h" />
+    <ClInclude Include="src\dependencies\earcut-hpp\test\comparison\libtess2\tesselator.h" />
+    <ClInclude Include="src\dependencies\earcut-hpp\test\fixtures\geometries.hpp" />
+    <ClInclude Include="src\dependencies\earcut-hpp\test\tap.hpp" />
+    <ClInclude Include="src\generation\creators\RoadCreator.h" />
     <ClInclude Include="src\generation\ShapeFileSystem.h" />
     <ClInclude Include="src\generation\creator.h" />
     <ClInclude Include="src\generation\creators\buildingCreator.h" />
     <ClInclude Include="src\generation\creators\groundCreator.h" />
     <ClInclude Include="src\generation\base\GenerationSystem.h" />
-    <ClInclude Include="src\dependencies\httplib.h" />
     <ClInclude Include="src\osm requesting and parsing\osm.h" />
     <ClInclude Include="src\osm requesting and parsing\OsmFetcher.h" />
     <ClInclude Include="src\constants.h" />
