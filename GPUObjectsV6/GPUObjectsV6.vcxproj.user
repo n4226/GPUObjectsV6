@@ -8,11 +8,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <RemoteDebuggerServerName>MICHAELBAROFD84:4024</RemoteDebuggerServerName>
-    <RemoteDebuggerConnection>RemoteWithAuthentication</RemoteDebuggerConnection>
+    <RemoteDebuggerServerName>DESKTOP-9QH3URM:4024</RemoteDebuggerServerName>
+    <RemoteDebuggerConnection>RemoteWithoutAuthentication</RemoteDebuggerConnection>
     <RemoteDebuggerDebuggerType>NativeOnly</RemoteDebuggerDebuggerType>
-    <RemoteDebuggerCommand>$(ProjectDir)bin\Debug-x64\GPUObjectsV6\GPUObjectsV6.exe</RemoteDebuggerCommand>
-    <RemoteDebuggerWorkingDirectory>$(ProjectDir)bin\Debug-x64\GPUObjectsV6\</RemoteDebuggerWorkingDirectory>
-    <DeploymentDirectory>C:\remotetemp.</DeploymentDirectory>
+    <RemoteDebuggerCommand>C:\remotetemp\GPUObjectsV6.exe</RemoteDebuggerCommand>
+    <RemoteDebuggerWorkingDirectory>C:\remotetemp</RemoteDebuggerWorkingDirectory>
+    <DeploymentDirectory>C:\remotetemp</DeploymentDirectory>
+    <AdditionalFiles>
+    </AdditionalFiles>
   </PropertyGroup>
 </Project>

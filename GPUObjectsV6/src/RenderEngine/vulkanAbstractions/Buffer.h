@@ -22,6 +22,15 @@ struct BufferCreationOptions {
 	vk::BufferUsageFlags usage;
 	vk::SharingMode sharingMode;
 	std::vector<uint32_t> queueFamilieIndicies;
+	uint32_t memoryTypeBits = UINT32_MAX;
+};
+
+struct NativeBufferCreationOptions {
+	/*ResourceStorageType storage;
+	vk::BufferUsageFlags usage;
+	vk::SharingMode sharingMode;
+	std::vector<uint32_t> queueFamilieIndicies;*/
+	vk::MemoryRequirements2 memRequirments;
 };
 
 class Buffer
@@ -29,6 +38,7 @@ class Buffer
 public:
 	Buffer(const Buffer& othter) = delete;
 	Buffer(vk::Device device, VmaAllocator allocator,VkDeviceSize size, BufferCreationOptions options);
+	//Buffer(vk::Device device, NativeBufferCreationOptions options);
 
 	/// <summary>
 	/// a staging buffer is created, the thread is blocked while the data is sent to the actual gpu private buffer, than the new [gpu private buffer is returned.
@@ -42,6 +52,8 @@ public:
 	static Buffer* StageAndCreatePrivate(vk::Device device, vk::Queue& queue, vk::CommandPool commandPool, VmaAllocator allocator, VkDeviceSize size,const void* data, BufferCreationOptions options);
 
 	~Buffer();
+
+	bool native;
 
 	void mapMemory();
 	void unmapMemory();

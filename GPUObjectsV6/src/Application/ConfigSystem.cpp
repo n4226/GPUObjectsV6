@@ -65,7 +65,10 @@ void ConfigSystem::resetToDefault()
     config->windows[0].monitor = 0;
     config->windows[0].size = glm::ivec2(1920,1080);
 
-
+    config->cameras.resize(1);
+    config->cameras[0].offset = glm::vec3(0);
+    config->cameras[0].rotAngleDeg = 0;
+    config->cameras[0].rotAxis = glm::vec3(0);
 
 }
 

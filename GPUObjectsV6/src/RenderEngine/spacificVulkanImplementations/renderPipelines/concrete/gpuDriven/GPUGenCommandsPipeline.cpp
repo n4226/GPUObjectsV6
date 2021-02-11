@@ -113,8 +113,8 @@ GPUGenCommandsPipeline::GPUGenCommandsPipeline(Application& app, vk::Device devi
 		vkGetGeneratedCommandsMemoryRequirementsNV(device,&info,&result);
 
 		BufferCreationOptions options =
-		{ ResourceStorageType::gpu, { vk::BufferUsageFlagBits::eIndirectBuffer }, vk::SharingMode::eExclusive, {} };
-
+		{ ResourceStorageType::gpu, { vk::BufferUsageFlagBits::eIndirectBuffer }, vk::SharingMode::eExclusive, {}};
+		options.memoryTypeBits = result.memoryRequirements.memoryTypeBits;
 		commandsBuffer = new Buffer(device,app.allocators[0],result.memoryRequirements.size,options);
 
 	}

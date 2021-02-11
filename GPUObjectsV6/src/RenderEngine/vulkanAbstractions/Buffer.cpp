@@ -29,7 +29,7 @@ Buffer::Buffer(vk::Device device, VmaAllocator allocator, VkDeviceSize size, Buf
 	allocInfo.flags = 0;//VMA_ALLOCATION_CREATE_MAPPED_BIT;
 	allocInfo.preferredFlags = 0;
 	allocInfo.requiredFlags = 0;
-	allocInfo.memoryTypeBits = UINT32_MAX;
+	allocInfo.memoryTypeBits = options.memoryTypeBits;
 	allocInfo.pool = nullptr;
 	allocInfo.pUserData = nullptr;
 	allocInfo.usage = VmaMemoryUsage(options.storage);
@@ -45,9 +45,33 @@ Buffer::Buffer(vk::Device device, VmaAllocator allocator, VkDeviceSize size, Buf
 		allocInfo.memoryTypeBits = 1u << memoryTypeIndex;
 	}*/
 
+	native = false;
+
 	auto result = vmaCreateBuffer(allocator, &cCreateInfo, &allocInfo, &vkItem, &allocation, nullptr);
 	assert(result == VK_SUCCESS);
 }
+
+/*Buffer::Buffer(vk::Device device, NativeBufferCreationOptions options)
+{
+
+	native = true;
+
+
+
+}*/
+
+//uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+//	VkPhysicalDeviceMemoryProperties memProperties;
+//	vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+//
+//	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+//		if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+//			return i;
+//		}
+//	}
+//
+//	throw std::runtime_error("failed to find suitable memory type!");
+//}
 
 void Buffer::mapMemory()
 {

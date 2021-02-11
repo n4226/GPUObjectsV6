@@ -101,7 +101,7 @@ void TerrainPipeline::createPipeline()
     auto vertShaderCode = readFile("shaders/terrain.vert.spv");
     auto fragShaderCode = readFile("shaders/terrain.frag.spv");
 
-
+        
     std::vector<VkPipelineShaderStageCreateInfo> shaderStages = {
         GraphicsPipeline::createShaderStageInfo(device,vertShaderCode,vk::ShaderStageFlagBits::eVertex),
         GraphicsPipeline::createShaderStageInfo(device,fragShaderCode,vk::ShaderStageFlagBits::eFragment),
