@@ -59,14 +59,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Qt\5.15.2\mingw81_64\include;$(SolutionDir)Dependencies/rapidjson-master/rapidjson-master/include;$(ProjectDir)\src\dependencies;C:\Program Files\OpenSSL-Win64\include;$(SolutionDir)SharedCode\src;C:\code\binary libraries\glm-master;$(SolutionDir)Dependencies\HTTPRequest-master\HTTPRequest-master\include;C:\dev\libigl\include;C:\dev\libigl\external\glad\include;$(SolutionDir)Dependencies\marl-main\marl-main\include;C:\code\visual studio\GPUObjectsV6\Dependencies\shapelib-master;$(ProjectDir)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Qt\5.15.2\mingw81_64\include;$(SolutionDir)Dependencies/rapidjson-master/rapidjson-master/include;$(ProjectDir)\src\dependencies;C:\Program Files\OpenSSL-Win64\include;$(SolutionDir)SharedCode\src;C:\code\binary libraries\glm-master;$(SolutionDir)Dependencies\HTTPRequest-master\HTTPRequest-master\include;C:\dev\libigl\include;C:\dev\libigl\external\glad\include;$(SolutionDir)Dependencies\marl-main\marl-main\include;C:\code\visual_studio\GPUObjectsV6\Dependencies\shapelib-master;$(ProjectDir)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>C:\code\visual studio\GPUObjectsV6\Dependencies\projects\marl main 2\Debug\marl.lib;shp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\code\visual studio\GPUObjectsV6\Dependencies\shapelib-master\shapelib-master\dll\Debug\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>C:\code\visual_studio\GPUObjectsV6\Dependencies\projects\marl main 2\Debug\marl.lib;shp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\code\visual_studio\GPUObjectsV6\Dependencies\shapelib-master\shapelib-master\dll\Debug\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
